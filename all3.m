@@ -1,8 +1,11 @@
 function [data,labels_names, skelldef] = all3(allskel, simvar)
-[allskel] = conformactions(allskel, simvar.prefilter);
+[allskel] = conformactions(allskel, simvar.prefilter{:});
 for i= 1:length(allskel)
     allskel(i).indexact = i;
+    %%%
+    allskel(i) = affinerepair(allskel(i));
 end
+
 [data, labels_names] = extractdata(allskel, simvar.activity_type, simvar.labels_names,simvar.extract{:});
 if 0 %isfield(simvar, 'notzeroedaction')
     
@@ -15,6 +18,12 @@ if 0 %isfield(simvar, 'notzeroedaction')
     showdataset(a,simvar)
     disp('hello')
 else
-    [data, skelldef] = conformskel(data, simvar.preconditions{:});
+    %[data, skelldef] = conformskel(data, simvar.preconditions{:});
+    %no more conformskel!
+    %erm actually i need skelldef, so i will maybe run conformskel without
+    %parameters
+    
+    %[data, skelldef] = conformskel(data, simvar.preconditions{:});
+    [data, skelldef] = conformskel(data);
 end
 end

@@ -1,4 +1,4 @@
-function classifier_loop(simvar,params, env,varargin)
+function simvar = classifier_loop(simvar,params, env,varargin)
 global VERBOSE LOGIT TEST
 %% Begin loop
 for architectures = simvar.ARCH_VECT

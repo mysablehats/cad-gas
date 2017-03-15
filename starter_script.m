@@ -1,5 +1,6 @@
 function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
+TEST = 0;
 
 % Each trial is trained on freshly partitioned/ generated data, so that we
 % have an unbiased understanding of how the chained-gas is classifying.
@@ -27,14 +28,14 @@ if isempty(varargin)
     simvar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
     simvar.sampling_type = 'type1';
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
-    simvar.prefilter = 'none'; % 'filter', 'none', 'median?'
+    simvar.prefilter = {'filter',15}; % 'filter', 'none', 'median?'
     simvar.labels_names = []; % necessary so that same actions keep their order number
     simvar.TrainSubjectIndexes = 'all';%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
     simvar.ValSubjectIndexes = [];%[1,2,7];%% comment these out to have random new samples
     simvar.randSubjEachIteration = true;
     simvar.extract = {'rand', 'wantvelocity'};
-    simvar.preconditions = {'nohips','normal','mirrorx'};% {'nohips', 'norotatehips','mirrorx'}; %
-    simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',simvar.prefilter, [simvar.extract{:}],[simvar.preconditions{:}]);
+    simvar.preconditions = {'mirrorx'};% {'nohips', 'norotatehips','mirrorx'}; %
+    simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
     simvar.trialdatafile = strcat(env.wheretosavestuff,env.SLASH,simvar.trialdataname,'.mat');
 else
     simvar.featuresall = 3;%size(varargin{1},2);
@@ -57,11 +58,11 @@ end
 
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
-simvar.PARA = 0;
-simvar.P = 1;
-simvar.NODES_VECT = 600;
+simvar.PARA = 1;
+simvar.P = 4;
+simvar.NODES_VECT = [1000];
 simvar.MAX_EPOCHS_VECT = [10];
-simvar.ARCH_VECT = [5];
+simvar.ARCH_VECT = [11];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
@@ -104,4 +105,8 @@ params.alpha                    = .5;     % q and f units error reduction consta
 params.d                           = .99;   % Error reduction factor.
 
 
-classifier_loop(simvar, params, env)
+simvar = classifier_loop(simvar, params, env);
+for i = 1:size(simvar.metrics,1)
+    figure
+    plotconf(simvar.metrics(i,[2,4])) % replace 5 for : to get all the output
+end

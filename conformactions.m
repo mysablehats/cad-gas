@@ -1,16 +1,16 @@
-function [allskel] = conformactions(allskel, whichfilter)
+function [allskel] = conformactions(allskel, whichfilter,fsz)
 %%%disp('hello')
 %whichfilter = 'median';
 
 switch whichfilter
     case 'filter'
         %%% this filter is likely bad because it introduces phase shift!!
-        windowSize = 5;
+        windowSize = fsz;
         b = (1/windowSize)*ones(1,windowSize);
         a = 1;
         filterfun = @(x)filter(b,a,x);
     case 'median'
-        medianmedian = 5;
+        medianmedian = fsz;
         filterfun = @(x)medfilt1(x,medianmedian);
     case 'none'
         return
