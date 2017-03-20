@@ -16,9 +16,9 @@ allskel.vel = allskel.vel/meannorm;
 
 %now we can maybe check this against our sample skeleton
 aaa = load('C:\Users\Frederico\Dropbox\all.mat\skellstoplaywith.mat');%allskel.skel(:,:,1);
-longsamp = aaa.a(:,1)';
+longsamp = aaa.a(:,:,1);
 
-sampskel = reshape(longsamp,[],3);
+sampskel = reshape(longsamp,3,[]);
 
 for i = 1:NN
     %cov_ = allskel.skel(:,:,i).'*sampskel; %%maybe I will need to make it into a for

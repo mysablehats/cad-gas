@@ -59,9 +59,9 @@ end
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
 simvar.PARA = 1;
-simvar.P = 4;
-simvar.NODES_VECT = [1000];
-simvar.MAX_EPOCHS_VECT = [10];
+simvar.P = 2;
+simvar.NODES_VECT = [1200];
+simvar.MAX_EPOCHS_VECT = [20];
 simvar.ARCH_VECT = [11];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
@@ -108,5 +108,7 @@ params.d                           = .99;   % Error reduction factor.
 simvar = classifier_loop(simvar, params, env);
 for i = 1:size(simvar.metrics,1)
     figure
-    plotconf(simvar.metrics(i,[2,4])) % replace 5 for : to get all the output
+    %plotconf(simvar.metrics(i,[2,4])) % replace 5 for : to get all the output
+    plotconf(simvar.metrics(i,[5])) % replace 5 for : to get all the output
+
 end
