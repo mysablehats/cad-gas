@@ -58,11 +58,11 @@ end
 
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
-simvar.PARA = 1;
-simvar.P = 2;
-simvar.NODES_VECT = [1200];
-simvar.MAX_EPOCHS_VECT = [20];
-simvar.ARCH_VECT = [11];
+simvar.PARA = 0;
+simvar.P = 4;
+simvar.NODES_VECT = [1000];
+simvar.MAX_EPOCHS_VECT = [1];
+simvar.ARCH_VECT = [8];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
