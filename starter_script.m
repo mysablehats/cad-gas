@@ -30,7 +30,7 @@ if isempty(varargin)
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
     simvar.prefilter = {'filter',15}; % 'filter', 'none', 'median?'
     simvar.labels_names = []; % necessary so that same actions keep their order number
-    simvar.TrainSubjectIndexes = 'all';%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
+    simvar.TrainSubjectIndexes = 'loo';'all';%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
     simvar.ValSubjectIndexes = [];%[1,2,7];%% comment these out to have random new samples
     simvar.randSubjEachIteration = true;
     simvar.extract = {'rand', 'wantvelocity'};
@@ -58,10 +58,10 @@ end
 
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
-simvar.PARA = 0;
+simvar.PARA = 1;
 simvar.P = 4;
-simvar.NODES_VECT = [1000];
-simvar.MAX_EPOCHS_VECT = [1];
+simvar.NODES_VECT = [2000];
+simvar.MAX_EPOCHS_VECT = [10];
 simvar.ARCH_VECT = [8];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
@@ -73,7 +73,7 @@ params.MAX_EPOCHS = [];
 params.removepoints = true;
 params.PLOTIT = true;
 params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
-params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
+params.RANDOMSET = true; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
 params.savegas.resume = false; % do not set to true. not working
 params.savegas.save = false;
 params.savegas.path = env.wheretosavestuff;
@@ -109,6 +109,6 @@ simvar = classifier_loop(simvar, params, env);
 for i = 1:size(simvar.metrics,1)
     figure
     %plotconf(simvar.metrics(i,[2,4])) % replace 5 for : to get all the output
-    plotconf(simvar.metrics(i,[5])) % replace 5 for : to get all the output
+    plotconf(simvar.metrics(i,end)) % replace 5 for : to get all the output
 
 end
