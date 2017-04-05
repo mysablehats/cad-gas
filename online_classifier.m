@@ -6,7 +6,7 @@ LOGIT = false;
 
 %runs conformactions
 
-[datatest,~,~] = all3(allskel, simvar);
+[ss.test,~,~] = all3(allskel, simvar);
 %data.test = datatest; %matlab was complaining about this...
 
 % 
@@ -19,8 +19,9 @@ LOGIT = false;
 %loop from l.65 of starter_sc -> make it into a function???
 
 whatIlabel = 1:length(gas);
-[~, datatest] = sameclassfunc(gas, datatest, 'test', whatIlabel, arq_connect);
+[~, ss.test] = sameclassfunc(gas, ss.test, 'test', whatIlabel, arq_connect);
 
+distancegraph(ss.test.gas)
 % for j = 1:length(arq_connect)
 %     [~, data.test] = gas_method(data, data.test, 'vot', arq_connect(j),j,size(data.train.data,1));
 % end
@@ -37,11 +38,11 @@ if isfield(simvar,'labels_names')&&~isempty(simvar.labels_names)
     %size(simvar.labels_names)
     aoutout = cell(length(arq_connect));
     for i = 1:length(arq_connect)
-        if numskells > size(datatest.gas(i).class,2)
-            numskells = size(datatest.gas(i).class,2);
+        if numskells > size(ss.test.gas(i).class,2)
+            numskells = size(ss.test.gas(i).class,2);
             dbgmsg('Oveflow: Number of skeletons reduced to ', num2str(numskells),0)
         end
-        claas = sum(datatest.gas(i).class(:,1:numskells).*(1:size(datatest.gas(i).class,1)).');
+        claas = sum(ss.test.gas(i).class(:,1:numskells).*(1:size(ss.test.gas(i).class,1)).');
         [a, b ]= hist(claas, unique(claas));
         [~, ii] = sort(a,'descend');
         for j = ii

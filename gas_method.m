@@ -39,7 +39,7 @@ end
 % not be used... Still I will  not fix it unless I have to.
 %PRE MESSAGE
 dbgmsg('Finding best matching units for gas: ''',sstgasj.name,''' (', num2str(j),') for process:',num2str(labindex),0)
-[~, sstv.gas(j).bestmatchbyindex] = genbestmmatrix(sstgasj.nodes, sstv.gas(j).inputs.input, arq_connect.layertype, arq_connect.q); %assuming the best matching node always comes from initial dataset!
+[sstv.gas(j).distances, ~, sstv.gas(j).bestmatchbyindex] = genbestmmatrix(sstgasj.nodes, sstv.gas(j).inputs.input, arq_connect.layertype, arq_connect.q, arq_connect.params.distancetype); %assuming the best matching node always comes from initial dataset!
 
 %% Post-conditioning function
 %This will be the noise removing function. I want this to be optional or allow other things to be done to the data and I
@@ -52,16 +52,21 @@ else
     dbgmsg('Skipping removal of noisy input for gas:',sstgasj.name,0)
 end
 end
-function [ matmat, matmat_byindex] = genbestmmatrix(nodes, data, ~,~)
-if 1
-    [ matmat, matmat_byindex] = genbestmmatrix_Iconip(nodes, data, [],[]);
+function [ distances, matmat, matmat_byindex] = genbestmmatrix(nodes, data, ~,q, distancetype)
+if distancetype.noaffine
+    [ matmat, matmat_byindex, distances] = genbestmmatrix_Iconip(nodes, data, q, distancetype.metric);
 else
+    distances = [];
     [ matmat, matmat_byindex] = genbestmmatrix_new(nodes, data, [],[]);
 end
 end
-function [ matmat, matmat_byindex] = genbestmmatrix_Iconip(nodes, data, ~,~)
+function [ matmat, matmat_byindex, distances] = genbestmmatrix_Iconip(nodes, data,q, metric)
 
-[~,matmat_byindex] = pdist2(nodes',data','euclidean','Smallest',1);
+if strcmp(metric,'3dsum')
+    [distances ,matmat_byindex] = pdist2(nodes',data',@(x,y) tdsum(x,y,q(1)),'Smallest',1);
+else
+    [distances ,matmat_byindex] = pdist2(nodes',data',metric,'Smallest',1);
+end
 matmat = nodes(:,matmat_byindex);
 
 if 0

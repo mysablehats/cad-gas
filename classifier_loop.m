@@ -147,8 +147,12 @@ for architectures = simvar.ARCH_VECT
 %                     save(strcat(env.wheretosavestuff,env.SLASH,'cst.mat'),'simvar')
 %                     
                     savevar = strcat('b',num2str(simvar.NODES),'_', num2str(params.MAX_EPOCHS),'epochs',num2str(size(b,2)), simvar.sampling_type, simvar.datasettype, simvar.activity_type);
-                    eval(strcat(savevar,'=simvar;'))
-                    simvar.savesave = savefilesave(savevar, simvar,env);
+                    %eval(strcat(savevar,'=simvar;'))
+                    eval(strcat(savevar,'=b;'))
+                    for i = 1:length(b), distancegraph(b(i).ssvalgas),end %%%% shows me intersting possible thresholds i can use
+                    simvar.savesave = savefilesave(savevar, eval(savevar),env);
+                    %simvar.savesave = savefilesave(savevar,'b');
+
                     %             simvar.savesave = strcat(env.wheretosavestuff,env.SLASH,savevar,'.mat');
                     %             ver = 1;
                     %
@@ -263,16 +267,18 @@ if TEST
     
 else
     %[outstruct, a.mt, ~] = starter_sc(data, baq(pallconn));
-    [~, a.mt, gases] = starter_sc(data, baq(pallconn));
+    [ss, a.mt, gases] = starter_sc(data, baq(pallconn));
+    distancegraph(ss.val.gas)
     %%disp('hello')
     %%chunk = makechunk(data);
     %%load('chunk.mat');
     %    save('realclassifier.mat', 'outstruct', 'pallconn', 'simvar')
     simvar.env = env;
-    realclass.gases = gases;
-    realclass.allconn = baq(pallconn);
-    realclass.simvar = simvar;
-    save(savefilesave2('realclassifier', env),'realclass')    
+    a.ssvalgas = ss.val.gas;
+    a.gases = gases;
+    a.allconn = baq(pallconn);
+    a.simvar = simvar;
+    %save(savefilesave2('realclassifier', env),'realclass')    
     %[~, something_to_classify] = realvideo(realclass.outstruct, realclass.allconn, realclass.simvar,0);   
     % realvideo(outstruct, baq(pallconn), simvar);
 

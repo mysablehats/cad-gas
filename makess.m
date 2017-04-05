@@ -1,6 +1,6 @@
 function ss = makess(lenlen)
 inputs = struct('input_clip',[],'input',[],'input_ends',[],'oldwhotokill',struct([]), 'index', []);
-gas_data = struct('name','','class',[],'y',[],'inputs',inputs,'bestmatch',[],'bestmatchbyindex',[],'whotokill',struct([]));
+gas_data = struct('name','','class',[],'y',[],'inputs',inputs,'bestmatch',[],'bestmatchbyindex',[],'whotokill',struct([]), 'distances', []);
 %gas_methodss = struct;
 gas_methodss = struct('name','','edges',[],'nodes',[],'fig',[],'nodesl',[], 'method',[],'layertype',[],'outparams',[]); %bestmatch will have the training matrix for subsequent layers
 for i =1:lenlen

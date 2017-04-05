@@ -1,4 +1,4 @@
 function playchunk(chunk)
-myfig = figure;
+myfig = gcf;
 lines = skeldraw(chunk.skel);
-playaction(lines,myfig)
+playaction(lines,myfig,0.1)

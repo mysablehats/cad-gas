@@ -22,7 +22,7 @@ function varargout = gui_acquisition(varargin)
 
 % Edit the above text to modify the response to help gui_acquisition
 
-% Last Modified by GUIDE v2.5 16-Jan-2017 15:36:19
+% Last Modified by GUIDE v2.5 31-Mar-2017 11:07:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -242,6 +242,7 @@ if strcmp(get(handles.gui_acquisition,'SelectionType'),'open')
         handles.listbox2.String = {p.UserData.chunk.label};
     end
 end
+handles.lengthlength.String = num2str(p.UserData.chunk(index_selected).size);
 updatetext(p.UserData.chunk(index_selected))
 
 
@@ -331,8 +332,8 @@ if realtimevideo
 end
 
 %%% POOR HACK, SANITIZE THIS!
-env = aa_environment;
-classfdata = loadfileload('realclassifier',env);
+%env = aa_environment;
+%classfdata = loadfileload('realclassifier',env);
 
 
 
@@ -570,20 +571,33 @@ function gui_acquisition_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 function chunk = createchunk(hObject, handles, varargin)
-chunksize = str2num(handles.lengthlength.String);
-if isempty(varargin)
-    cellvarvar = inputdlg('New for the new action sequence:');
-    if ~isempty(cellvarvar)
-        chunk.label = cellvarvar{1};
-    else
-        chunk.label = '';
-    end
-else
-    chunk.label = varargin{1};
-end
-chunk.chunk = zeros(20,3,chunksize);
-chunk.timers = zeros(1,chunksize, 'uint64');
-chunk.times = zeros(1,chunksize);
+% chunksize = str2num(handles.lengthlength.String);
+% if isempty(varargin)
+%     cellvarvar = inputdlg('Label for the new action sequence:');
+%     if ~isempty(cellvarvar)
+%         chunk.label = cellvarvar{1};
+%     else
+%         chunk.label = '';
+%     end
+% else
+%     chunk.label = varargin{1};
+% end
+% description = [];
+% while(isempty(description))
+%     description = inputdlg('Description for sequence');
+% end
+
+%%%this should not be hard coded here, but it is... 
+labels = {'brushing teeth','cooking (chopping)'	,'cooking (stirring)'	,'drinking water','opening pill container'	,'random','relaxing on couch','rinsing mouth with water'	,'still'	,'talking on couch'	,'talking on the phone'	,'wearing contact lenses'	,'working on computer'	,'writing on whiteboard'};
+newchunk = new_chunk_gui(labels);
+chunk.size = newchunk.seqlen;
+
+chunk.label = newchunk.label;
+chunk.description = newchunk.description;
+
+chunk.chunk = zeros(20,3,chunk.size);
+chunk.timers = zeros(1,chunk.size, 'uint64');
+chunk.times = zeros(1,chunk.size);
 chunk.counter = 0;
 chunk.complete = 0;
 
@@ -592,6 +606,10 @@ p = ancestor(hObject,'figure');
 if ~isempty(p.UserData) %%% I do not know the creation order of objects, so if bootstrapping didnt occur, do it now
     handles.listbox2.String = {p.UserData.chunk.label};
 end
+%%% also should update gui
+handles.lengthlength.String = num2str(chunk.size);
+updatetext(chunk)
+
 
 
 % --- Executes on button press in pushbutton10.
@@ -600,12 +618,15 @@ function pushbutton10_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global VERBOSE
-VEBOSE = true;
-env = aa_environment;
-classfdata = loadfileload('realclassifier',env);
-realclass = classfdata.realclass;
-
+VERBOSE = true;
+%env = aa_environment;
+%classfdata = loadfileload('realclassifier',env);
 p = ancestor(hObject,'figure');
+
+while(~isfield(p.UserData, 'realclass'))
+loadmydataset(hObject)
+end
+realclass = p.UserData.realclass;
 
 % if ~p.UserData(end).chunk.complete
 %     %%set(p,'UserData(end)',new_chunk)
@@ -621,7 +642,10 @@ new_chunk = p.UserData.chunk(index_selected);
 
 if isfield(realclass, 'gases')
     allskel3 = generate_skel_online(new_chunk);
-    labellabel = online_classifier(realclass.gases,allskel3, realclass.allconn, realclass.simvar);
+    labellabel = '';
+    for i = 1:length(realclass)
+    labellabel = [ online_classifier(realclass(i).gases,allskel3, realclass(i).allconn, realclass(i).simvar) ' ' labellabel];
+    end
 else
     warning('Old file??')
     allskel3 = generate_skel_online(new_chunk);
@@ -667,9 +691,9 @@ function lengthlength_CreateFcn(hObject, eventdata, handles)
 
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
+% if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+%     set(hObject,'BackgroundColor','white');
+% end
 
 % --- Executes on button press in up_button.
 function up_button_Callback(hObject, eventdata, handles)
@@ -710,4 +734,101 @@ function cameraelevEd_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if 0%  ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in loadbutton.
+function loadbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to loadbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+loadmydataset(hObject)
+
+function loadmydataset(hObject)
+p = ancestor(hObject,'figure');
+loadfile = struct();
+while(~isfield(loadfile, 'savevar'))
+[FileName, PathName] = uigetfile('*.mat');
+completefilepath = [PathName FileName];
+loadfile = load(completefilepath); 
+end    
+p.UserData.realclass = loadfile.savevar;
+handleshandles = findobj('Tag','text9');
+handleshandles.String = ['Loaded file: ' completefilepath] ;
+
+% --- Executes on button press in pushbutton14.
+function pushbutton14_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton14 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+p = ancestor(hObject,'figure');
+if hObject.Value
+    % see from which chunk is selected
+    index_selected = get(handles.listbox2,'Value');
+    % p.UserData.chunk(index_selected) <then this has the current chunk
+    %but the name playchunk is misleading,,, it plays alskell type objects...
+    %so converting:
+    appropriate_skel = generate_skel_online(p.UserData.chunk(index_selected));
+    playchunk_(appropriate_skel)
+else
+    cla
+end
+function playchunk_(chunk)
+myfig = gcf;
+cla
+axis auto
+lines = skeldraw(chunk.skel);
+playaction_(lines,myfig,0.1)
+
+function playaction_(lines,myfig, pp)
+%myfig = figure;
+a = 10;
+b = 1;
+%lines = skeldraw(chunk.skel);
+
+maxsize = size(lines,1);
+ax = gca;
+% ax.XLimMode = 'manual';
+% ax.ZLimMode = 'manual';
+% ax.YLimMode = 'manual';
+
+xlim = ax.XLim;
+ylim = ax.YLim;
+zlim = ax.ZLim;
+
+correctax()
+
+for i = 1:maxsize
+    %lines(i).Color = [1 1 1];
+    lines(i).Visible = 'off';
+end
+
+ax.XLim = xlim;
+ax.YLim = ylim;
+ax.ZLim = zlim;
+
+drawnow
+
+handleshandles = findobj('Tag','pushbutton14');
+
+while(isvalid(myfig)&&handleshandles.Value)
+    if a*b>maxsize
+        b = 1;
+    end
+    for i = 1:maxsize
+        %lines(i).Color = [1 1 1];
+        lines(i).Visible = 'off';
+    end
+    for i = (1+ a*(b-1)):(a*b)
+        %lines(i).Color = [0 0 1];
+        lines(i).Visible = 'on';
+    end
+    
+    ax.XLim = xlim;
+    ax.YLim = ylim;
+    ax.ZLim = zlim;
+    
+    drawnow
+    pause(pp)
+    b=b+1;
 end

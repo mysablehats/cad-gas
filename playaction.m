@@ -1,4 +1,4 @@
-function playaction(lines,myfig)
+function playaction(lines,myfig, pp)
 %myfig = figure;
 a = 10;
 b = 1;
@@ -45,7 +45,7 @@ while(isvalid(myfig))
     ax.ZLim = zlim;
     
     drawnow
-    pause(0.5)
+    pause(pp)
     b=b+1;
 end
 end
