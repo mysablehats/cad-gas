@@ -644,7 +644,7 @@ if isfield(realclass, 'gases')
     allskel3 = generate_skel_online(new_chunk);
     labellabel = '';
     for i = 1:length(realclass)
-    labellabel = [ online_classifier(realclass(i).gases,allskel3, realclass(i).allconn, realclass(i).simvar) ' ' labellabel];
+    labellabel = cat(1, online_classifier(realclass(i).gases,allskel3, realclass(i).allconn, realclass(i).simvar), labellabel);
     end
 else
     warning('Old file??')

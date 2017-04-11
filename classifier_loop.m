@@ -148,8 +148,12 @@ for architectures = simvar.ARCH_VECT
 %                     
                     savevar = strcat('b',num2str(simvar.NODES),'_', num2str(params.MAX_EPOCHS),'epochs',num2str(size(b,2)), simvar.sampling_type, simvar.datasettype, simvar.activity_type);
                     %eval(strcat(savevar,'=simvar;'))
-                    eval(strcat(savevar,'=b;'))
-                    for i = 1:length(b), distancegraph(b(i).ssvalgas),end %%%% shows me intersting possible thresholds i can use
+                    eval(strcat(savevar,'=b;'))                 
+                    for i = 1:length(b)
+                        if isfield(b(i), 'ssvalgas')
+                            distancegraph(b(i).ssvalgas)
+                        end
+                    end %%%% shows me intersting possible thresholds i can use
                     simvar.savesave = savefilesave(savevar, eval(savevar),env);
                     %simvar.savesave = savefilesave(savevar,'b');
 
@@ -239,6 +243,10 @@ allconn_set = {...
     {'gwr4layer',   'gwr',{'gwr2layer'},              'vel',[3 2],params}...
     {'gwrSTSlayer', 'gwr',{'gwr3layer','gwr4layer'},  'all',[1 0],params}...
     }...
+    {... %%%% ARCHITECTURE 12
+    {'gwr1layer',   'gwr',{'pos'},                    'pos',[1 0],params}...
+    {'gwr2layer',   'gwr',{'gwr1layer'},              'pos',[9 0],params}...
+    }...
     };
 allconn = allconn_set{n};
 end
@@ -268,13 +276,18 @@ if TEST
 else
     %[outstruct, a.mt, ~] = starter_sc(data, baq(pallconn));
     [ss, a.mt, gases] = starter_sc(data, baq(pallconn));
-    distancegraph(ss.val.gas)
+    if isfield(ss, 'val')&&isfield(ss.val, 'gas')
+        distancegraph(ss.val.gas)
+    end
     %%disp('hello')
     %%chunk = makechunk(data);
     %%load('chunk.mat');
     %    save('realclassifier.mat', 'outstruct', 'pallconn', 'simvar')
     simvar.env = env;
-    a.ssvalgas = ss.val.gas;
+    if isfield(ss, 'val')&&isfield(ss.val, 'gas')
+        a.ssvalgas = ss.val.gas;
+    end  
+
     a.gases = gases;
     a.allconn = baq(pallconn);
     a.simvar = simvar;
