@@ -30,9 +30,9 @@ if isempty(varargin)
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
     simvar.prefilter = {'filter',15}; % 'filter', 'none', 'median?'
     simvar.labels_names = []; % necessary so that same actions keep their order number
-    simvar.TrainSubjectIndexes = 'all';%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
-    simvar.ValSubjectIndexes = [];%[1,2,7];%% comment these out to have random new samples
-    simvar.randSubjEachIteration = true;
+    simvar.TrainSubjectIndexes = [];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
+    simvar.ValSubjectIndexes = [1];%[1,2,7];%% comment these out to have random new samples
+    simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing 
     simvar.extract = {'rand', 'wantvelocity'};
     simvar.preconditions = {'mirrorx'};% {'nohips', 'norotatehips','mirrorx'}; %
     simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
@@ -60,9 +60,9 @@ end
 simvar.TEST = TEST; %change this in the beginning of the program
 simvar.PARA = 1;
 simvar.P = 4;
-simvar.NODES_VECT = [1000];
-simvar.MAX_EPOCHS_VECT = [10];
-simvar.ARCH_VECT = [12];
+simvar.NODES_VECT = [10 3];
+simvar.MAX_EPOCHS_VECT = [1];
+simvar.ARCH_VECT = [8];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
@@ -72,7 +72,7 @@ params.distancetype.noaffine = true; %if false will correct affine transformatio
 params.layertype = '';
 params.MAX_EPOCHS = [];
 params.removepoints = true;
-params.PLOTIT = true;
+params.PLOTIT = false;
 params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
 params.RANDOMSET = true; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
 params.savegas.resume = false; % do not set to true. not working
@@ -107,9 +107,13 @@ params.d                           = .99;   % Error reduction factor.
 
 
 simvar = classifier_loop(simvar, params, env);
-for i = 1:size(simvar.metrics,1)
-    figure
-    %plotconf(simvar.metrics(i,[2,4])) % replace 5 for : to get all the output
-    plotconf(simvar.metrics(i,end)) % replace 5 for : to get all the output
-
+if params.PLOTIT
+    for j = 1:size(simvar.trial,2)
+        for i = 1:size(simvar.trial(j).metrics,1)
+            figure
+            %plotconf(simvar.metrics(i,[2,4])) % replace 5 for : to get all the output
+            plotconf(simvar.trial(j).metrics(i,end)) % replace 5 for : to get all the output
+            
+        end
+    end
 end

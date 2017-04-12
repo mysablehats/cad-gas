@@ -1,37 +1,43 @@
 function simvar = classifier_loop(simvar,params, env,varargin)
 global VERBOSE LOGIT TEST
 %% Begin loop
+trialcount = 0;
 for architectures = simvar.ARCH_VECT
     for NODES = simvar.NODES_VECT
         for MAX_EPOCHS = simvar.MAX_EPOCHS_VECT
             for featuress = 1:simvar.featuresall
+                trialcount = trialcount +1;
                 if NODES ==100000 && (simvar.MAX_EPOCHS==1||simvar.MAX_EPOCHS==1)
                     dbgmsg('Did this already',1)
                     break
                 end
-                simvar.arch = architectures;
-                simvar.NODES =  NODES;
-                simvar.MAX_EPOCHS = MAX_EPOCHS;
-                
-                params.MAX_EPOCHS = simvar.MAX_EPOCHS;
-                params.nodes = simvar.NODES; %maximum number of nodes/neurons in the gas
+                simvar.trial(trialcount).arch = architectures;
+                simvar.trial(trialcount).NODES =  NODES;
+                simvar.trial(trialcount).MAX_EPOCHS = MAX_EPOCHS;
+                simvar.trial(trialcount).prefilter = simvar.prefilter;
+                simvar.trial(trialcount).extract = simvar.extract;
+                simvar.trial(trialcount).activity_type = simvar.activity_type;
+                simvar.trial(trialcount).labels_names = simvar.labels_names;
+                simvar.trial(trialcount).generatenewdataset = simvar.generatenewdataset;
+                params.MAX_EPOCHS = simvar.trial(trialcount).MAX_EPOCHS;
+                params.nodes = simvar.trial(trialcount).NODES; %maximum number of nodes/neurons in the gas
                 
                  %% Classifier structure definitions
                 
-                simvar.allconn = allconnset(simvar.arch, params);
+                simvar.trial(trialcount).allconn = allconnset(simvar.trial(trialcount).arch, params);
                 
                 
                 %% Loading data
-                data =  makess(length(baq(simvar.allconn))); % this breaks exectution core changes... 
+                data =  makess(length(baq(simvar.trial(trialcount).allconn))); % this breaks exectution core changes... 
                 if ~strcmp(simvar.datasettype,'Ext!')
                     datasetmissing = false;
-                    if ~exist(simvar.trialdatafile, 'file')&&~simvar.generatenewdataset
+                    if ~exist(simvar.trialdatafile, 'file')&&~simvar.trial(trialcount).generatenewdataset
                         dbgmsg('There is no data on the specified location. Will generate new dataset.',1)
                         datasetmissing = true;
                     end
-                    if simvar.generatenewdataset||datasetmissing
-                        [allskel1, allskel2, simvar.TrainSubjectIndexes, simvar.ValSubjectIndexes] = generate_skel_data(simvar.datasettype, simvar.sampling_type, simvar.TrainSubjectIndexes, simvar.ValSubjectIndexes, simvar.randSubjEachIteration);
-                        [data.train,simvar.labels_names, params.skelldef] = all3(allskel1, simvar);
+                    if simvar.trial(trialcount).generatenewdataset||datasetmissing
+                        [allskel1, allskel2, simvar.trial(trialcount).TrainSubjectIndexes, simvar.trial(trialcount).ValSubjectIndexes] = generate_skel_data(simvar.datasettype, simvar.sampling_type, simvar.TrainSubjectIndexes, simvar.ValSubjectIndexes, simvar.randSubjEachIteration);
+                        [data.train,simvar.trial(trialcount).labels_names, params.skelldef] = all3(allskel1, simvar.trial(trialcount));
                         %                         [allskel1] = conformactions(allskel1, simvar.prefilter);
                         %                         [data.train, simvar.labels_names] = extractdata(allskel1, simvar.activity_type, simvar.labels_names,simvar.extract{:});
                         %                         [data.train, params.skelldef] = conformskel(data.train, simvar.preconditions{:});
@@ -48,12 +54,12 @@ for architectures = simvar.ARCH_VECT
                         %showdataset(data,simvar)
                         %%%%
                         %%%%
-                        [data.val,simvar.labels_names, ~] = all3(allskel2, simvar);
+                        [data.val,simvar.trial(trialcount).labels_names, ~] = all3(allskel2, simvar.trial(trialcount));
                         %                         [allskel2] = conformactions(allskel2, simvar.prefilter);
                         %                         [data.val, simvar.labels_names] = extractdata(allskel2, simvar.activity_type, simvar.labels_names,simvar.extract{:});
                         %                         [data.val, ~                ] = conformskel(data.val,   simvar.preconditions{:});
 
-                        simvar.trialdatafile = savefilesave(simvar.trialdataname, {data, simvar,params},env);
+                        simvar.trial(trialcount).trialdatafile = savefilesave(simvar.trialdataname, {data, simvar.trial(trialcount),params},env);
                         %save(simvar.trialdataname,'data', 'simvar','params');
                         dbgmsg('Training and Validation data saved.')
                         clear datasetmissing
@@ -61,14 +67,14 @@ for architectures = simvar.ARCH_VECT
                         loadedtrial = loadfileload(simvar.trialdataname,env);
                         data = loadedtrial.data;
                         params.skelldef = loadedtrial.params.skelldef;
-                        simvar.generatenewdataset = false;
+                        simvar.trial(trialcount).generatenewdataset = false;
                     end
-                    simvar.datainputvectorsize = size(data.train.data,1);
+                    simvar.trial(trialcount).datainputvectorsize = size(data.train.data,1);
                 else
                     data = varargin{1};
                     data = data(featuress);                    
                     simvar.datainputvectorsize = size(data.inputs,2);
-                    params.skelldef = struct('length', simvar.datainputvectorsize, 'notskeleton', true, 'awk', struct('pos', [],'vel',[]), 'pos', simvar.datainputvectorsize, 'vel', []);
+                    params.skelldef = struct('length', simvar.trial(trialcount).datainputvectorsize, 'notskeleton', true, 'awk', struct('pos', [],'vel',[]), 'pos', simvar.trial(trialcount).datainputvectorsize, 'vel', []);
                     data.train.data = data.inputs'; % not empty so that the algorithm doesnt complain
                     data.train.y = data.labelsM;
                     data.train.ends = ones(1,size(data.inputs,1));
@@ -78,7 +84,7 @@ for architectures = simvar.ARCH_VECT
                 end
                 %% Classifier structure definitions
                 
-                simvar.allconn = allconnset(simvar.arch, params);
+                simvar.trial(trialcount).allconn = allconnset(simvar.trial(trialcount).arch, params);
             
   %%%%%does this look like good programming?           
                 
@@ -88,7 +94,7 @@ for architectures = simvar.ARCH_VECT
                 % use a for to put the same parameters for each.
                 a = struct([]);
                 for i = 1:simvar.P
-                    simvar.paramsZ(i) = params;
+                    simvar.trial(trialcount).paramsZ(i) = params;
                     a(i).a = struct([]);
                 end
                 
@@ -103,7 +109,7 @@ for architectures = simvar.ARCH_VECT
                         end
                         if simvar.PARA
                             spmd(simvar.P)
-                                a(labindex).a = executioncore_in_starterscript(simvar,labindex, data,env);
+                                a(labindex).a = executioncore_in_starterscript(simvar.trial(trialcount),labindex, data,env);
                             end
                             %b = cat(2,b,a.a);
                             for i=1:length(a)
@@ -115,7 +121,7 @@ for architectures = simvar.ARCH_VECT
                             a(1:simvar.P) = struct();
                         else
                             for i = 1:simvar.P
-                                a(i).a = executioncore_in_starterscript(simvar,i, data,env);
+                                a(i).a = executioncore_in_starterscript(simvar.trial(trialcount),i, data,env);
                             end
                             b = cat(2,b,a.a);
                             clear a
@@ -123,10 +129,10 @@ for architectures = simvar.ARCH_VECT
                         end
                     end
                 else
-                    b = executioncore_in_starterscript(simvar,1, data,env);
+                    b = executioncore_in_starterscript(simvar.trial(trialcount),1, data,env);
                 end
                 
-                simvar.metrics = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
+                simvar.trial(trialcount).metrics = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
                 if isempty(varargin)
                     
                     %%%
@@ -146,12 +152,14 @@ for architectures = simvar.ARCH_VECT
 %                     
 %                     save(strcat(env.wheretosavestuff,env.SLASH,'cst.mat'),'simvar')
 %                     
-                    savevar = strcat('b',num2str(simvar.NODES),'_', num2str(params.MAX_EPOCHS),'epochs',num2str(size(b,2)), simvar.sampling_type, simvar.datasettype, simvar.activity_type);
+                    savevar = strcat('b',num2str(simvar.trial(trialcount).NODES),'_', num2str(params.MAX_EPOCHS),'epochs',num2str(size(b,2)), simvar.sampling_type, simvar.datasettype, simvar.activity_type);
                     %eval(strcat(savevar,'=simvar;'))
                     eval(strcat(savevar,'=b;'))                 
                     for i = 1:length(b)
-                        if isfield(b(i), 'ssvalgas')
-                            distancegraph(b(i).ssvalgas)
+                        if isfield(b(i), 'ssvalgas')                          
+                            if b(i).simvar.paramsZ(1).PLOTIT %%% if you ever want to have custom display, this will crash
+                                distancegraph(b(i).ssvalgas)
+                            end
                         end
                     end %%%% shows me intersting possible thresholds i can use
                     simvar.savesave = savefilesave(savevar, eval(savevar),env);

@@ -28,15 +28,6 @@ end
 loo = 0;
 partition = 0.8;
 
-if ~ischar(allskeli1) && (isempty(allskeli1)||isempty(allskeli2)||varargin{5})
-    %%% maybe it would make sense here to just generate the complementary
-    %%% group with setdiff, but I decided for: if any subject definition is
-    %%% empty, or simvar(end).randSubjEachIteration is true, then generate
-    %%% new sample.
-    clear allskeli1
-    clear allskeli2
-end
-
 switch dataset
     case 'CAD60'
         loadfun = @readcad60;
@@ -54,6 +45,12 @@ switch dataset
     otherwise
         error('Unknown database.')
 end
+
+if varargin{5} %If simvar(end).randSubjEachIteration is true, then generate a new sample.
+    clear allskeli1
+    clear allskeli2
+end
+
 
 %%%% TODO: this message is wrong. FIX THIS!
 %%%%%%%%Messages part: provides feedback for the user
@@ -114,7 +111,19 @@ end
 if strcmp(sampling_type,'type1')
     allskel = loadfun(1:datasize); %main data
     allset = length(allskel);
-    %%%%
+    %%%%    
+    if ~ischar(allskeli1) && (isempty(allskeli1)||isempty(allskeli2))
+        if isempty(allskeli1)&& ~isempty(allskeli2)
+            %%% so we know who we want to choose for validation,,, the training
+            %%% set will be everything else
+            allskeli1 = setdiff(1:allset, allskeli2);
+        elseif ~isempty(allskeli1)&& isempty(allskeli2)
+            allskeli2 = setdiff(1:allset, allskeli1);
+        else
+            error('Both validation and training sets cannot be defined as empty.')
+        end        
+    end
+    
     switch loo
         case 1
             allskelimembers = allset - 1;
@@ -135,9 +144,9 @@ if strcmp(sampling_type,'type1')
     
     %%% I will change this bit. In the past allskel2 was whatever you
     %%% defined it to be, now it will be the complementary set to allskel1
-    %if ~exist('allskeli2','var')
-    allskeli2 = setdiff(1:length(allskel),allskeli1); % use the remaining data as validation set
-    %end
+    if ~exist('allskeli2','var')
+        allskeli2 = setdiff(1:length(allskel),allskeli1); % use the remaining data as validation set
+    end
     allskel2 = allskel(allskeli2);
 end
 
