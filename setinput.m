@@ -41,7 +41,11 @@ for j = 1:length(arq_connect.sourcelayer)
             %            [inputinput{j},inputends,y] = longinput( svst_t_v.gas(i).bestmatch, arq_connect.q, svst_t_v.gas(i).inputs.input_ends, svst_t_v.gas(i).y);
             
             %inputinput{j} = longinput(savestruc.gas(i).bestmatch; %
-            removeremove = structcat(svst_t_v.gas(i).whotokill, removeremove);
+            if isfield(svst_t_v.gas(i), 'whotokill')
+                removeremove = structcat(svst_t_v.gas(i).whotokill, removeremove);
+            else
+                removeremove = struct();
+            end
             %%% this part will construct my newly created awk vector out of
             %%% initial awk vectors
             awk{j} = makeawk(arq_connect.q, svst_t_v.gas(i).inputs.awk);
