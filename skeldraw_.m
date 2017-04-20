@@ -1,58 +1,7 @@
-function [A,plotexs] = skeldraw_(skel,doIdraw)
-%makes a beautiful skeleton of the 75 dimension vector
-%or the 25x3 skeleton
-% plot the nodes
-%reconstruct the nodes from the 75 dimension vector. each 3 is a point
-%I use the NaN interpolation to draw sticks which is much faster!
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%MESSAGES PART
-%dbgmsg('This function is very often called in drawing functions and this message will cause serious slowdown.',1)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [A] = skeldraw_(skel,doIdraw)
 
-%checks if skeleton is 72x1 which is a hip-less skeleton
-if all(size(skel) == [72 1])
-    tdskel = zeros(24,3);
-    for i=1:3
-        for j=1:24
-            tdskel(j,i) = skel(j+24*(i-1));
-        end
-    end
-    tdskel = [[0 0 0 ]; tdskel];
-    if all(size(tdskel) ~= [25 3])
-        error('wrong skeleton building procedure!')
-    end
-elseif all(size(skel) == [75 1]) % checks if the skeleton is a 75x1
-    tdskel = zeros(25,3);
-    for i=1:3
-        for j=1:25
-            tdskel(j,i) = skel(j+25*(i-1));
-        end
-    end
-else
-        tdskel = skel;
-end
-if size(tdskel,1)==25
-    A = stick_draw(tdskel);
-elseif size(tdskel,1)==20
-    A = other_stick_draw(tdskel);
-else
-    error('wrong size??')
-end
+    A = other_stick_draw(skel);
 
-if doIdraw ==true 
-    hold_initialstate = ishold();
-    plot3(tdskel(:,1), tdskel(:,2), tdskel(:,3),'.y','markersize',15); view(0,0); axis equal;
-    hold on
-    for k=1:size(tdskel,1) % I used this to make the drawings, but now I think it looks cool and I don't want to remove it
-        text(tdskel(k,1), tdskel(k,2), tdskel(k,3),num2str(k))
-    end
-    plotexs = plot3(A(1,:),A(2,:), A(3,:));
-    hold off
-    if hold_initialstate == 1
-        hold on
-    end
-   
-end
 end
 
 function a = stick_draw(tdskel)
@@ -145,5 +94,5 @@ a = draw_1_stick(tdskel, 1,2);
 a= [a draw_1_stick(tdskel, 2,3)];
 end
 function A = draw_1_stick(tdskel, i,j)
-A = [[tdskel(i,1) tdskel(j,1) NaN]; [tdskel(i,2) tdskel(j,2) NaN]; [tdskel(i,3) tdskel(j,3) NaN]];
+A = [[tdskel(i,1) tdskel(j,1) NaN]; [tdskel(i,2) tdskel(j,2) NaN]];% [tdskel(i,3) tdskel(j,3) NaN]];
 end

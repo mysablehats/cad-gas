@@ -22,7 +22,7 @@ function varargout = gui_acquisition(varargin)
 
 % Edit the above text to modify the response to help gui_acquisition
 
-% Last Modified by GUIDE v2.5 31-Mar-2017 11:07:24
+% Last Modified by GUIDE v2.5 20-Apr-2017 23:24:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -72,7 +72,7 @@ try
 catch    
     chunk = createchunk(hObject, handles, '');
 end
-
+p.UserData.fpt = str2double(handles.edit6.String);
 p.UserData.chunk = chunk; %set(p,'UserData',chunk)
 
 handles.listbox2.String = {p.UserData.chunk.label};
@@ -113,7 +113,12 @@ clear vid
 
 function gui_acquisition_DeleteFcn(hObject, eventdata, handles, varargin)
 evalin('base', 'clear record');
-
+%stops kinect
+vid = imaqfind; %in case i am already aquiring
+if ~isempty(vid)
+    stop(vid)
+    delete(vid)
+end
 % --- Executes when user attempts to close gui_acquisition.
 function gui_acquisition_CloseRequestFcn(hObject, eventdata, handles)
 % hObject    handle to gui_acquisition (see GCBO)
@@ -121,6 +126,8 @@ function gui_acquisition_CloseRequestFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: delete(hObject) closes the figure
+
+
 delete(hObject);
 
 
@@ -130,15 +137,19 @@ function acquirebutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-ax = gca;
+ax = handles.axes1;
+ax(2) = handles.axes2;
 % Update handles structure
 guidata(hObject, handles);
 
-% Set-up webcam video input
-[vid, src] = startkinect();
 
 %getting parent object to store src obj
 p = ancestor(hObject,'figure');
+
+% Set-up webcam video input
+[depthVid, colorVid, src] = startkinect(p.UserData.fpt);
+
+
 p.UserData.src = src;
 
 
@@ -146,7 +157,7 @@ p.UserData.src = src;
 %function acquirekinect(ax,vid )
 %disp()
 setbuttons(handles,'on')
-new_chunk = realvideo(hObject, handles, ax, vid, 0);
+new_chunk = realvideo(hObject, handles, ax, depthVid, colorVid, 0, p.UserData.fpt);
 setbuttons(handles,'off')
 
 % --- Executes on button press in togglebutton1.
@@ -282,7 +293,7 @@ function togglebutton1_KeyPressFcn(hObject, eventdata, handles)
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
 
-function [chunk] = realvideo(hObject, handles, ax, vid, realtimevideo)
+function [chunk] = realvideo(hObject, handles, ax, depthVid, colorVid, realtimevideo, fpt)
 global VERBOSE
 VERBOSE = false;
 
@@ -315,15 +326,15 @@ chunk = p.UserData.chunk(index_selected);
 %
 if realtimevideo
     % set up timer object
-    TimerData=timer('TimerFcn', {@FrameRateDisplay, hObject, handles ,ax, vid, chunk},'Period',1/NumberFrameDisplayPerSecond,'ExecutionMode','fixedRate','BusyMode','drop');
+    TimerData=timer('TimerFcn', {@FrameRateDisplay, hObject, handles ,ax, [depthVid colorVid], chunk, fpt},'Period',1/NumberFrameDisplayPerSecond,'ExecutionMode','fixedRate','BusyMode','drop');
 end
 
 % Start video and timer object
 try %maybe I have already started vid... or failed to stop it?
-    start(vid);
+    start([depthVid colorVid]);
 catch
-    stop(vid);
-    start(vid);
+    stop([depthVid colorVid]);
+    start([depthVid colorVid]);
 end
 
 if realtimevideo
@@ -361,9 +372,9 @@ if 1
                 %end
                 assignin('base', 'chunk', p.UserData.chunk)
                 record.done = 1;
-                chunk = FrameRateDisplay([], [],hObject, handles ,ax, vid, chunk,1); %%% resets persistent_chunk
+                chunk = FrameRateDisplay([], [],hObject, handles ,ax, [depthVid colorVid], chunk,1, fpt); %%% resets persistent_chunk
             else
-                chunk = FrameRateDisplay([], [],hObject, handles, ax, vid, chunk,0);
+                chunk = FrameRateDisplay([], [],hObject, handles, ax, [depthVid colorVid], chunk,0, fpt);
                 %%%
                 %maybe classify it as well?
                 if 0% chunk.times(1)~=0 %this means that there is at least one skeleton. 
@@ -393,9 +404,9 @@ if 1
         %            assignin('base', 'labels', labellabel)
         
         
-        stop(vid);
+        stop([depthVid colorVid]);
         pause(1)
-        delete(vid);
+        delete([depthVid colorVid]);
         % clear persistent variables
         clear functions;
         %clear
@@ -405,9 +416,10 @@ end
 % This function is called by the timer to display one frame of the figure
 
 
-function chunk = FrameRateDisplay(obj, event,hObject, handles,ax, vid, chunk, clearchunk)
-persistent IM; % im not sure this is necessary
+function chunk = FrameRateDisplay(obj, event,hObject, handles,ax, vid, chunk, clearchunk,fpt)
+%persistent IMdepth; % im not sure this is necessary
 persistent persistent_chunk
+persistent myhandles
 
 if clearchunk
     clear persistent_chunk
@@ -420,38 +432,67 @@ if isempty(persistent_chunk)
     persistent_chunk = chunk;
 end
 
-%try % yeah, this makes no sense...
-trigger(vid);
-[IM,~,metaData]=getdata(vid,1,'uint8');
+if isempty(myhandles)
+    myhandles.Raw = '';
+    myhandles.myskel = '';
+    myhandles = [myhandles myhandles];
+end
 
-[skelskel, chunk ] = readskeleton(metaData, persistent_chunk);
+
+%try % yeah, this makes no sense...
+trigger(vid(1));
+trigger(vid(2));
+%[IMdepth,timerss,depthMetaData]=getdata(vid(1),4,'uint8');
+%[IMcolor,timersss,colorMetaData]=getdata(vid(2),4,'uint8');
+if isvalid(vid(1))&&isvalid(vid(2))
+    [IMcolor,~,~]=getdata(vid(2),fpt,'uint8');
+    [IMdepth,~,depthMetaData]=getdata(vid(1),fpt,'uint8');
+else
+    return
+end
+
+%IMcolor = [];
+
+
+[skelskel, chunk ] = readskeleton(depthMetaData, persistent_chunk, IMdepth,IMcolor);
 updaterecordtoggle(handles);
 persistent_chunk = chunk;
-makeimage(ax, IM, skelskel)
+myhandles(1) = makeimage(myhandles(1), ax(1), IMdepth(:,:,:,1) , skelskel);
+myhandles(2) = makeimage(myhandles(2), ax(2), IMcolor(:,:,:,1) , skelskel);
+set(ax(2), 'YDir', 'reverse')
+
 % catch ME
 %     ME.getReport
 %     return
 % end
 
-function [skelskel, chunk ]= readskeleton(metaData,  chunk)%, record)
+function [skelskel, chunk ]= readskeleton(metaData,  chunk, IMdepth,IMcolor)%, record)
 
-skelskel = [];
+skelskel = [];% zeros(size(skeldraw_(zeros(20,2))),length(metaData.IsSkeletonTracked));
+ts =size(metaData,1);
 try
     record = evalin('base', 'record');
 catch
     %I maybe closed the gui
     return
 end
-if any(metaData.IsSkeletonTracked)==1
-    dbgmsg(strcat('Tracked: ',num2str(sum(metaData.IsSkeletonTracked)),' skeletons.'),0)
+if any(metaData(1).IsSkeletonTracked)==1 %%% we will toss out any skeletons that are not present from the beggining of the acquisition chunk
+    dbgmsg(strcat('Tracked: ',num2str(sum(metaData(1).IsSkeletonTracked)),' skeletons.'),0)
     %    dbgmsg(metaData.IsSkeletonTracked,0)
-    for i = 1:length(metaData.IsSkeletonTracked)
-        if metaData.IsSkeletonTracked(i)==1
+    if any(record.state)&&(sum(metaData(1).IsSkeletonTracked)>1)
+        warning('recording multiple skeletons not implemented! the end data will not make sense!')
+    end
+    
+    for i = 1:length(metaData(1).IsSkeletonTracked)  %%%use find for a faster algorithm! i.e %%trackedSkeletons = find(metaDataDepth(95).IsSkeletonTracked)
+    
+        if metaData(1).IsSkeletonTracked(i)==1
             %disp(metaData.JointWorldCoordinates(:,:,i))
             %try
             dbgmsg('Reached inside of loop',0)
-            skelskel =  coordshift(skeldraw_(metaData.JointWorldCoordinates(:,:,i),false));
-            chunk = get_chunk(metaData, chunk,i);
+            for triggersize = 1:ts
+                skelskel =  cat(2,skelskel, skeldraw_(metaData(triggersize).JointImageIndices(:,:,i), false));%coordshift(skeldraw_(metaData.JointWorldCoordinates(:,:,i),false));
+            end
+            chunk = get_chunk(metaData, IMdepth,IMcolor, chunk,i);
             if record.state(end) %%%ok I ve got this, if I 
                 %%% if I am recording the difference is that the counter
                 %%% progresses. If I am not, then I only have the latest 9
@@ -467,7 +508,7 @@ if any(metaData.IsSkeletonTracked)==1
                     chunk.complete = 1;                   
                 end
             else
-                chunk.counter = chunk.counter - 1; %it will acquire and store data, but it will only progress the counter if I am recording. this seems like a simple fix. let's test it
+                chunk.counter = chunk.counter - ts; %it will acquire and store data, but it will only progress the counter if I am recording. this seems like a simple fix. let's test it
             end
             
             
@@ -486,15 +527,13 @@ end
 %    disp('Can''t draw! :/')
 %end
 
-function makeimage(myaxes, IM, skelskel)
-persistent handlesRaw;
-persistent handlesPlot;
-persistent handlesmyskel;
+function myhandles = makeimage(myhandles, myaxes, IM, skelskel)
+
 %persistent myaxes;
-if isempty(handlesRaw)||~isvalid(handlesRaw)
+if isempty(myhandles.Raw)||~isvalid(myhandles.Raw)
     % if first execution, we create the figure objects
     %subplot(2,1,1);
-    handlesRaw=imagesc(IM);
+    myhandles.Raw=imagesc(myaxes, IM);
     title('CurrentImage');
     hold on
     % Plot first value
@@ -506,29 +545,30 @@ if isempty(handlesRaw)||~isvalid(handlesRaw)
     %ylabel('Average value (au)');
     
     %my skeleton
-    sampleskel = [0.0697    0.1773    1.6761;
-        0.0756    0.2420    1.6839;
-        0.0678    0.5732    1.6773;
-        0.0010    0.7354    1.5891;
-        -0.0791    0.4813    1.7441;
-        -0.1515    0.3129    1.4867;
-        -0.1649    0.2954    1.2563;
-        -0.1067    0.2954    1.2395;
-        0.2255    0.4464    1.5866;
-        0.2237    0.2958    1.4024;
-        -0.0567    0.2926    1.2936;
-        -0.1113    0.3175    1.2855;
-        0.0002    0.1035    1.7097;
-        0.0094   -0.3763    1.6717;
-        -0.1009   -0.6928    1.6735;
-        -0.1548   -0.7310    1.5964;
-        0.1391    0.0965    1.6379;
-        0.1254   -0.3289    1.6740;
-        0.1750   -0.4106    1.2409;
-        0.2620   -0.3947    1.1648];
+    sampleskel = skeldraw_(zeros(20,2));
+%        [0.0697    0.1773    1.6761;
+%         0.0756    0.2420    1.6839;
+%         0.0678    0.5732    1.6773;
+%         0.0010    0.7354    1.5891;
+%         -0.0791    0.4813    1.7441;
+%         -0.1515    0.3129    1.4867;
+%         -0.1649    0.2954    1.2563;
+%         -0.1067    0.2954    1.2395;
+%         0.2255    0.4464    1.5866;
+%         0.2237    0.2958    1.4024;
+%         -0.0567    0.2926    1.2936;
+%         -0.1113    0.3175    1.2855;
+%         0.0002    0.1035    1.7097;
+%         0.0094   -0.3763    1.6717;
+%         -0.1009   -0.6928    1.6735;
+%         -0.1548   -0.7310    1.5964;
+%         0.1391    0.0965    1.6379;
+%         0.1254   -0.3289    1.6740;
+%         0.1750   -0.4106    1.2409;
+%         0.2620   -0.3947    1.1648];
     
-    handlesmyskel = plot3(sampleskel(1,:),-sampleskel(2,:), sampleskel(3,:));
-    set(handlesmyskel, 'LineWidth',4, 'Color', 'y');
+    myhandles.myskel = plot(sampleskel(1,:),-sampleskel(2,:));
+    set(myhandles.myskel, 'LineWidth',4, 'Color', 'y');
     %hold off
     %subplot(2,1,2);
     %handlesmyskel=plot([]);
@@ -541,7 +581,7 @@ if isempty(handlesRaw)||~isvalid(handlesRaw)
     %set(myaxes, 'color', 'none')
 else
     % We only update what is needed
-    set(handlesRaw,'CData',IM);
+    set(myhandles.Raw,'CData',IM);
     %Value=mean(IM(:));
     %OldValues=get(handlesPlot,'YData');
     %set(handlesPlot,'YData',[OldValues Value]);
@@ -549,20 +589,16 @@ else
     if exist('skelskel','var')&&~isempty(skelskel)
         %plot3(skelskel(1,:),skelskel(2,:), skelskel(3,:))
         %disp('reachedplot')
-        set(handlesmyskel, 'XData',skelskel(1,:),'YData',skelskel(2,:),'ZData', skelskel(3,:))
+        set(myhandles.myskel,'XData',skelskel(1,:))
+        set(myhandles.myskel,'YData',skelskel(2,:))
+        %set(myhandles.myskel,'ZData',skelskel(3,:))
         %set(handlesmyskel,'CData',skelskel)
         set(myaxes,'XLim', [0 640]);
         set(myaxes,'YLim', [0 480]);
         %         set(myaxes,'ZLim', [-0 5]);
-        view(0,90);
+        %view(0,90);
     end
 end
-
-function b =  coordshift(a)
-b = zeros(size(a));
-b(1,:) = a(1,:)*240 +320;
-b(2,:) = -a(2,:)*240 +240;
-b(3,:) = a(3,:)*240;
 
 % --- Executes during object creation, after setting all properties.
 function gui_acquisition_CreateFcn(hObject, eventdata, handles)
@@ -596,9 +632,12 @@ chunk.label = newchunk.label;
 chunk.description = newchunk.description;
 
 chunk.chunk = zeros(20,3,chunk.size);
+chunk.IMdepth = uint8(zeros(480,640,chunk.size));
+chunk.IMcolor = uint8(zeros(480,640,3,chunk.size));
+
 chunk.timers = zeros(1,chunk.size, 'uint64');
 chunk.times = zeros(1,chunk.size);
-chunk.counter = 0;
+chunk.counter = 1;
 chunk.complete = 0;
 
 %%% after creating a chunk I should  update listbox
@@ -831,4 +870,28 @@ while(isvalid(myfig)&&handleshandles.Value)
     drawnow
     pause(pp)
     b=b+1;
+end
+
+
+
+function edit6_Callback(hObject, eventdata, handles)
+% hObject    handle to edit6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit6 as text
+%        str2double(get(hObject,'String')) returns contents of edit6 as a double
+p = ancestor(hObject,'figure');
+p.UserData.fpt = str2double(get(hObject,'String'));
+
+% --- Executes during object creation, after setting all properties.
+function edit6_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end

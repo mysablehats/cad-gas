@@ -1,9 +1,21 @@
-function chunk = get_chunk(metaData,chunk,i)
-chunk.chunk(:,:,2:end) = chunk.chunk(:,:,1:end-1);
-chunk.chunk(:,:,1) = metaData.JointWorldCoordinates(:,:,i); %%% this only gets one frame. if i get more frames I don't know the timestamps between them!
-chunk.counter = chunk.counter +1;
+function chunk = get_chunk(metaData, IMdepth,IMcolor,chunk,i)
+triggersize = size(metaData,1);
+tv = chunk.counter:(chunk.counter+triggersize-1);
+
+%chunk.chunk(:,:,2:end) = chunk.chunk(:,:,1:end-1);
+tensorskel = zeros([size(metaData(1).JointWorldCoordinates(:,:,i)),triggersize]);
+for iii = 1:triggersize
+    tensorskel(:,:,iii) =  metaData(iii).JointWorldCoordinates(:,:,i);
+end
+chunk.chunk(:,:,tv) = tensorskel; %%% this only gets one frame. if i get more frames I don't know the timestamps between them!
+
+chunk.IMdepth(:,:,tv) = IMdepth;
+chunk.IMcolor(:,:,:,tv) = IMcolor;
+
+
 dbgmsg('chunk.counter', num2str(chunk.counter),0)
-if chunk.counter>1
-    chunk.times(chunk.counter-1) = toc(chunk.timers(chunk.counter-1));
+if chunk.counter>triggersize
+    chunk.times(chunk.counter-triggersize) = toc(chunk.timers(chunk.counter-triggersize));
 end
 chunk.timers(chunk.counter) = tic;
+chunk.counter = chunk.counter +triggersize;
