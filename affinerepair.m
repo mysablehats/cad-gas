@@ -1,4 +1,4 @@
-function allskel = affinerepair(allskel)
+function allskel = affinerepair(allskel, simvar)
 
 %maybe if i corrected to the torso, say shoulders and hips i wuld get the
 %best results
@@ -40,7 +40,9 @@ for i = 1:NN
         error('Wrong order!')
     end
     %%% all of this should be commented out!
-    allskel.vel(:,:,i) = allskel.vel(:,:,i)*r; %because it was also rotated
+    if simvar.affrepvel
+        allskel.vel(:,:,i) = allskel.vel(:,:,i)*r; %because it was also rotated
+    end
 end
 
 end

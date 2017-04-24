@@ -1,7 +1,7 @@
 function [endacc, combinedval] = analyze_outcomes(varvar)
 %%%% can receive the simvar or the outcomes as a struct
 if isstruct(varvar)
-    if isfield(varvar, 'trial')
+    if isfield('trial',varvar)
         simvar = varvar;
         clear varvar
         combsize = [size(simvar.trial(1).metrics(1, 1).val) size(simvar.trial(1).metrics,2)];
@@ -14,14 +14,14 @@ if isstruct(varvar)
             end
         end
         endaccsize = size(simvar.trial(1).metrics,2);
-    elseif isfield(varvar, 'b')
+    elseif isfield('b', varvar)
         outcomes = varvar;
         clear varvar
-        combinedval = zeros(size(outcomes(1).b));
+        combinedval = zeros(size(outcomes.b));
         for i =1:length(outcomes)
-            combinedval = combinedval + outcomes(i).b;
+            combinedval = combinedval + outcomes.b;
         end
-        endaccsize = size(outcomes(1).b,3);
+        endaccsize = size(outcomes.b,3);
     else
         error('Unknown structure type')
     end

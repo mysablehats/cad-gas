@@ -3,7 +3,9 @@ function [data,labels_names, skelldef] = all3(allskel, simvar)
 for i= 1:length(allskel)
     allskel(i).indexact = i;
     %%%
-    allskel(i) = affinerepair(allskel(i));
+    if isfield(simvar,'affinerepair')&&simvar.affinerepair
+        allskel(i) = affinerepair(allskel(i), simvar);
+    end
 end
 
 [data, labels_names] = extractdata(allskel, simvar.activity_type, simvar.labels_names,simvar.extract{:});

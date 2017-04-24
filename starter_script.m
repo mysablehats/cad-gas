@@ -1,5 +1,6 @@
 function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
+for alldata = 1:68
 TEST = 0;
 VERBOSE = 0;
 
@@ -29,13 +30,15 @@ if isempty(varargin)
     simvar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
     simvar.sampling_type = 'type1';
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
-    simvar.prefilter = {'filter',15}; % 'filter', 'none', 'median?'
+    simvar.prefilter = {'filter', 15};%{'filter',10}; % 'filter', 'none', 'median?'
+    simvar.affinerepair = true;
+    simvar.affrepvel = true;
     simvar.labels_names = []; % necessary so that same actions keep their order number
     simvar.TrainSubjectIndexes = [];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
-    simvar.ValSubjectIndexes = num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
+    simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
     simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing 
     simvar.extract = {'rand', 'wantvelocity'};
-    simvar.preconditions = {'mirrorx'};% {'nohips', 'norotatehips','mirrorx'}; %
+    simvar.preconditions =  {'mirrorx'};%{'nohips', 'norotatehips' ,'mirrorx'}; %, 
     simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
     simvar.trialdatafile = strcat(env.wheretosavestuff,env.SLASH,simvar.trialdataname,'.mat');
 else
@@ -59,11 +62,11 @@ end
 
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
-simvar.PARA = 0;
+simvar.PARA = 1;
 simvar.P = 4;
-simvar.NODES_VECT = [1000];
+simvar.NODES_VECT = [100];
 simvar.MAX_EPOCHS_VECT = [1];
-simvar.ARCH_VECT = [1];
+simvar.ARCH_VECT = [4];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
@@ -108,13 +111,25 @@ params.d                           = .99;   % Error reduction factor.
 
 
 simvar = classifier_loop(simvar, params, env);
-if params.PLOTIT
-    for j = 1:size(simvar.trial,2)
-        for i = 1:size(simvar.trial(j).metrics,1)
-            figure
-            %plotconf(simvar.metrics(i,[2,4])) % replace 5 for : to get all the output
-            plotconf(simvar.trial(j).metrics(i,end)) % replace 5 for : to get all the output
-            
-        end
-    end
+try
+    b = evalin('base','outcomes');
+catch
+    b = struct();
 end
+[~, b(alldata).b] = analyze_outcomes(simvar);
+simvar = '';
+assignin('base', 'outcomes', b);
+% if params.PLOTIT
+%     for j = 1:size(simvar.trial,2)
+%         for i = 1:size(simvar.trial(j).metrics,1)
+%             figure
+%             %plotconf(simvar.metrics(i,[2,4])) % replace 5 for : to get all the output
+%             plotconf(simvar.trial(j).metrics(i,end)) % replace 5 for : to get all the output
+%             
+%         end
+%     end
+% end
+end
+load handel;
+player = audioplayer(y, Fs);
+playblocking(player);
