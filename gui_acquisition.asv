@@ -22,7 +22,7 @@ function varargout = gui_acquisition(varargin)
 
 % Edit the above text to modify the response to help gui_acquisition
 
-% Last Modified by GUIDE v2.5 31-Mar-2017 11:07:24
+% Last Modified by GUIDE v2.5 20-Apr-2017 23:24:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -72,7 +72,7 @@ try
 catch    
     chunk = createchunk(hObject, handles, '');
 end
-
+p.UserData.fpt = str2double(handles.edit6.String);
 p.UserData.chunk = chunk; %set(p,'UserData',chunk)
 
 handles.listbox2.String = {p.UserData.chunk.label};
@@ -113,7 +113,12 @@ clear vid
 
 function gui_acquisition_DeleteFcn(hObject, eventdata, handles, varargin)
 evalin('base', 'clear record');
-
+%stops kinect
+vid = imaqfind; %in case i am already aquiring
+if ~isempty(vid)
+    stop(vid)
+    delete(vid)
+end
 % --- Executes when user attempts to close gui_acquisition.
 function gui_acquisition_CloseRequestFcn(hObject, eventdata, handles)
 % hObject    handle to gui_acquisition (see GCBO)
@@ -122,12 +127,7 @@ function gui_acquisition_CloseRequestFcn(hObject, eventdata, handles)
 
 % Hint: delete(hObject) closes the figure
 
-%stops kinect
-vid = imaqfind; %in case i am already aquiring
-if ~isempty(vid)
-    stop(vid)
-    delete(vid)
-end
+
 delete(hObject);
 
 
@@ -136,27 +136,33 @@ function acquirebutton_Callback(hObject, eventdata, handles)
 % hObject    handle to acquirebutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-ax = handles.axes1;
-ax(2) = handles.axes2;
-% Update handles structure
-guidata(hObject, handles);
-
-% Set-up webcam video input
-[depthVid, colorVid, src] = startkinect();
-
-%getting parent object to store src obj
-p = ancestor(hObject,'figure');
-p.UserData.src = src;
-
-
-%acquirekinect(currax, vid);%(hObject)
-%function acquirekinect(ax,vid )
-%disp()
-setbuttons(handles,'on')
-new_chunk = realvideo(hObject, handles, ax, depthVid, colorVid, 0);
-setbuttons(handles,'off')
-
+if hObject.Value
+    
+    ax = handles.axes1;
+    ax(2) = handles.axes2;
+    % Update handles structure
+    guidata(hObject, handles);
+    
+    
+    %getting parent object to store src obj
+    p = ancestor(hObject,'figure');
+    
+    % Set-up webcam video input
+    [depthVid, colorVid, src] = startkinect(p.UserData.fpt, 'start');
+    
+    
+    p.UserData.src = src;
+    
+    
+    %acquirekinect(currax, vid);%(hObject)
+    %function acquirekinect(ax,vid )
+    %disp()
+    setbuttons(handles,'on')
+    new_chunk = realvideo(hObject, handles, ax, depthVid, colorVid, 0, p.UserData.fpt);
+    setbuttons(handles,'off')
+else
+    startkinect('', 'stop')
+end
 % --- Executes on button press in togglebutton1.
 function togglebutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to togglebutton1 (see GCBO)
@@ -290,7 +296,7 @@ function togglebutton1_KeyPressFcn(hObject, eventdata, handles)
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
 
-function [chunk] = realvideo(hObject, handles, ax, depthVid, colorVid, realtimevideo)
+function [chunk] = realvideo(hObject, handles, ax, depthVid, colorVid, realtimevideo, fpt)
 global VERBOSE
 VERBOSE = false;
 
@@ -323,15 +329,19 @@ chunk = p.UserData.chunk(index_selected);
 %
 if realtimevideo
     % set up timer object
-    TimerData=timer('TimerFcn', {@FrameRateDisplay, hObject, handles ,ax, [depthVid colorVid], chunk},'Period',1/NumberFrameDisplayPerSecond,'ExecutionMode','fixedRate','BusyMode','drop');
+    TimerData=timer('TimerFcn', {@FrameRateDisplay, hObject, handles ,ax, [depthVid colorVid], chunk, fpt},'Period',1/NumberFrameDisplayPerSecond,'ExecutionMode','fixedRate','BusyMode','drop');
 end
 
 % Start video and timer object
 try %maybe I have already started vid... or failed to stop it?
-    start([depthVid colorVid]);
+    %preview([depthVid colorVid]);
+    ppreview([depthVid colorVid], fpt)
+    %start([depthVid colorVid]);
 catch
-    stop([depthVid colorVid]);
-    start([depthVid colorVid]);
+    %stoppreview([depthVid colorVid]);
+    startkinect('', 'stop')
+    ppreview([depthVid colorVid], fpt)
+    %start([depthVid colorVid]);
 end
 
 if realtimevideo
@@ -346,7 +356,7 @@ end
 
 
 % Clean up everything
-if 1
+try
     if exist('TimerData', 'var')
         stop(TimerData);
         %waitfor(TimerData);
@@ -369,9 +379,9 @@ if 1
                 %end
                 assignin('base', 'chunk', p.UserData.chunk)
                 record.done = 1;
-                chunk = FrameRateDisplay([], [],hObject, handles ,ax, [depthVid colorVid], chunk,1); %%% resets persistent_chunk
+                chunk = FrameRateDisplay([], [],hObject, handles ,ax, [depthVid colorVid], chunk,1, fpt); %%% resets persistent_chunk
             else
-                chunk = FrameRateDisplay([], [],hObject, handles, ax, [depthVid colorVid], chunk,0);
+                chunk = FrameRateDisplay([], [],hObject, handles, ax, [depthVid colorVid], chunk,0, fpt);
                 %%%
                 %maybe classify it as well?
                 if 0% chunk.times(1)~=0 %this means that there is at least one skeleton. 
@@ -400,10 +410,14 @@ if 1
         
         %            assignin('base', 'labels', labellabel)
         
-        
-        stop([depthVid colorVid]);
-        pause(1)
-        delete([depthVid colorVid]);
+        try
+            stop([depthVid colorVid]);
+            stoppreview([depthVid colorVid]);
+            pause(1)
+            delete([depthVid colorVid]);
+        catch
+            disp('failed at stopping vid objects. Did someone else close them already?')
+        end
         % clear persistent variables
         clear functions;
         %clear
@@ -411,9 +425,18 @@ if 1
 end
 
 % This function is called by the timer to display one frame of the figure
+function ppreview(vid, fpt)
+if fpt < 300
+    preview(vid);
+    
+else
+    warning('Frame limit reached. Preview would run out of memory, so it will be skipped.')
+end
+disp('Giving the pc some time to breathe...')
+pause(2)
+start(vid)
 
-
-function chunk = FrameRateDisplay(obj, event,hObject, handles,ax, vid, chunk, clearchunk)
+function chunk = FrameRateDisplay(obj, event,hObject, handles,ax, vid, chunk, clearchunk,fpt)
 %persistent IMdepth; % im not sure this is necessary
 persistent persistent_chunk
 persistent myhandles
@@ -437,10 +460,24 @@ end
 
 
 %try % yeah, this makes no sense...
-trigger(vid(1));
-trigger(vid(2));
-[IMdepth,timerss,depthMetaData]=getdata(vid(1),10,'uint8');
-[IMcolor,timersss,colorMetaData]=getdata(vid(2),10,'uint8');
+%[IMdepth,timerss,depthMetaData]=getdata(vid(1),4,'uint8');
+%[IMcolor,timersss,colorMetaData]=getdata(vid(2),4,'uint8');
+% if isvalid(vid(1))&&isvalid(vid(2))
+%     [IMcolor,~,~]=getdata(vid(2),fpt,'uint8');
+%     [IMdepth,~,depthMetaData]=getdata(vid(1),fpt,'uint8');
+% else
+%     return
+% end
+try %%dirty, sorry
+    trigger(vid(1));
+    trigger(vid(2));
+    [IMcolor,~,~]=getdata(vid(2),fpt,'uint8');
+    [IMdepth,~,depthMetaData]=getdata(vid(1),fpt,'uint8');
+catch
+    return
+end
+
+
 %IMcolor = [];
 
 
@@ -567,7 +604,7 @@ if isempty(myhandles.Raw)||~isvalid(myhandles.Raw)
     %    catch
     %        disp('cant initialize axes handle')
     %    end
-    myaxes = gca; %get(handlesmyskel,'Parent');
+    %myaxes = gca; %get(handlesmyskel,'Parent');
     %set(myaxes, 'color', 'none')
 else
     % We only update what is needed
@@ -575,7 +612,7 @@ else
     %Value=mean(IM(:));
     %OldValues=get(handlesPlot,'YData');
     %set(handlesPlot,'YData',[OldValues Value]);
-    %%%
+    %%%    
     if exist('skelskel','var')&&~isempty(skelskel)
         %plot3(skelskel(1,:),skelskel(2,:), skelskel(3,:))
         %disp('reachedplot')
@@ -583,11 +620,11 @@ else
         set(myhandles.myskel,'YData',skelskel(2,:))
         %set(myhandles.myskel,'ZData',skelskel(3,:))
         %set(handlesmyskel,'CData',skelskel)
-        set(myaxes,'XLim', [0 640]);
-        set(myaxes,'YLim', [0 480]);
         %         set(myaxes,'ZLim', [-0 5]);
         %view(0,90);
     end
+    set(myaxes,'XLim', [0 640]);
+    set(myaxes,'YLim', [0 480]);
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -860,4 +897,28 @@ while(isvalid(myfig)&&handleshandles.Value)
     drawnow
     pause(pp)
     b=b+1;
+end
+
+
+
+function edit6_Callback(hObject, eventdata, handles)
+% hObject    handle to edit6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit6 as text
+%        str2double(get(hObject,'String')) returns contents of edit6 as a double
+p = ancestor(hObject,'figure');
+p.UserData.fpt = str2double(get(hObject,'String'));
+
+% --- Executes during object creation, after setting all properties.
+function edit6_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end

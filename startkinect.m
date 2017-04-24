@@ -1,5 +1,6 @@
 %%%start kinect
-function [depthVid, colorVid,src] = startkinect(fpt)
+function [depthVid, colorVid,src] = startkinect(fpt, what)
+if strcmp(what,'start')
 src = [];
 try
     [depthVid, colorVid,src] = setvars_kinnect(fpt);
@@ -7,9 +8,7 @@ catch  ME
     %ME.getReport
     %disp('Couldnt open kinect')
     try
-        vid = imaqfind; %in case i am already aquiring
-        stop(vid)
-        delete(vid)
+        destroyall
         [depthVid, colorVid ,src] = setvars_kinnect(fpt);
     catch  ME2
         ME2.getReport
@@ -24,6 +23,20 @@ catch  ME
         end
     end
 end
+elseif strcmp(what,'stop')
+    destroyall
+else
+    error(['Dont understand input paramenter:' what])
+end
+function destroyall
+vid = imaqfind; %in case i am already aquiring
+stop(vid)
+try
+    stoppreview(vid)
+catch
+    disp('Oops, no preview')
+end
+delete(vid)
 function [depthVid, colorVid,src] = setvars_kinnect(fpt)
 depthVid = videoinput('kinect',2,'Depth_640x480');
 colorVid = videoinput('kinect',1);

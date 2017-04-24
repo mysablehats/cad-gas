@@ -3,11 +3,13 @@ triggersize = size(metaData,1);
 tv = chunk.counter:(chunk.counter+triggersize-1);
 
 %chunk.chunk(:,:,2:end) = chunk.chunk(:,:,1:end-1);
-tensorskel = zeros([size(metaData(1).JointWorldCoordinates(:,:,i)),triggersize]);
-for iii = 1:triggersize
-    tensorskel(:,:,iii) =  metaData(iii).JointWorldCoordinates(:,:,i);
+%tensorskel = zeros([size(metaData(1).JointWorldCoordinates(:,:,i)),triggersize]);
+for iii = tv
+    chunk.chunk(:,:,iii) =  metaData(iii-chunk.counter+1).JointWorldCoordinates(:,:,i);
+    chunk.MetaData(iii) = metaData(iii-chunk.counter+1);
+    %tensorskel(:,:,iii) =  metaData(iii).JointWorldCoordinates(:,:,i);
 end
-chunk.chunk(:,:,tv) = tensorskel; %%% this only gets one frame. if i get more frames I don't know the timestamps between them!
+%chunk.chunk(:,:,tv) = tensorskel; %%% this only gets one frame. if i get more frames I don't know the timestamps between them!
 
 chunk.IMdepth(:,:,tv) = IMdepth;
 chunk.IMcolor(:,:,:,tv) = IMcolor;

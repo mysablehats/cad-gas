@@ -136,30 +136,33 @@ function acquirebutton_Callback(hObject, eventdata, handles)
 % hObject    handle to acquirebutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-ax = handles.axes1;
-ax(2) = handles.axes2;
-% Update handles structure
-guidata(hObject, handles);
-
-
-%getting parent object to store src obj
-p = ancestor(hObject,'figure');
-
-% Set-up webcam video input
-[depthVid, colorVid, src] = startkinect(p.UserData.fpt);
-
-
-p.UserData.src = src;
-
-
-%acquirekinect(currax, vid);%(hObject)
-%function acquirekinect(ax,vid )
-%disp()
-setbuttons(handles,'on')
-new_chunk = realvideo(hObject, handles, ax, depthVid, colorVid, 0, p.UserData.fpt);
-setbuttons(handles,'off')
-
+if hObject.Value
+    
+    ax = handles.axes1;
+    ax(2) = handles.axes2;
+    % Update handles structure
+    guidata(hObject, handles);
+    
+    
+    %getting parent object to store src obj
+    p = ancestor(hObject,'figure');
+    
+    % Set-up webcam video input
+    [depthVid, colorVid, src] = startkinect(p.UserData.fpt, 'start');
+    
+    
+    p.UserData.src = src;
+    
+    
+    %acquirekinect(currax, vid);%(hObject)
+    %function acquirekinect(ax,vid )
+    %disp()
+    setbuttons(handles,'on')
+    new_chunk = realvideo(hObject, handles, ax, depthVid, colorVid, 0, p.UserData.fpt);
+    setbuttons(handles,'off')
+else
+    startkinect('', 'stop')
+end
 % --- Executes on button press in togglebutton1.
 function togglebutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to togglebutton1 (see GCBO)
@@ -331,10 +334,14 @@ end
 
 % Start video and timer object
 try %maybe I have already started vid... or failed to stop it?
-    start([depthVid colorVid]);
+    %preview([depthVid colorVid]);
+    ppreview([depthVid colorVid], fpt)
+    %start([depthVid colorVid]);
 catch
-    stop([depthVid colorVid]);
-    start([depthVid colorVid]);
+    %stoppreview([depthVid colorVid]);
+    startkinect('', 'stop')
+    ppreview([depthVid colorVid], fpt)
+    %start([depthVid colorVid]);
 end
 
 if realtimevideo
@@ -349,7 +356,7 @@ end
 
 
 % Clean up everything
-if 1
+try
     if exist('TimerData', 'var')
         stop(TimerData);
         %waitfor(TimerData);
@@ -403,18 +410,34 @@ if 1
         
         %            assignin('base', 'labels', labellabel)
         
-        
-        stop([depthVid colorVid]);
-        pause(1)
-        delete([depthVid colorVid]);
+        try
+            stop([depthVid colorVid]);
+            stoppreview([depthVid colorVid]);
+            pause(1)
+            delete([depthVid colorVid]);
+        catch
+            disp('failed at stopping vid objects. Did someone else close them already?')
+        end
         % clear persistent variables
         clear functions;
         %clear
     end
+catch
+    %%%well, it crashed, but we dont need to say it like that...
+    disp('Bye-bye!')
 end
 
 % This function is called by the timer to display one frame of the figure
-
+function ppreview(vid, fpt)
+if fpt < 300
+    preview(vid);
+    
+else
+    warning('Frame limit reached. Preview would run out of memory, so it will be skipped.')
+end
+disp('Giving the pc some time to breathe...')
+pause(2)
+start(vid)
 
 function chunk = FrameRateDisplay(obj, event,hObject, handles,ax, vid, chunk, clearchunk,fpt)
 %persistent IMdepth; % im not sure this is necessary
@@ -440,16 +463,24 @@ end
 
 
 %try % yeah, this makes no sense...
-trigger(vid(1));
-trigger(vid(2));
 %[IMdepth,timerss,depthMetaData]=getdata(vid(1),4,'uint8');
 %[IMcolor,timersss,colorMetaData]=getdata(vid(2),4,'uint8');
-if isvalid(vid(1))&&isvalid(vid(2))
+% if isvalid(vid(1))&&isvalid(vid(2))
+%     [IMcolor,~,~]=getdata(vid(2),fpt,'uint8');
+%     [IMdepth,~,depthMetaData]=getdata(vid(1),fpt,'uint8');
+% else
+%     return
+% end
+try %%dirty, sorry
+    trigger(vid(1));
+    trigger(vid(2));
+    waitfor(vid,'FramesAcquired',fpt)
     [IMcolor,~,~]=getdata(vid(2),fpt,'uint8');
     [IMdepth,~,depthMetaData]=getdata(vid(1),fpt,'uint8');
-else
+catch
     return
 end
+
 
 %IMcolor = [];
 
@@ -577,7 +608,7 @@ if isempty(myhandles.Raw)||~isvalid(myhandles.Raw)
     %    catch
     %        disp('cant initialize axes handle')
     %    end
-    myaxes = gca; %get(handlesmyskel,'Parent');
+    %myaxes = gca; %get(handlesmyskel,'Parent');
     %set(myaxes, 'color', 'none')
 else
     % We only update what is needed
@@ -585,7 +616,7 @@ else
     %Value=mean(IM(:));
     %OldValues=get(handlesPlot,'YData');
     %set(handlesPlot,'YData',[OldValues Value]);
-    %%%
+    %%%    
     if exist('skelskel','var')&&~isempty(skelskel)
         %plot3(skelskel(1,:),skelskel(2,:), skelskel(3,:))
         %disp('reachedplot')
@@ -593,11 +624,11 @@ else
         set(myhandles.myskel,'YData',skelskel(2,:))
         %set(myhandles.myskel,'ZData',skelskel(3,:))
         %set(handlesmyskel,'CData',skelskel)
-        set(myaxes,'XLim', [0 640]);
-        set(myaxes,'YLim', [0 480]);
         %         set(myaxes,'ZLim', [-0 5]);
         %view(0,90);
     end
+    set(myaxes,'XLim', [0 640]);
+    set(myaxes,'YLim', [0 480]);
 end
 
 % --- Executes during object creation, after setting all properties.
