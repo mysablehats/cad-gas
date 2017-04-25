@@ -10,8 +10,9 @@ end
 chunk.chunk(:,:,tv) = tensorskel; %%% this only gets one frame. if i get more frames I don't know the timestamps between them!
 
 chunk.IMdepth(:,:,tv) = IMdepth;
+if ~isempty(IMcolor)
 chunk.IMcolor(:,:,:,tv) = IMcolor;
-
+end
 
 dbgmsg('chunk.counter', num2str(chunk.counter),0)
 if chunk.counter>triggersize

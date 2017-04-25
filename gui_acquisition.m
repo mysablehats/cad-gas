@@ -147,7 +147,7 @@ guidata(hObject, handles);
 p = ancestor(hObject,'figure');
 
 % Set-up webcam video input
-[depthVid, colorVid, src] = startkinect(p.UserData.fpt);
+[vid, src] = startkinect(p.UserData.fpt);
 
 
 p.UserData.src = src;
@@ -157,7 +157,7 @@ p.UserData.src = src;
 %function acquirekinect(ax,vid )
 %disp()
 setbuttons(handles,'on')
-new_chunk = realvideo(hObject, handles, ax, depthVid, colorVid, 0, p.UserData.fpt);
+new_chunk = realvideo(hObject, handles, ax, vid, 0, p.UserData.fpt);
 setbuttons(handles,'off')
 
 % --- Executes on button press in togglebutton1.
@@ -293,7 +293,7 @@ function togglebutton1_KeyPressFcn(hObject, eventdata, handles)
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
 
-function [chunk] = realvideo(hObject, handles, ax, depthVid, colorVid, realtimevideo, fpt)
+function [chunk] = realvideo(hObject, handles, ax, vid, realtimevideo, fpt)
 global VERBOSE
 VERBOSE = false;
 
@@ -326,15 +326,15 @@ chunk = p.UserData.chunk(index_selected);
 %
 if realtimevideo
     % set up timer object
-    TimerData=timer('TimerFcn', {@FrameRateDisplay, hObject, handles ,ax, [depthVid colorVid], chunk, fpt},'Period',1/NumberFrameDisplayPerSecond,'ExecutionMode','fixedRate','BusyMode','drop');
+    TimerData=timer('TimerFcn', {@FrameRateDisplay, hObject, handles ,ax, vid, chunk, fpt},'Period',1/NumberFrameDisplayPerSecond,'ExecutionMode','fixedRate','BusyMode','drop');
 end
 
 % Start video and timer object
 try %maybe I have already started vid... or failed to stop it?
-    start([depthVid colorVid]);
+    start(vid);
 catch
-    stop([depthVid colorVid]);
-    start([depthVid colorVid]);
+    stop(vid);
+    start(vid);
 end
 
 if realtimevideo
@@ -372,9 +372,9 @@ if 1
                 %end
                 assignin('base', 'chunk', p.UserData.chunk)
                 record.done = 1;
-                chunk = FrameRateDisplay([], [],hObject, handles ,ax, [depthVid colorVid], chunk,1, fpt); %%% resets persistent_chunk
+                chunk = FrameRateDisplay([], [],hObject, handles ,ax, vid, chunk,1, fpt); %%% resets persistent_chunk
             else
-                chunk = FrameRateDisplay([], [],hObject, handles, ax, [depthVid colorVid], chunk,0, fpt);
+                chunk = FrameRateDisplay([], [],hObject, handles, ax, vid, chunk,0, fpt);
                 %%%
                 %maybe classify it as well?
                 if 0% chunk.times(1)~=0 %this means that there is at least one skeleton. 
@@ -435,32 +435,31 @@ end
 if isempty(myhandles)
     myhandles.Raw = '';
     myhandles.myskel = '';
-    myhandles = [myhandles myhandles];
+    %myhandles = [myhandles myhandles];
 end
 
 
-%try % yeah, this makes no sense...
-trigger(vid(1));
-trigger(vid(2));
-%[IMdepth,timerss,depthMetaData]=getdata(vid(1),4,'uint8');
-%[IMcolor,timersss,colorMetaData]=getdata(vid(2),4,'uint8');
-if isvalid(vid(1))&&isvalid(vid(2))
-    [IMcolor,~,~]=getdata(vid(2),fpt,'uint8');
+try
+    trigger(vid);
     [IMdepth,~,depthMetaData]=getdata(vid(1),fpt,'uint8');
-else
+    if length(vid)>1
+        [IMcolor,~,~]=getdata(vid(2),fpt,'uint8');
+    else
+        IMcolor = [];
+    end
+    
+catch
     return
 end
-
-%IMcolor = [];
-
 
 [skelskel, chunk ] = readskeleton(depthMetaData, persistent_chunk, IMdepth,IMcolor);
 updaterecordtoggle(handles);
 persistent_chunk = chunk;
 myhandles(1) = makeimage(myhandles(1), ax(1), IMdepth(:,:,:,1) , skelskel);
-myhandles(2) = makeimage(myhandles(2), ax(2), IMcolor(:,:,:,1) , skelskel);
-set(ax(2), 'YDir', 'reverse')
-
+if length(vid)>1
+    myhandles(2) = makeimage(myhandles(2), ax(2), IMcolor(:,:,:,1) , skelskel);
+    set(ax(2), 'YDir', 'reverse')
+end
 % catch ME
 %     ME.getReport
 %     return
@@ -593,8 +592,8 @@ else
         set(myhandles.myskel,'YData',skelskel(2,:))
         %set(myhandles.myskel,'ZData',skelskel(3,:))
         %set(handlesmyskel,'CData',skelskel)
-        set(myaxes,'XLim', [0 640]);
-        set(myaxes,'YLim', [0 480]);
+        set(myaxes,'XLim', [0 320]);
+        set(myaxes,'YLim', [0 240]);
         %         set(myaxes,'ZLim', [-0 5]);
         %view(0,90);
     end
@@ -625,6 +624,7 @@ function chunk = createchunk(hObject, handles, varargin)
 
 %%%this should not be hard coded here, but it is... 
 labels = {'brushing teeth','cooking (chopping)'	,'cooking (stirring)'	,'drinking water','opening pill container'	,'random','relaxing on couch','rinsing mouth with water'	,'still'	,'talking on couch'	,'talking on the phone'	,'wearing contact lenses'	,'working on computer'	,'writing on whiteboard'};
+resolution = [240,320];
 newchunk = new_chunk_gui(labels);
 chunk.size = newchunk.seqlen;
 
@@ -632,8 +632,8 @@ chunk.label = newchunk.label;
 chunk.description = newchunk.description;
 
 chunk.chunk = zeros(20,3,chunk.size);
-chunk.IMdepth = uint8(zeros(480,640,chunk.size));
-chunk.IMcolor = uint8(zeros(480,640,3,chunk.size));
+chunk.IMdepth = uint8(zeros(resolution(1),resolution(2),chunk.size));
+chunk.IMcolor = []; %uint8(zeros(480,640,3,chunk.size)); %%%this was running out of memory
 
 chunk.timers = zeros(1,chunk.size, 'uint64');
 chunk.times = zeros(1,chunk.size);
