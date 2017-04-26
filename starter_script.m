@@ -1,6 +1,6 @@
 function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
-for alldata = 1:68
+for alldata = 2:5%68
 TEST = 0;
 VERBOSE = 0;
 
@@ -64,8 +64,8 @@ end
 simvar.TEST = TEST; %change this in the beginning of the program
 simvar.PARA = 1;
 simvar.P = 4;
-simvar.NODES_VECT = [100];
-simvar.MAX_EPOCHS_VECT = [1];
+simvar.NODES_VECT = [1000];
+simvar.MAX_EPOCHS_VECT = [20];
 simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
