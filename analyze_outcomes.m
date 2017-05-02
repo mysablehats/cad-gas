@@ -17,11 +17,19 @@ if isstruct(varvar)
     elseif isfield(varvar, 'b')
         outcomes = varvar;
         clear varvar
-        combinedval = zeros(size(outcomes(1).b));
-        for i =1:length(outcomes)
-            combinedval = combinedval + outcomes(i).b;
+        i = 1;
+        while(isempty(outcomes(i).b))
+            i = i+1;
         end
-        endaccsize = size(outcomes(1).b,3);
+        combinedval = zeros(size(outcomes(i).b));
+        endaccsize = size(outcomes(i).b,3);
+        %combinedval = zeros(size(outcomes(1).b));
+        for i =1:length(outcomes)
+            if ~isempty(outcomes(i).b)
+                combinedval = combinedval + outcomes(i).b;
+            end
+        end
+        %endaccsize = size(outcomes(1).b,3);
     else
         error('Unknown structure type')
     end
