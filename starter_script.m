@@ -30,7 +30,7 @@ if isempty(varargin)
     simvar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
     simvar.sampling_type = 'type1';
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
-    simvar.prefilter = {'filter', 15};%{'filter',10}; % 'filter', 'none', 'median?'
+    simvar.prefilter = {'filter', 5};%{'filter',10}; % 'filter', 'none', 'median?'
     simvar.affinerepair = true;
     simvar.affrepvel = true;
     simvar.labels_names = []; % necessary so that same actions keep their order number
@@ -64,9 +64,9 @@ end
 simvar.TEST = TEST; %change this in the beginning of the program
 simvar.PARA = 1;
 simvar.P = 4;
-simvar.NODES_VECT = [1500];
+simvar.NODES_VECT = [1000];
 simvar.MAX_EPOCHS_VECT = [10];
-simvar.ARCH_VECT = [1];
+simvar.ARCH_VECT = [4];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
