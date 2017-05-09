@@ -32,7 +32,7 @@ if isempty(varargin)
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
     simvar.prefilter = {'filter', 15};%{'filter',10}; % 'filter', 'none', 'median?'
     simvar.affinerepair = true;
-    simvar.affrepvel = true;
+    simvar.affrepvel = false;
     simvar.labels_names = []; % necessary so that same actions keep their order number
     simvar.TrainSubjectIndexes = [];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
     simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
