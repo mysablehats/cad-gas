@@ -12,6 +12,12 @@ for architectures = simvar.ARCH_VECT
                         dbgmsg('Did this already',1)
                         break
                     end
+                    %%%% OK, here, so that you don't make any more
+                    %%%% mistakes, simvar changed, so you have to reassign
+                    %%%% the parameters here. 
+                    simvar.trial(trialcount) = simvar;%% does this solve
+                    %the problem?
+                    
                     simvar.trial(trialcount).arch = architectures;
                     simvar.trial(trialcount).NODES =  NODES;
                     simvar.trial(trialcount).MAX_EPOCHS = MAX_EPOCHS;
