@@ -1,6 +1,6 @@
 function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
-for alldata = randperm(68,15)%2:5%68
+for alldata = 1:68 %randperm(68,15)%2:5%68
 TEST = 0;
 VERBOSE = 0;
 
