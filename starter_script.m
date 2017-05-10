@@ -63,7 +63,7 @@ end
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
 simvar.PARA = 1;
-simvar.P = 4;
+simvar.P = feature('numCores');
 simvar.NODES_VECT = [200];
 simvar.MAX_EPOCHS_VECT = [1];
 simvar.ARCH_VECT = [1];
