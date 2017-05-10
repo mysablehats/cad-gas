@@ -1,6 +1,6 @@
 function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
-for alldata = 1:68 %randperm(68,15)%2:5%68
+for alldata = 1%:68 %randperm(68,15)%2:5%68
 TEST = 0;
 VERBOSE = 0;
 
@@ -65,14 +65,14 @@ end
 simvar.TEST = TEST; %change this in the beginning of the program
 simvar.PARA = 1;
 simvar.P = feature('numCores');
-simvar.NODES_VECT = [200];
-simvar.MAX_EPOCHS_VECT = [1];
+simvar.NODES_VECT = [400];
+simvar.MAX_EPOCHS_VECT = [10];
 simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
 % set parameters for gas:
-params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean' 
+params.distancetype.metric = '3dsum'; % 'euclidean';%either '3dsum' or 'euclidean' 
 params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow
 params.layertype = '';
 params.MAX_EPOCHS = [];
