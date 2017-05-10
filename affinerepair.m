@@ -15,7 +15,7 @@ allskel.skel = allskel.skel/meannorm;
 allskel.vel = allskel.vel/meannorm;
 
 %now we can maybe check this against our sample skeleton
-aaa = load('C:\Users\Frederico\Dropbox\all.mat\skellstoplaywith.mat');%allskel.skel(:,:,1);
+aaa = load([simvar.allmatpath '\skellstoplaywith.mat']);%allskel.skel(:,:,1);
 longsamp = aaa.a(:,1)';
 
 sampskel = reshape(longsamp,[],3);

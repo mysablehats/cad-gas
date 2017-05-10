@@ -41,6 +41,7 @@ if isempty(varargin)
     simvar.preconditions =  {'mirrorx'};%{'nohips', 'norotatehips' ,'mirrorx'}; %, 
     simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
     simvar.trialdatafile = strcat(env.wheretosavestuff,env.SLASH,simvar.trialdataname,'.mat');
+    simvar.allmatpath = env.allmatpath;
 else
     simvar.featuresall = 3;%size(varargin{1},2);
     simvar.generatenewdataset = false;
