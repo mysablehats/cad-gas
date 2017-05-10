@@ -65,8 +65,8 @@ end
 simvar.TEST = TEST; %change this in the beginning of the program
 simvar.PARA = 1;
 simvar.P = feature('numCores');
-simvar.NODES_VECT = [200];
-simvar.MAX_EPOCHS_VECT = [1];
+simvar.NODES_VECT = [400];
+simvar.MAX_EPOCHS_VECT = [10];
 simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
