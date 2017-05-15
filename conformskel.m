@@ -234,13 +234,17 @@ else
                 skelldef = boundingbox(conformstruc.data, skelldef);
             end
             conformstruc.data = [conformstruc.data data_mirror];
-            conformstruc.y = [conformstruc.y data_ymirror];           
+            if isfield(conformstruc, 'y')
+                conformstruc.y = [conformstruc.y data_ymirror];
+            else
+                warning('no y?')
+            end
         end
     end
     % squeeze them accordingly?
     if 1 %~test
         whattokill = reshape(1:skelldef.length,skelldef.length/3,3);
-        realkilldim = whattokill(killdim,:);
+        realkilldim = whattokill([],:);%whattokill(killdim,:);
         conform_train = conformstruc.data(setdiff(1:skelldef.length,realkilldim),:); %sorry for the in-liners..       
         skelldef.elementorder = skelldef.elementorder(setdiff(1:skelldef.length,realkilldim));
     else
@@ -248,7 +252,11 @@ else
     end
 
         conformstruc.data = conform_train;
-        conformstruc.y = conformstruc.y;
+        if isfield(conformstruc, 'y')
+            conformstruc.y = conformstruc.y;
+        else
+            warning('no y?')
+        end
 end
 skelldef.realkilldim = realkilldim;
 [skelldef.pos, skelldef.vel] = generateidx(skelldef.length, skelldef);

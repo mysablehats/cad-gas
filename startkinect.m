@@ -27,6 +27,8 @@ end
 function [depthVid, colorVid,src] = setvars_kinnect(fpt)
 depthVid = videoinput('kinect',2,'Depth_640x480');
 colorVid = videoinput('kinect',1);
+set(colorVid,'Timeout',70);
+set(depthVid,'Timeout',70);
 % Set parameters for video
 % Acquire only one frame each time
 set([depthVid, colorVid],'FramesPerTrigger',fpt);
@@ -38,4 +40,4 @@ triggerconfig([depthVid colorVid], 'Manual');
 %set(vid,'TrackingMode','Skeleton')
 src = getselectedsource(depthVid);
 src.TrackingMode = 'Skeleton';
-src.CameraElevationAngle = 0;
+src.CameraElevationAngle = -4;

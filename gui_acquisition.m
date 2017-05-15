@@ -22,7 +22,7 @@ function varargout = gui_acquisition(varargin)
 
 % Edit the above text to modify the response to help gui_acquisition
 
-% Last Modified by GUIDE v2.5 20-Apr-2017 23:24:27
+% Last Modified by GUIDE v2.5 03-May-2017 11:40:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -253,7 +253,7 @@ if strcmp(get(handles.gui_acquisition,'SelectionType'),'open')
         handles.listbox2.String = {p.UserData.chunk.label};
     end
 end
-handles.lengthlength.String = num2str(p.UserData.chunk(index_selected).size);
+handles.lengthlength.String = num2str(p.UserData.chunk(index_selected).Size);
 updatetext(p.UserData.chunk(index_selected))
 
 
@@ -331,7 +331,10 @@ end
 
 % Start video and timer object
 try %maybe I have already started vid... or failed to stop it?
+    preview( [depthVid colorVid])
     start([depthVid colorVid]);
+    audio = audioread('Click-16-44p1-mono-0.2secs.wav');
+    chirpObj = audioplayer(audio,44100);
 catch
     stop([depthVid colorVid]);
     start([depthVid colorVid]);
@@ -342,81 +345,43 @@ if realtimevideo
     %     uiwait(hFigure);
 end
 
-%%% POOR HACK, SANITIZE THIS!
-%env = aa_environment;
-%classfdata = loadfileload('realclassifier',env);
 
 
-
-% Clean up everything
-if 1
-    if exist('TimerData', 'var')
-        stop(TimerData);
-        %waitfor(TimerData);
-        delete(TimerData);
-    elseif ~realtimevideo
-        %%%%something should update the active chunk!
-        while(~record.done&&hObject.Value)%isvalid(p))%~(chunk.complete&&~record.diff==-1)&&isvalid(p)  )
-            
-            if chunk.complete&&~record.done
-                handleshandles = findobj('Tag','togglebutton1');
-                set(handleshandles, 'Value',0) %but more stuff is necessary, because togglebutton being set to 0 is not the same as executing the callback of toggle button
-                record = updaterecordtoggle(handles);
-                %if ~p.UserData.chunk(index_selected).complete
-                %%set(p,'UserData(end)',new_chunk)
-                p.UserData.chunk(index_selected) = chunk;
-                
-                %else
-                %%set(p,'UserData(end+1)',new_chunk)
-                %    p.UserData.chunk(end+1) = chunk;
-                %end
-                assignin('base', 'chunk', p.UserData.chunk)
-                record.done = 1;
-                chunk = FrameRateDisplay([], [],hObject, handles ,ax, [depthVid colorVid], chunk,1, fpt); %%% resets persistent_chunk
-            else
-                chunk = FrameRateDisplay([], [],hObject, handles, ax, [depthVid colorVid], chunk,0, fpt);
-                %%%
-                %maybe classify it as well?
-                if 0% chunk.times(1)~=0 %this means that there is at least one skeleton. 
-                    handlestext = findobj('Tag','text8'); %% should make it persistent and maybe clean it on the top?
-                    allskel3 = generate_skel_online(chunk.chunk);
-                    labellabel = online_classifier(classfdata.realclass.outstruct,allskel3, classfdata.realclass.allconn, classfdata.realclass.simvar);
-                    handlestext.String = labellabel;
-                end
-            end
-%             if ~isempty(chunk.label) %% for debug...
-%                     disp('')
-%             else
-%                 disp('ismpety now')
-%             end
+if exist('TimerData', 'var')
+    stop(TimerData);
+    %waitfor(TimerData);
+    delete(TimerData);
+elseif ~realtimevideo
+    %%%%something should update the active chunk!
+    while(~record.done&&hObject.Value)
+        
+        if chunk.complete&&~record.done
+            play(chirpObj);
+            handleshandles = findobj('Tag','togglebutton1');
+            set(handleshandles, 'Value',0) %but more stuff is necessary, because togglebutton being set to 0 is not the same as executing the callback of toggle button
+            record = updaterecordtoggle(handles);
+            p.UserData.chunk(index_selected) = chunk;
+            assignin('base', 'chunk', p.UserData.chunk)
+            record.done = 1;
+            chunk = FrameRateDisplay([], [],hObject, handles ,ax, [depthVid colorVid], chunk,1, fpt, chirpObj); %%% resets persistent_chunk
+        else
+            chunk = FrameRateDisplay([], [],hObject, handles, ax, [depthVid colorVid], chunk,0, fpt, chirpObj);
         end
-        
-        %             if isfield(realclass, 'gases')
-        %                 allskel3 = generate_skel_online(chunk.chunk);
-        %                 labellabel = online_classifier(realclass.gases,allskel3, realclass.allconn, realclass.simvar);
-        %             else
-        %                 warning('Old file??')
-        %                 allskel3 = generate_skel_online(chunk.chunk);
-        %                 labellabel = online_classifier(realclass.outstruct,allskel3, realclass.allconn, realclass.simvar);
-        %             end
-        
-        
-        %            assignin('base', 'labels', labellabel)
-        
-        
-        stop([depthVid colorVid]);
-        pause(1)
-        delete([depthVid colorVid]);
-        % clear persistent variables
-        clear functions;
-        %clear
     end
+    
+    stop([depthVid colorVid]);
+    pause(1)
+    delete([depthVid colorVid]);
+    % clear persistent variables
+    clear functions;
+    %clear
 end
+
 
 % This function is called by the timer to display one frame of the figure
 
 
-function chunk = FrameRateDisplay(obj, event,hObject, handles,ax, vid, chunk, clearchunk,fpt)
+function chunk = FrameRateDisplay(obj, event,hObject, handles,ax, vid, chunk, clearchunk,fpt, chirpObj)
 %persistent IMdepth; % im not sure this is necessary
 persistent persistent_chunk
 persistent myhandles
@@ -438,35 +403,25 @@ if isempty(myhandles)
     myhandles = [myhandles myhandles];
 end
 
-
 %try % yeah, this makes no sense...
-trigger(vid(1));
-trigger(vid(2));
-%[IMdepth,timerss,depthMetaData]=getdata(vid(1),4,'uint8');
-%[IMcolor,timersss,colorMetaData]=getdata(vid(2),4,'uint8');
-if isvalid(vid(1))&&isvalid(vid(2))
+trigger(vid);
+play(chirpObj);
+%try
     [IMcolor,~,~]=getdata(vid(2),fpt,'uint8');
-    [IMdepth,~,depthMetaData]=getdata(vid(1),fpt,'uint8');
-else
-    return
-end
+    [IMdepth,timedy_times ,depthMetaData]=getdata(vid(1),fpt,'uint8');
+    
+    [skelskel, chunk ] = readskeleton(depthMetaData, persistent_chunk, IMdepth,IMcolor, timedy_times, chirpObj);
+    updaterecordtoggle(handles);
+    persistent_chunk = chunk;
+%catch
+%    return
+%end
 
-%IMcolor = [];
-
-
-[skelskel, chunk ] = readskeleton(depthMetaData, persistent_chunk, IMdepth,IMcolor);
-updaterecordtoggle(handles);
-persistent_chunk = chunk;
 myhandles(1) = makeimage(myhandles(1), ax(1), IMdepth(:,:,:,1) , skelskel);
 myhandles(2) = makeimage(myhandles(2), ax(2), IMcolor(:,:,:,1) , skelskel);
 set(ax(2), 'YDir', 'reverse')
 
-% catch ME
-%     ME.getReport
-%     return
-% end
-
-function [skelskel, chunk ]= readskeleton(metaData,  chunk, IMdepth,IMcolor)%, record)
+function [skelskel, chunk ]= readskeleton(metaData,  chunk, IMdepth,IMcolor, timedy_times, chirpObj)%, record)
 
 skelskel = [];% zeros(size(skeldraw_(zeros(20,2))),length(metaData.IsSkeletonTracked));
 ts =size(metaData,1);
@@ -486,13 +441,11 @@ if any(metaData(1).IsSkeletonTracked)==1 %%% we will toss out any skeletons that
     for i = 1:length(metaData(1).IsSkeletonTracked)  %%%use find for a faster algorithm! i.e %%trackedSkeletons = find(metaDataDepth(95).IsSkeletonTracked)
     
         if metaData(1).IsSkeletonTracked(i)==1
-            %disp(metaData.JointWorldCoordinates(:,:,i))
-            %try
             dbgmsg('Reached inside of loop',0)
             for triggersize = 1:ts
                 skelskel =  cat(2,skelskel, skeldraw_(metaData(triggersize).JointImageIndices(:,:,i), false));%coordshift(skeldraw_(metaData.JointWorldCoordinates(:,:,i),false));
             end
-            chunk = get_chunk(metaData, IMdepth,IMcolor, chunk,i);
+            chunk = chunk.write(metaData, IMdepth,IMcolor, timedy_times, i, record.state(end));
             if record.state(end) %%%ok I ve got this, if I 
                 %%% if I am recording the difference is that the counter
                 %%% progresses. If I am not, then I only have the latest 9
@@ -500,26 +453,17 @@ if any(metaData(1).IsSkeletonTracked)==1 %%% we will toss out any skeletons that
                 %%% classification
                 dbgmsg('Recording',0)
                 if record.diff
+                    %%%this is not really working...
                     dbgmsg('Just started recording!',1)
+                    playblocking(chirpObj);
                     pause(3)
+                    %play(chirpObj);
                 end               
                 updatetext(chunk)
                 if chunk.counter >= size(chunk.chunk,3)
-                    chunk.complete = 1;                   
+                    chunk = chunk.finish;
                 end
-            else
-                chunk.counter = chunk.counter - ts; %it will acquire and store data, but it will only progress the counter if I am recording. this seems like a simple fix. let's test it
-            end
-            
-            
-            % catch ME
-            %                 ME.getReport
-            %                 size(chunk(:,:,1))
-            %                 size(metaData.JointWorldCoordinates(:,:,i))
-            %                 find(chunk==0)
-            %                 disp(metaData.JointWorldCoordinates(:,:,i))
-            %                 error('Something fishy happened') %why error catch if you are goint to break the program??
-            %             %end
+            end         
         end
     end
 end
@@ -532,72 +476,21 @@ function myhandles = makeimage(myhandles, myaxes, IM, skelskel)
 %persistent myaxes;
 if isempty(myhandles.Raw)||~isvalid(myhandles.Raw)
     % if first execution, we create the figure objects
-    %subplot(2,1,1);
     myhandles.Raw=imagesc(myaxes, IM);
     title('CurrentImage');
     hold on
-    % Plot first value
-    %Values=mean(IM(:));
-    %subplot(2,2,2);
-    %handlesPlot=plot(Values);
-    %title('Average of Frame');
-    %xlabel('Frame number');
-    %ylabel('Average value (au)');
-    
-    %my skeleton
-    sampleskel = skeldraw_(zeros(20,2));
-%        [0.0697    0.1773    1.6761;
-%         0.0756    0.2420    1.6839;
-%         0.0678    0.5732    1.6773;
-%         0.0010    0.7354    1.5891;
-%         -0.0791    0.4813    1.7441;
-%         -0.1515    0.3129    1.4867;
-%         -0.1649    0.2954    1.2563;
-%         -0.1067    0.2954    1.2395;
-%         0.2255    0.4464    1.5866;
-%         0.2237    0.2958    1.4024;
-%         -0.0567    0.2926    1.2936;
-%         -0.1113    0.3175    1.2855;
-%         0.0002    0.1035    1.7097;
-%         0.0094   -0.3763    1.6717;
-%         -0.1009   -0.6928    1.6735;
-%         -0.1548   -0.7310    1.5964;
-%         0.1391    0.0965    1.6379;
-%         0.1254   -0.3289    1.6740;
-%         0.1750   -0.4106    1.2409;
-%         0.2620   -0.3947    1.1648];
-    
+    sampleskel = skeldraw_(zeros(20,2));    
     myhandles.myskel = plot(sampleskel(1,:),-sampleskel(2,:));
     set(myhandles.myskel, 'LineWidth',4, 'Color', 'y');
-    %hold off
-    %subplot(2,1,2);
-    %handlesmyskel=plot([]);
-    %    try
-    %        [~ , handlesmyskel] = skeldraw(sampleskel,true);
-    %    catch
-    %        disp('cant initialize axes handle')
-    %    end
-    myaxes = gca; %get(handlesmyskel,'Parent');
-    %set(myaxes, 'color', 'none')
 else
     % We only update what is needed
     set(myhandles.Raw,'CData',IM);
-    %Value=mean(IM(:));
-    %OldValues=get(handlesPlot,'YData');
-    %set(handlesPlot,'YData',[OldValues Value]);
-    %%%
-    if exist('skelskel','var')&&~isempty(skelskel)
-        %plot3(skelskel(1,:),skelskel(2,:), skelskel(3,:))
-        %disp('reachedplot')
+   if exist('skelskel','var')&&~isempty(skelskel)
         set(myhandles.myskel,'XData',skelskel(1,:))
         set(myhandles.myskel,'YData',skelskel(2,:))
-        %set(myhandles.myskel,'ZData',skelskel(3,:))
-        %set(handlesmyskel,'CData',skelskel)
         set(myaxes,'XLim', [0 640]);
         set(myaxes,'YLim', [0 480]);
-        %         set(myaxes,'ZLim', [-0 5]);
-        %view(0,90);
-    end
+     end
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -626,19 +519,8 @@ function chunk = createchunk(hObject, handles, varargin)
 %%%this should not be hard coded here, but it is... 
 labels = {'brushing teeth','cooking (chopping)'	,'cooking (stirring)'	,'drinking water','opening pill container'	,'random','relaxing on couch','rinsing mouth with water'	,'still'	,'talking on couch'	,'talking on the phone'	,'wearing contact lenses'	,'working on computer'	,'writing on whiteboard'};
 newchunk = new_chunk_gui(labels);
-chunk.size = newchunk.seqlen;
-
-chunk.label = newchunk.label;
-chunk.description = newchunk.description;
-
-chunk.chunk = zeros(20,3,chunk.size);
-chunk.IMdepth = uint8(zeros(480,640,chunk.size));
-chunk.IMcolor = uint8(zeros(480,640,3,chunk.size));
-
-chunk.timers = zeros(1,chunk.size, 'uint64');
-chunk.times = zeros(1,chunk.size);
-chunk.counter = 1;
-chunk.complete = 0;
+chunk = Chunk;
+chunk = chunk.create(newchunk.seqlen, newchunk.label, newchunk.description,[480,640]);
 
 %%% after creating a chunk I should  update listbox
 p = ancestor(hObject,'figure');
@@ -646,7 +528,9 @@ if ~isempty(p.UserData) %%% I do not know the creation order of objects, so if b
     handles.listbox2.String = {p.UserData.chunk.label};
 end
 %%% also should update gui
-handles.lengthlength.String = num2str(chunk.size);
+handles.lengthlength.String = num2str(chunk.Size);
+p.UserData.fpt = chunk.Size;
+handles.edit6.String = num2str(chunk.Size);
 updatetext(chunk)
 
 
@@ -895,3 +779,11 @@ function edit6_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over lengthlength.
+function lengthlength_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to lengthlength (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
