@@ -98,7 +98,7 @@ else
                     conformations = [conformations, {@centerhips}];
                     killdim = [killdim, skelldef.bodyparts.hip_center];
                 case 'normal'
-                    conformations = [conformations, {@normalize}];
+                    conformations = [conformations, {@normnorm}];
                     %dbgmsg('Unimplemented normalization: ', varargin{i} ,true);
                 case 'mirrorx'
                     conformations = [conformations, {@mirrorx}];
@@ -107,8 +107,8 @@ else
                 case 'mirrorz'
                     conformations = [conformations, {@mirrorz}];
                 case 'mahal'
-                    %conformations = [conformations, {@mahal}];
-                    dbgmsg('Unimplemented normalization: ', varargin{i} ,true);
+                    conformations = [conformations, {@normalize}];
+                    %dbgmsg('Unimplemented normalization: ', varargin{i} ,true);
                 case 'norotate'
                     conformations = [conformations, {@norotatehips}];
                     dbgmsg('WARNING, the normalization: ' , varargin{i},' is performing poorly, it should not be used.', true);
@@ -169,7 +169,7 @@ else
                 data_ymirror = [];
            end
             
-            if isequal(func,@normalize)
+            if isequal(func,@normalize)||isequal(func,@normnorm)
                 if 1%~test
                     %%% must go through whole dataset!
                     %%% if there is ever another function that requires this,
@@ -346,15 +346,35 @@ tdskel(:,3) = -tdskel(:,3);
 end
 function tdskel = normalize(tdskel, skelldef)
 if skelldef.novel
-    for i = 1:skelldef.hh
-        tdskel(i,:) = (tdskel(i,:) - skelldef.pos_mean)/skelldef.pos_std; %- skelldef.pos_mean
-    end
+    upperlim = skelldef.hh;
 else
-    for i = 1:skelldef.hh/2
-        tdskel(i,:) = (tdskel(i,:) - skelldef.pos_mean)/skelldef.pos_std; %- skelldef.pos_mean
-    end
+    upperlim = skelldef.hh/2;
+end
+
+for i = 1:upperlim
+    tdskel(i,:) = (tdskel(i,:) - skelldef.pos_mean)/skelldef.pos_std; %- skelldef.pos_mean
+end
+
+if ~skelldef.novel
     for i = (skelldef.hh/2+1):skelldef.hh
         tdskel(i,:) = (tdskel(i,:) - skelldef.vel_mean)/skelldef.vel_std;%- skelldef.vel_mean
+    end
+end
+end
+function tdskel = normnorm(tdskel, skelldef)
+if skelldef.novel
+    upperlim = skelldef.hh;
+else
+    upperlim = skelldef.hh/2;
+end
+
+% for i = 1:upperlim
+%     tdskel(i,:) = (tdskel(i,:) - skelldef.pos_mean)/skelldef.pos_std; %- skelldef.pos_mean
+% end
+
+if ~skelldef.novel
+    for i = (skelldef.hh/2+1):skelldef.hh
+        tdskel(i,:) = (tdskel(i,:))*skelldef.pos_std/skelldef.vel_std;%- skelldef.vel_mean
     end
 end
 end

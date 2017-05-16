@@ -10,8 +10,7 @@ end
 
 [data, labels_names] = extractdata(allskel, simvar.activity_type, simvar.labels_names,simvar.extract{:});
 if 0 %isfield(simvar, 'notzeroedaction')
-    
-    
+      
     a.train = data;
     pld = data.data.';
     figure
@@ -19,13 +18,14 @@ if 0 %isfield(simvar, 'notzeroedaction')
     %error('stops!')
     showdataset(a,simvar)
     disp('hello')
-else
-    %[data, skelldef] = conformskel(data, simvar.preconditions{:});
+end
+if simvar.disablesconformskel
     %no more conformskel!
     %erm actually i need skelldef, so i will maybe run conformskel without
     %parameters
-    
-    %[data, skelldef] = conformskel(data, simvar.preconditions{:});
     [data, skelldef] = conformskel(data);
+else
+    %in case you wish to run it:
+    [data, skelldef] = conformskel(data, simvar.preconditions{:});
 end
 end
