@@ -1,6 +1,6 @@
 function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
-for alldata = 2:5%68
+for alldata = 1:5%68
 TEST = 0;
 VERBOSE = 0;
 
@@ -21,6 +21,7 @@ VERBOSE = 0;
 env = aa_environment; % load environment variables
 
 simvar = struct();
+simvar.skelldef = []; %%%needs to be initialized. all because of hack that runs allconset twice...
 
 %% Choose dataset
 if isempty(varargin)
@@ -62,16 +63,16 @@ end
 
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
-simvar.PARA = 1;
-simvar.P = 4;
-simvar.NODES_VECT = [1000];
-simvar.MAX_EPOCHS_VECT = [20];
-simvar.ARCH_VECT = [1];
+simvar.PARA = 0;
+simvar.P = 1;
+simvar.NODES_VECT = [100];
+simvar.MAX_EPOCHS_VECT = [1];
+simvar.ARCH_VECT = [13];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
 % set parameters for gas:
-params.distancetype.metric = '3dsum'; %either '3dsum' or 'euclidean' 
+params.distancetype.metric = 'euclidean'; %either '3dsum' or 'euclidean' 
 params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow
 params.layertype = '';
 params.MAX_EPOCHS = [];
@@ -96,7 +97,7 @@ params.plottingstep = 0; % zero will make it plot only the end-gas
 
 %Exclusive for gwr
 params.STATIC = true;
-params.at = 0.95; %activity threshold
+params.at = 0.995; %activity threshold
 params.h0 = 1;
 params.ab = 0.95;
 params.an = 0.95;
@@ -108,6 +109,8 @@ params.age_inc                  = 1;
 params.lambda                   = 3;
 params.alpha                    = .5;     % q and f units error reduction constant.
 params.d                           = .99;   % Error reduction factor.
+
+%%% changing things for velocities:
 
 
 simvar = classifier_loop(simvar, params, env);

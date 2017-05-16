@@ -12,6 +12,7 @@ params.RANDOMSTART = false; % if true it overrides the .startingpoint variable
 params.RANDOMSET = true;
 n = randperm(size(Data,2),2);
 params.startingpoint = [n(1) n(2)];
+params.plottingstep = 0; % zero will make it plot only the end-gas
 
 params.amax = 50; %greatest allowed age
 params.nodes = NODES; %maximum number of nodes/neurons in the gas
@@ -45,7 +46,7 @@ params.tn = 3.33;
 % 
 % toc
 
-params.use_gpu = true;
+%params.use_gpu = true;
 tic
 A = gas_wrapper(Data,params,'gwr');
 if params.PLOTIT

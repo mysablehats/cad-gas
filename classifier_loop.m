@@ -20,12 +20,13 @@ for architectures = simvar.ARCH_VECT
                     simvar.trial(trialcount).activity_type = simvar.activity_type;
                     simvar.trial(trialcount).labels_names = simvar.labels_names;
                     simvar.trial(trialcount).generatenewdataset = simvar.generatenewdataset;
-                    params.MAX_EPOCHS = simvar.trial(trialcount).MAX_EPOCHS;
-                    params.nodes = simvar.trial(trialcount).NODES; %maximum number of nodes/neurons in the gas
-                    
+                    for parI = 1:length(params)
+                        params(parI).MAX_EPOCHS = simvar.trial(trialcount).MAX_EPOCHS;
+                        params(parI).nodes = simvar.trial(trialcount).NODES; %maximum number of nodes/neurons in the gas
+                    end
                     %% Classifier structure definitions
                     
-                    simvar.trial(trialcount).allconn = allconnset(simvar.trial(trialcount).arch, params);
+                    simvar.trial(trialcount).allconn = allconnset(simvar.trial(trialcount).arch, params, simvar);
                     
                     
                     %% Loading data
@@ -38,10 +39,10 @@ for architectures = simvar.ARCH_VECT
                         end
                         if simvar.trial(trialcount).generatenewdataset||datasetmissing
                             [allskel1, allskel2, simvar.trial(trialcount).TrainSubjectIndexes, simvar.trial(trialcount).ValSubjectIndexes] = generate_skel_data(simvar.datasettype, simvar.sampling_type, simvar.TrainSubjectIndexes, simvar.ValSubjectIndexes{valaction}, simvar.randSubjEachIteration);
-                            [data.train,simvar.trial(trialcount).labels_names, params.skelldef] = all3(allskel1, simvar.trial(trialcount));
+                            [data.train,simvar.trial(trialcount).labels_names, simvar.skelldef] = all3(allskel1, simvar.trial(trialcount));
                             %                         [allskel1] = conformactions(allskel1, simvar.prefilter);
                             %                         [data.train, simvar.labels_names] = extractdata(allskel1, simvar.activity_type, simvar.labels_names,simvar.extract{:});
-                            %                         [data.train, params.skelldef] = conformskel(data.train, simvar.preconditions{:});
+                            %                         [data.train, simvar.skelldef] = conformskel(data.train, simvar.preconditions{:});
                             %                         %does same for validation data
                             
                             %%%% for debuggin only - remove or comment
@@ -50,7 +51,7 @@ for architectures = simvar.ARCH_VECT
                             %                             [zskel, notzeroedaction, labact] = zeromostout(allskel1);
                             %                             simvar.notzeroedaction = notzeroedaction;
                             %                             simvar.labact = labact;
-                            %                             [zdata,simvar.labels_names, params.skelldef] = all3(zskel, simvar);
+                            %                             [zdata,simvar.labels_names, simvar.skelldef] = all3(zskel, simvar);
                             %                         end
                             %showdataset(data,simvar)
                             %%%%
@@ -67,7 +68,7 @@ for architectures = simvar.ARCH_VECT
                         else
                             loadedtrial = loadfileload(simvar.trialdataname,env);
                             data = loadedtrial.data;
-                            params.skelldef = loadedtrial.params.skelldef;
+                            simvar.skelldef = loadedtrial.simvar.skelldef;
                             simvar.trial(trialcount).generatenewdataset = false;
                         end
                         simvar.trial(trialcount).datainputvectorsize = size(data.train.data,1);
@@ -75,7 +76,7 @@ for architectures = simvar.ARCH_VECT
                         data = varargin{1};
                         data = data(featuress);
                         simvar.datainputvectorsize = size(data.inputs,2);
-                        params.skelldef = struct('length', simvar.trial(trialcount).datainputvectorsize, 'notskeleton', true, 'awk', struct('pos', [],'vel',[]), 'pos', simvar.trial(trialcount).datainputvectorsize, 'vel', []);
+                        simvar.skelldef = struct('length', simvar.trial(trialcount).datainputvectorsize, 'notskeleton', true, 'awk', struct('pos', [],'vel',[]), 'pos', simvar.trial(trialcount).datainputvectorsize, 'vel', []);
                         data.train.data = data.inputs'; % not empty so that the algorithm doesnt complain
                         data.train.y = data.labelsM;
                         data.train.ends = ones(1,size(data.inputs,1));
@@ -83,24 +84,30 @@ for architectures = simvar.ARCH_VECT
                         data.val.y = data.labelsM;
                         data.val.ends = ones(1,size(data.inputs,1));
                     end
-                    %% Classifier structure definitions
-                    
-                    simvar.trial(trialcount).allconn = allconnset(simvar.trial(trialcount).arch, params);
-                    
-                    %%%%%does this look like good programming?
-                    
-                    
+                    %yikes, this is horrible. the next part should also be
+                    %taking paramZ then,,, yikes...
                     %% Setting up different parameters for each of parallel tria
                     % Maybe you want to do that; in case you don't, then we just
                     % use a for to put the same parameters for each.
                     a = struct([]);
+                    params.skelldef = simvar.skelldef; %% either this or the parameters on allconn have to be a vector, i don't want to change that, if this fails, please make it a vector. it will already be a vector because velocity and position will have different parameters, so avoid this change as it will make it even more complex
                     for i = 1:simvar.P
+                        
                         simvar.trial(trialcount).paramsZ(i) = params;
                         a(i).a = struct([]);
                     end
                     
                     clear a
                     b = [];
+                    
+                    %% Classifier structure definitions
+                    
+                    simvar.trial(trialcount).allconn = allconnset(simvar.trial(trialcount).arch, params, simvar);
+                    
+                    %%%%%does this look like good programming?
+                    
+                    
+
                     
                     if ~TEST % there are so many different ways I want to test it, that this definition is pretty much pointless.
                         starttime = tic;
@@ -153,7 +160,7 @@ for architectures = simvar.ARCH_VECT
                         %
                         %                     save(strcat(env.wheretosavestuff,env.SLASH,'cst.mat'),'simvar')
                         %
-                        savevar = strcat('b',num2str(simvar.trial(trialcount).NODES),'_', num2str(params.MAX_EPOCHS),'epochs',num2str(size(b,2)), simvar.sampling_type, simvar.datasettype, simvar.activity_type);
+                        savevar = strcat('b',num2str(simvar.trial(trialcount).NODES),'_', num2str(simvar.trial(trialcount).MAX_EPOCHS),'epochs',num2str(size(b,2)), simvar.sampling_type, simvar.datasettype, simvar.activity_type);
                         %eval(strcat(savevar,'=simvar;'))
                         eval(strcat(savevar,'=b;'))
                         for i = 1:length(b)
@@ -183,7 +190,8 @@ for architectures = simvar.ARCH_VECT
     end
 end
 end
-function allconn = allconnset(n, params)
+function allconn = allconnset(n, params, simvar)
+params.skelldef = simvar.skelldef;
 allconn_set = {...
     {... %%%% ARCHITECTURE 1
     {'gwr1layer',   'gwr',{'pos'},                    'pos',[1 0],params}...
@@ -256,6 +264,10 @@ allconn_set = {...
     {... %%%% ARCHITECTURE 12
     {'gwr1layer',   'gwr',{'pos'},                    'pos',[1 0],params}...
     {'gwr2layer',   'gwr',{'gwr1layer'},              'pos',[9 0],params}...
+    }...
+    {... %%%% ARCHITECTURE 13
+    {'gwr1layer',   'gwr',{'vel'},                    'vel',[1 0],params}...
+    {'gwr2layer',   'gwr',{'gwr1layer'},              'vel',[9 0],params}...
     }...
     };
 allconn = allconn_set{n};
