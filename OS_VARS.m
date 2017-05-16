@@ -1,7 +1,15 @@
 function [SLASH, pathtodata] = OS_VARS()
 if ispc
-    SLASH = '\\'; % windows 
-    pathtodata = 'D:\fall_detection_datasets\TST Fall detection database ver. 2\';
+    SLASH = '\\'; % windows
+    list_dir = {'d', 'e', 'f', 'g', 'h'};
+    list_ind = 1;
+    while (~exist([list_dir{list_ind} ':\fall_detection_datasets\TST Fall detection database ver. 2\'],'dir'))
+        list_ind = list_ind +1;
+        if list_ind > length(list_dir)
+            error('Could not find suitable save directory')
+        end
+    end
+    pathtodata = [list_dir{list_ind} ':\\fall_detection_datasets\TST Fall detection database ver. 2\'];
 elseif ismac
     pathtodata = '/Volumes/Elements/fall_detection_datasets/TST Fall detection database ver. 2/';
     SLASH = '/'; %
@@ -12,13 +20,6 @@ elseif isunix
 else
     error('Cant determine OS')
 end
-if ~exist(pathtodata,'dir')    %%%this should be generalized so that it makes sense...
-    pathtodata = 'E:\fall_detection_datasets\TST Fall detection database ver. 2\';
-    if ~exist(pathtodata,'dir')
-        pathtodata = 'G:\fall_detection_datasets\TST Fall detection database ver. 2\';
-        if ~exist(pathtodata,'dir')
-            error('data not there!')
-        end
-    end
-end
+
+
 end
