@@ -1,6 +1,8 @@
 function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
-for alldata = 1:68 %randperm(68,15)%2:5%68
+% pcspecs = load();
+% alldata = pcspecs.alldata;
+for alldata = randperm(68,5)%1:68 %2:5%68
 TEST = 0;
 VERBOSE = 0;
 
@@ -22,6 +24,7 @@ env = aa_environment; % load environment variables
 
 simvar = struct();
 
+simvar.disablesconformskel = 0;
 %% Choose dataset
 if isempty(varargin)
     simvar.featuresall = 1;
@@ -30,7 +33,7 @@ if isempty(varargin)
     simvar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
     simvar.sampling_type = 'type1';
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
-    simvar.prefilter = {'filter', 15};%{'filter',10}; % 'filter', 'none', 'median?'
+    simvar.prefilter = {'none', 15};%{'filter',10}; % 'filter', 'none', 'median?'
     simvar.affinerepair = true;
     simvar.affrepvel = true;
     simvar.labels_names = []; % necessary so that same actions keep their order number
@@ -38,7 +41,7 @@ if isempty(varargin)
     simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
     simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing 
     simvar.extract = {'rand', 'wantvelocity'};
-    simvar.preconditions =  {'mirrorx'};%{'nohips', 'norotatehips' ,'mirrorx'}; %, 
+    simvar.preconditions =  {'mirrorx','normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %, 
     simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
     simvar.trialdatafile = strcat(env.wheretosavestuff,env.SLASH,simvar.trialdataname,'.mat');
     simvar.allmatpath = env.allmatpath;
@@ -63,11 +66,15 @@ end
 
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
-simvar.PARA = 1;
-simvar.P = feature('numCores');
-simvar.NODES_VECT = [400];
-simvar.MAX_EPOCHS_VECT = [10];
-simvar.ARCH_VECT = [1];
+simvar.PARA = 0;
+if simvar.PARA
+    simvar.P = feature('numCores');
+else
+    simvar.P = 1;
+end
+simvar.NODES_VECT = [100];
+simvar.MAX_EPOCHS_VECT = [1];
+simvar.ARCH_VECT = [13];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
@@ -79,7 +86,7 @@ params.MAX_EPOCHS = [];
 params.removepoints = false;
 params.PLOTIT = false;
 params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
-params.RANDOMSET = true; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
+params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
 params.savegas.resume = false; % do not set to true. not working
 params.savegas.save = false;
 params.savegas.path = env.wheretosavestuff;
