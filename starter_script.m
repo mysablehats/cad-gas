@@ -33,7 +33,7 @@ if isempty(varargin)
     simvar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
     simvar.sampling_type = 'type1';
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
-    simvar.prefilter = {'none', 15};%{'filter',10}; % 'filter', 'none', 'median?'
+    simvar.prefilter = {'filter', 15};%{'filter',10}; % 'filter', 'none', 'median?'
     simvar.affinerepair = true;
     simvar.affrepvel = true;
     simvar.labels_names = []; % necessary so that same actions keep their order number
