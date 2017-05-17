@@ -2,7 +2,7 @@ function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
 % pcspecs = load();
 % alldata = pcspecs.alldata;
-for alldata = randperm(68,5)%1:68 %2:5%68
+for alldata = 1:68 %randperm(68,5)%2:5%68
 TEST = 0;
 VERBOSE = 0;
 
@@ -66,13 +66,13 @@ end
 
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
-simvar.PARA = 0;
+simvar.PARA = 1;
 if simvar.PARA
     simvar.P = feature('numCores');
 else
     simvar.P = 1;
 end
-simvar.NODES_VECT = [100];
+simvar.NODES_VECT = [1000];
 simvar.MAX_EPOCHS_VECT = [1];
 simvar.ARCH_VECT = [12];
 simvar.MAX_NUM_TRIALS = 1;
