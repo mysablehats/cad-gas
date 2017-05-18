@@ -117,7 +117,7 @@ params.d                           = .99;   % Error reduction factor.
 
 simvar = classifier_loop(simvar, params, env);
 try
-    b = evalin('base','outcomes');
+    b = evalin('base',['outcomes' num2str(pcspecs.pcid)]);
 catch
     b = struct();
 end
