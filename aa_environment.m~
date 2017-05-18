@@ -8,7 +8,7 @@ if ismac
     %disp('reached ismac')
 elseif isunix
     [~,cmdout] = system('echo $USER');
-    env.wheretosavestuff = ['/media/' cmdout(1:end-1) '/docs/savesave'];
+    env.wheretosavestuff = ['/media/' cmdout 'docs/fall_detection_datasets/var'];
     env.homepath = ['~/Documents/' nameofcurrentrepo];
     %disp('reached isunix')
 elseif ispc

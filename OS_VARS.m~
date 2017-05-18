@@ -17,7 +17,7 @@ elseif ismac
 elseif isunix
     [~,cmdout] = system('echo $USER');
     %pathtodata = '/media/Elements/fall_detection_datasets/TST Fall detection database ver. 2/';
-    pathtodata = ['/media/' cmdout(1:end-1) '/' exthdname '/fall_detection_datasets/TST Fall detection database ver. 2/'];
+    pathtodata = ['/media/' cmdout(1:end-1) '/' ements/fall_detection_datasets/TST Fall detection database ver. 2/'];
     SLASH = '/'; %
 else
     error('Cant determine OS')
