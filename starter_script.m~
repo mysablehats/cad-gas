@@ -2,7 +2,7 @@ function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
 env = aa_environment; % load environment variables
 pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
-for alldata = pcspecs.idxs%1:68 %2:5%68
+for alldata = pcspec%1:68 %2:5%68
 TEST = 0;
 VERBOSE = 0;
 
@@ -18,6 +18,9 @@ VERBOSE = 0;
 % and training sets. So in case this is annoying to you and you want to run
 % always with a similar dataset, set
 % simvar.generatenewdataset = false
+
+
+
 
 simvar = struct();
 
@@ -69,7 +72,7 @@ if simvar.PARA
 else
     simvar.P = 1;
 end
-simvar.NODES_VECT = [10];
+simvar.NODES_VECT = [100];
 simvar.MAX_EPOCHS_VECT = [1];
 simvar.ARCH_VECT = [12];
 simvar.MAX_NUM_TRIALS = 1;
@@ -123,7 +126,7 @@ catch
 end
 [~, b(alldata).b] = analyze_outcomes(simvar);
 simvar = '';
-assignin('base', ['outcomes' num2str(pcspecs.pcid)], b);
+assignin('base', 'outcomes', b);
 assignin('base', 'alldata', b);
 % if params.PLOTIT
 %     for j = 1:size(simvar.trial,2)

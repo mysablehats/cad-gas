@@ -5,11 +5,14 @@ global logpath
 if ismac
     env.wheretosavestuff = '/Volumes/Elements/savesave';
     env.homepath = ['~/matlabprogs/' nameofcurrentrepo];
+    env.allmatpath = '';
+    error('define allmathpath!')
     %disp('reached ismac')
 elseif isunix
     [~,cmdout] = system('echo $USER');
     env.wheretosavestuff = ['/media/' cmdout(1:end-1) '/docs/savesave'];
-    env.homepath = ['~/Documents/' nameofcurrentrepo];
+    env.homepath = ['~/matlab/' nameofcurrentrepo];
+    env.allmatpath = ['~/Dropbox/all.mat/'];
     %disp('reached isunix')
 elseif ispc
     [~,cmdout] = system('echo %HOMEPATH%');
@@ -25,7 +28,7 @@ elseif ispc
     %env.wheretosavestuff = 'e:\'; %%% should check if there is permission for saving!!!
     env.wheretosavestuff = [list_dir{list_ind} ':\\savesave']; %%% should check if there is permission for saving!!!
     env.homepath = ['C:\' cmdout(1:end-1) '\Documents\\GitHub\\' nameofcurrentrepo];
-    env.allmatpath = ['C:\' cmdout(1:end-1) '\Dropbox\all.mat'];
+    env.allmatpath = ['C:\' cmdout(1:end-1) '\Dropbox\all.mat\'];
 else
     disp('oh-oh')
 end
