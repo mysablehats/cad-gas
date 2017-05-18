@@ -124,7 +124,7 @@ end
 [~, b(alldata).b] = analyze_outcomes(simvar);
 simvar = '';
 assignin('base', ['outcomes' num2str(pcspecs.pcid)], b);
-assignin('base', 'alldata', alldata);
+assignin('base', 'myidxs', pcspecs.idxs);
 % if params.PLOTIT
 %     for j = 1:size(simvar.trial,2)
 %         for i = 1:size(simvar.trial(j).metrics,1)
