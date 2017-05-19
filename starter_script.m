@@ -1,4 +1,5 @@
 function simvar = starter_script(varargin)
+myticvar = tic;
 global VERBOSE LOGIT TEST
 env = aa_environment; % load environment variables
 pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
@@ -136,6 +137,7 @@ assignin('base', 'myidxs', pcspecs.idxs);
 %     end
 % end
 end
+toc(myticvar)
 outcomes.b = b;
 outcomes.pcid = pcspecs.pcid;
 outcomes.idxs = pcspecs.idxs;
