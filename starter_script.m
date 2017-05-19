@@ -141,6 +141,4 @@ outcomes.pcid = pcspecs.pcid;
 outcomes.idxs = pcspecs.idxs;
 outcomes.hash = env.currhash;
 save([env.allmatpath 'outcomes' env.SLASH env.currhash '-outcomes-' num2str(pcspecs.pcid)], 'outcomes')
-load handel;
-player = audioplayer(y, Fs);
-playblocking(player);
+combineoutcomes
