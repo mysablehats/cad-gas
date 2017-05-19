@@ -8,8 +8,8 @@ catch
     return
 end
 for i=1:3
-    for j = outcomes(i).idxs
-        combineoutcomes(j) = outcomes(i).b(j);
+    for j = outcomes(i).outcomes.idxs
+        combineoutcomes(j) = outcomes(i).outcomes.b(j);
     end
 end
 disp(['results of hash: ' env.currhash])
