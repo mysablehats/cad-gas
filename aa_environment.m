@@ -1,6 +1,7 @@
 function env = aa_environment()
 [env.SLASH, env.pathtodata] = OS_VARS();
 nameofcurrentrepo = 'cad-gas';
+env.currhash = '';
 global logpath
 if ismac
     env.wheretosavestuff = '/Volumes/Elements/savesave';
@@ -14,6 +15,11 @@ elseif isunix
     env.homepath = ['~/matlab/' nameofcurrentrepo];
     env.allmatpath = ['~/Dropbox/all.mat/'];
     %disp('reached isunix')
+    [elel, gitout] = system('git rev-parse HEAD');
+    if elel
+        error('could not get current hash')
+    end
+    env.currhash = gitout(1:end-1);
 elseif ispc
     [~,cmdout] = system('echo %HOMEPATH%');
     list_dir = {'d', 'e', 'f', 'g', 'h'};
@@ -24,6 +30,16 @@ elseif ispc
             error('Could not find suitable save directory')
         end
     end
+    [elel,cmdout1] = system('where /r \ git.exe');
+    if any(strfind(cmdout1,'INFO:'))||elel
+        error('cant find git.exe')
+    end
+    cmdcmd = strsplit(cmdout1,'\n');
+    [elel, gitout] = system([cmdcmd{1} ' rev-parse HEAD']);
+    if elel
+        error('could not get current hash')
+    end
+    env.currhash = gitout(1:end-1);
     %env.wheretosavestuff = 'd:\'; %%% should check if there is permission for saving!!!
     %env.wheretosavestuff = 'e:\'; %%% should check if there is permission for saving!!!
     env.wheretosavestuff = [list_dir{list_ind} ':\\savesave']; %%% should check if there is permission for saving!!!

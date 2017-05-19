@@ -2,7 +2,7 @@ function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
 env = aa_environment; % load environment variables
 pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
-for alldata = pcspecs.idxs%1:68 %2:5%68
+for alldata = 1%pcspecs.idxs%1:68 %2:5%68
 TEST = 0;
 VERBOSE = 0;
 
@@ -136,6 +136,11 @@ assignin('base', 'myidxs', pcspecs.idxs);
 %     end
 % end
 end
+outcomes.b = b;
+outcomes.pcid = pcspecs.pcid;
+outcomes.idxs = pcspecs.idxs;
+outcomes.hash = env.currhash;
+save([env.allmatpath 'outcomes' env.SLASH env.currhash '-outcomes-' num2str(pcspecs.pcid)], 'outcomes')
 load handel;
 player = audioplayer(y, Fs);
 playblocking(player);
