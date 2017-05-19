@@ -2,7 +2,7 @@ function simvar = starter_script(varargin)
 global VERBOSE LOGIT TEST
 env = aa_environment; % load environment variables
 pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
-for alldata = 1%pcspecs.idxs%1:68 %2:5%68
+for alldata = pcspecs.idxs%1:68 %2:5%68
 TEST = 0;
 VERBOSE = 0;
 
