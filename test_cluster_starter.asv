@@ -1,0 +1,5 @@
+%test cluster primitive
+env = aa_environment;
+pcid = 3;
+idxs = 45:4;
+save([env.homepath env.SLASH '..' env.SLASH 'clust.mat'],'pcid','idxs')

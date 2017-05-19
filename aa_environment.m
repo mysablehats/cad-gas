@@ -34,8 +34,8 @@ elseif ispc
     if any(strfind(cmdout1,'INFO:'))||elel
         error('cant find git.exe')
     end
-    cmdcmd = strsplit(cmdout1,'\n');
-    [elel, gitout] = system([cmdcmd{1} ' rev-parse HEAD']);
+    cmdcmd = strsplit(cmdout1,'git.exe');
+    [elel, gitout] = system(['"' cmdcmd{1} 'git" rev-parse HEAD']);
     if elel
         error('could not get current hash')
     end
