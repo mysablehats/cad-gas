@@ -70,7 +70,7 @@ if simvar.PARA
 else
     simvar.P = 1;
 end
-simvar.NODES_VECT = [10];
+simvar.NODES_VECT = [1000];
 simvar.MAX_EPOCHS_VECT = [1];
 simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
