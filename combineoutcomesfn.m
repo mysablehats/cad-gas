@@ -1,7 +1,4 @@
-function aaa = combineoutcomes(varargin)
-if isempty(varargin)
-    N = 1:2;
-end
+function aaa = combineoutcomes(N)
 env = aa_environment;
 try
     for i = N
