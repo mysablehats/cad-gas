@@ -2,8 +2,20 @@ function simvar = starter_script(varargin)
 myticvar = tic;
 global VERBOSE LOGIT TEST
 env = aa_environment; % load environment variables
-pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
-for alldata = pcspecs.idxs%1:68 %2:5%68
+validationtype = 'type2';
+switch validationtype
+    case 'wholeset'        
+        Alldata = 1:68;
+    case 'cluster'
+        pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
+        Alldata = pcspecs.idxs;
+    case 'quarterset'
+        Alldata = [1:17] +17*randperm(4,1)-17;
+    case 'type2'
+        Alldata = 1;
+end
+
+for alldata = Alldata%1:68 %2:5%68
 TEST = 0;
 VERBOSE = 0;
 
@@ -29,15 +41,21 @@ if isempty(varargin)
     simvar.realtimeclassifier = false;
     simvar.generatenewdataset = 1; %true;
     simvar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
-    simvar.sampling_type = 'type1';
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
     simvar.prefilter = {'none', 15};%{'filter',10}; % 'filter', 'none', 'median?'
     simvar.affinerepair = false;
     simvar.affrepvel = false;
     simvar.labels_names = []; % necessary so that same actions keep their order number
-    simvar.TrainSubjectIndexes = [];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
-    simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
-    simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing 
+    if strcmp(validationtype,'type2')
+        simvar.sampling_type = 'type2';
+        simvar.ValSubjectIndexes = {randperm(4,1)};
+        simvar.TrainSubjectIndexes = setdiff(1:4,[simvar.ValSubjectIndexes{:}]);
+    else
+        simvar.sampling_type = 'type1';
+        simvar.TrainSubjectIndexes = tsbj;%[];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
+        simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
+    end
+    simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing
     simvar.extract = {'rand', 'wantvelocity'};
     simvar.preconditions =  {'nohips', 'mirrorx'};%,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %, 
     simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
