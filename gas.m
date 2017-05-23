@@ -18,6 +18,8 @@ classdef gas
         ni2
         n1n2
         gwr
+        astddev
+        amean
     end
     methods
         function X = hs(gasgas, t)
@@ -34,6 +36,10 @@ classdef gas
         end
         function X = S(~,t)
             X = 1;
+        end
+        function gasgas = update_meanandstddev(gasgas, errorvect)
+            gasgas.astddev = std(errorvect);
+            gasgas.amean = mean(errorvect);
         end
         function [n1n2, ni1,ni2] = initialnodes(gasgas, data)
             
@@ -66,6 +72,12 @@ classdef gas
             n1n2 = [n1, n2];
         end
         function gasgas = gas_create(gasgas, params,data)
+            % sets initial std and mean for activations for an untrained
+            % gas
+            gasgas.astddev = Inf;
+            gasgas.amean = 0;
+            
+            % assigns params to gas class being created
             gasgas.params = params;
             gasgas.params.accumulatedepochs = 0;
             gasgas = gasgas.gas_finalize;
