@@ -77,6 +77,7 @@ if isempty(params)
     params.nodes = NODES; %maximum number of nodes/neurons in the gas
     params.en = 0.006; %epsilon subscript n
     params.eb = 0.2; %epsilon subscript b
+    params.gamma = 1;
     
     %Exclusive for gwr
     params.STATIC = true;
@@ -205,6 +206,9 @@ for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more tim
         kset = randperm(datasetsize);
     else
         kset = 1:datasetsize;
+        if params.RANDOMSTART %% IF THE START IS RANDOM SO SHOULD BE THE BEGGING OF THE DATASET
+            kset = circshift(kset,randperm(datasetsize,1));
+        end
     end
     % start of the loop
     for k = kset %step 1

@@ -18,6 +18,7 @@ params.nodes = NODES; %maximum number of nodes/neurons in the gas
 params.en = 0.006; %epsilon subscript n
 params.eb = 0.2; %epsilon subscript b
 params.MAX_EPOCHS = 10; % this means data will be run over MAX_EPOCHS times
+params.gamma = 1;
 
 %Exclusive for gwr
 params.STATIC = true;
