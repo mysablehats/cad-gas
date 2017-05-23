@@ -91,7 +91,7 @@ else
     simvar.P = 1;
 end
 simvar.NODES_VECT = [10];
-simvar.MAX_EPOCHS_VECT = [10];
+simvar.MAX_EPOCHS_VECT = [3];
 simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
@@ -101,7 +101,7 @@ params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean
 params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow
 params.layertype = '';
 params.MAX_EPOCHS = [];
-params.removepoints = false;
+params.removepoints = true;
 params.oldremovepoints = false;
 params.PLOTIT = false;
 params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
@@ -118,7 +118,7 @@ params.amax = 50; %greatest allowed age
 params.nodes = []; %maximum number of nodes/neurons in the gas
 params.en = 0.006; %epsilon subscript n
 params.eb = 0.2; %epsilon subscript b
-params.gamma = 1; % for the denoising function
+params.gamma = 2; % for the denoising function
 params.plottingstep = 0; % zero will make it plot only the end-gas
 
 %Exclusive for gwr
