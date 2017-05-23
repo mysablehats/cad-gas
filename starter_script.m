@@ -3,14 +3,16 @@ myticvar = tic;
 global VERBOSE LOGIT TEST
 env = aa_environment; % load environment variables
 validationtype = 'type2';
+pc = 999;
 switch validationtype
     case 'wholeset'        
         Alldata = 1:68;
     case 'cluster'
         pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
         Alldata = pcspecs.idxs;
+        pc = pcspecs.pcid;
     case 'quarterset'
-        Alldata = [1:17] +17*randperm(4,1)-17;
+        Alldata = (1:17)+17*(randi(4,1,17)-1);
     case 'type2'
         Alldata = 1;
 end
@@ -88,7 +90,7 @@ if simvar.PARA
 else
     simvar.P = 1;
 end
-simvar.NODES_VECT = [1000];
+simvar.NODES_VECT = [10];
 simvar.MAX_EPOCHS_VECT = [10];
 simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
@@ -137,14 +139,14 @@ params.d                           = .99;   % Error reduction factor.
 
 simvar = classifier_loop(simvar, params, env);
 try
-    b = evalin('base',['outcomes' num2str(pcspecs.pcid)]);
+    b = evalin('base',['outcomes' num2str(pc)]);
 catch
     b = struct();
 end
 [~, b(alldata).b] = analyze_outcomes(simvar);
 simvar = '';
-assignin('base', ['outcomes' num2str(pcspecs.pcid)], b);
-assignin('base', 'myidxs', pcspecs.idxs);
+assignin('base', ['outcomes' num2str(pc)], b);
+assignin('base', 'myidxs',Alldata);
 % if params.PLOTIT
 %     for j = 1:size(simvar.trial,2)
 %         for i = 1:size(simvar.trial(j).metrics,1)
@@ -158,8 +160,8 @@ assignin('base', 'myidxs', pcspecs.idxs);
 end
 toc(myticvar)
 outcomes.b = b;
-outcomes.pcid = pcspecs.pcid;
-outcomes.idxs = pcspecs.idxs;
+outcomes.pcid = pc;
+outcomes.idxs = Alldata;%pcspecs.idxs;
 outcomes.hash = env.currhash;
-save([env.allmatpath 'outcomes' env.SLASH env.currhash '-outcomes-' num2str(pcspecs.pcid)], 'outcomes')
+save([env.allmatpath 'outcomes' env.SLASH env.currhash '-outcomes-' num2str(pc)], 'outcomes')
 combineoutcomes

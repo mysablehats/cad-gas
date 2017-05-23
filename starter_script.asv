@@ -3,12 +3,14 @@ myticvar = tic;
 global VERBOSE LOGIT TEST
 env = aa_environment; % load environment variables
 validationtype = 'type2';
+pc = 999;
 switch validationtype
     case 'wholeset'        
         Alldata = 1:68;
     case 'cluster'
         pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
         Alldata = pcspecs.idxs;
+        pc = pcspecs.pcid;
     case 'quarterset'
         Alldata = [1:17] +17*randperm(4,1)-17;
     case 'type2'
@@ -48,8 +50,8 @@ if isempty(varargin)
     simvar.labels_names = []; % necessary so that same actions keep their order number
     if strcmp(validationtype,'type2')
         simvar.sampling_type = 'type2';
-        simvar.ValSubjectIndexes = randperm(4,1);
-        simvar.TrainSubjectIndexes = {setdiff(1:4,simvar.ValSubjectIndexes);
+        simvar.ValSubjectIndexes = {randperm(4,1)};
+        simvar.TrainSubjectIndexes = setdiff(1:4,[simvar.ValSubjectIndexes{:}]);
     else
         simvar.sampling_type = 'type1';
         simvar.TrainSubjectIndexes = tsbj;%[];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
@@ -88,7 +90,7 @@ if simvar.PARA
 else
     simvar.P = 1;
 end
-simvar.NODES_VECT = [1000];
+simvar.NODES_VECT = [10];
 simvar.MAX_EPOCHS_VECT = [10];
 simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
@@ -100,6 +102,7 @@ params.distancetype.noaffine = true; %if false will correct affine transformatio
 params.layertype = '';
 params.MAX_EPOCHS = [];
 params.removepoints = false;
+params.oldremovepoints = false;
 params.PLOTIT = false;
 params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
 params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
@@ -136,14 +139,14 @@ params.d                           = .99;   % Error reduction factor.
 
 simvar = classifier_loop(simvar, params, env);
 try
-    b = evalin('base',['outcomes' num2str(pcspecs.pcid)]);
+    b = evalin('base',['outcomes' num2str(pc)]);
 catch
     b = struct();
 end
 [~, b(alldata).b] = analyze_outcomes(simvar);
 simvar = '';
-assignin('base', ['outcomes' num2str(pcspecs.pcid)], b);
-assignin('base', 'myidxs', pcspecs.idxs);
+assignin('base', ['outcomes' num2str(pc)], b);
+assignin('base', 'myidxs',Alldata);
 % if params.PLOTIT
 %     for j = 1:size(simvar.trial,2)
 %         for i = 1:size(simvar.trial(j).metrics,1)
@@ -157,8 +160,8 @@ assignin('base', 'myidxs', pcspecs.idxs);
 end
 toc(myticvar)
 outcomes.b = b;
-outcomes.pcid = pcspecs.pcid;
-outcomes.idxs = pcspecs.idxs;
+outcomes.pcid = pc;
+outcomes.idxs = Alldata;%pcspecs.idxs;
 outcomes.hash = env.currhash;
-save([env.allmatpath 'outcomes' env.SLASH env.currhash '-outcomes-' num2str(pcspecs.pcid)], 'outcomes')
+save([env.allmatpath 'outcomes' env.SLASH env.currhash '-outcomes-' num2str(pc)], 'outcomes')
 combineoutcomes
