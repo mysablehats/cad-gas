@@ -20,6 +20,7 @@ classdef gas
         gwr
         astddev
         amean
+        skippedpoints
     end
     methods
         function X = hs(gasgas, t)
@@ -76,6 +77,7 @@ classdef gas
             % gas
             gasgas.astddev = Inf;
             gasgas.amean = 0;
+            gasgas.skippedpoints = 0;
             
             % assigns params to gas class being created
             gasgas.params = params;

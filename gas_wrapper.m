@@ -1,4 +1,4 @@
-function [A,  C , outparams] = gas_wrapper(data, varargin)
+function [A,  C , outparams, gasgas] = gas_wrapper(data, varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %cf parisi,  2015 and cf marsland,  2002 based on the GNG algorithm from the
 %guy that did the GNG algorithm for matlab
@@ -503,6 +503,7 @@ function [gas]= gwr_core(eta, gas)
 gas.a = exp(-norm((eta-gas.gwr.ws).*gas.awk)); %step 5
 
 if gas.params.removepoints&&(gas.a < gas.amean - gas.params.gamma*gas.astddev)
+    gas.skippedpoints = gas.skippedpoints +1;
     return
 end
     
