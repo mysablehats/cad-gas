@@ -100,6 +100,7 @@ params.distancetype.noaffine = true; %if false will correct affine transformatio
 params.layertype = '';
 params.MAX_EPOCHS = [];
 params.removepoints = false;
+params.oldremovepoints = false;
 params.PLOTIT = false;
 params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
 params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
