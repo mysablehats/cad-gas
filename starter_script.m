@@ -96,7 +96,7 @@ else
 end
 simvar.NODES_VECT = [100];
 simvar.MAX_EPOCHS_VECT = [3];
-simvar.ARCH_VECT = [1];
+simvar.ARCH_VECT = [14];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
