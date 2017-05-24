@@ -2,7 +2,7 @@ function simvar = starter_script(varargin)
 myticvar = tic;
 global VERBOSE LOGIT TEST
 env = aa_environment; % load environment variables
-validationtype = 'type2';
+validationtype = 'type2notrandom';
 pc = 999;
 switch validationtype
     case 'wholeset'        
@@ -15,6 +15,14 @@ switch validationtype
         Alldata = (1:17)+17*(randi(4,1,17)-1);
     case 'type2'
         Alldata = 1;
+        simvar.sampling_type = 'type2';
+        simvar.ValSubjectIndexes = {randperm(4,1)};
+        simvar.TrainSubjectIndexes = setdiff(1:4,[simvar.ValSubjectIndexes{:}]);
+    case 'type2notrandom'
+        Alldata = 1;
+        simvar.sampling_type = 'type2';
+        simvar.ValSubjectIndexes = {2};
+        simvar.TrainSubjectIndexes = setdiff(1:4,[simvar.ValSubjectIndexes{:}]);
 end
 
 for alldata = Alldata%1:68 %2:5%68
@@ -49,9 +57,7 @@ if isempty(varargin)
     simvar.affrepvel = false;
     simvar.labels_names = []; % necessary so that same actions keep their order number
     if strcmp(validationtype,'type2')
-        simvar.sampling_type = 'type2';
-        simvar.ValSubjectIndexes = {randperm(4,1)};
-        simvar.TrainSubjectIndexes = setdiff(1:4,[simvar.ValSubjectIndexes{:}]);
+        %%%
     else
         simvar.sampling_type = 'type1';
         simvar.TrainSubjectIndexes = tsbj;%[];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
