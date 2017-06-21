@@ -6,8 +6,8 @@ global logpath
 if ismac
     env.wheretosavestuff = '/Volumes/Elements/savesave';
     env.homepath = ['~/matlabprogs/' nameofcurrentrepo];
-    env.allmatpath = '';
-    error('define allmathpath!')
+    env.allmatpath = ['~/Dropbox/all.mat/'];
+    %error('define allmathpath!')
     %disp('reached ismac')
 elseif isunix
     [~,cmdout] = system('echo $USER');
