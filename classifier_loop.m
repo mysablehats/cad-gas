@@ -298,22 +298,28 @@ if TEST
     
 else
     %%%WE ARE RUNNING OUT OF MEMORY TOO OFTEN. WILL NO LONGER STORE SS
-    %[ss, a.mt, gases] = starter_sc(data, baq(pallconn));
-    ss = struct();
-    [~, a.mt, gases] = starter_sc(data, baq(pallconn));    
+    clearmemory = 1;
+    if clearmemory
+        ss = struct();
+        [~, a.mt, gases] = starter_sc(data, baq(pallconn));
+        for jj = size(gases,2) %%%% I was running out of memory, so this had to be made
+            gases(jj).fig = struct();
+        end
     
-    if isfield(ss, 'val')&&isfield(ss.val, 'gas')
-        a.ssvalgas = ss.val.gas;    
-        distancegraph(ss.val.gas)
+    else
+        [ss, a.mt, gases] = starter_sc(data, baq(pallconn));        
+        if isfield(ss, 'val')&&isfield(ss.val, 'gas')
+            a.ssvalgas = ss.val.gas;
+            distancegraph(ss.val.gas)
+        end       
     end
+    
     simvar.env = env;
     
     a.gases = gases;
-    for jj = size(gases,2) %%%% I was running out of memory, so this had to be made
-        gases(jj).fig = struct();
-    end
     a.allconn = baq(pallconn);
     a.simvar = simvar;
+    
     %save(savefilesave2('realclassifier', env),'realclass')
     %[~, something_to_classify] = realvideo(realclass.outstruct, realclass.allconn, realclass.simvar,0);
     % realvideo(outstruct, baq(pallconn), simvar);
