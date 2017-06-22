@@ -148,7 +148,7 @@ catch
     b = struct();
 end
 [~, b(alldata).b] = analyze_outcomes(simvar);
-simvar = '';
+%simvar = '';
 assignin('base', ['outcomes' num2str(pc)], b);
 assignin('base', 'myidxs',Alldata);
 % if params.PLOTIT
