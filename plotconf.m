@@ -13,5 +13,16 @@ else
     
 end
 plotconfusion(figset{:})
-
+confusions.a = zeros(size(figset{1},1), size(figset{1},1),size(mt,2));
+confusions.b = confusions.a;
+for i=1:size(figset,1)/6
+    index = (i-1)*6 +1;
+    [~, confusions.a(:,:,i)] = confusion(figset{index}, figset{index+1});
+    [~, confusions.b(:,:,i)] = confusion(figset{index+3}, figset{index+4});
+end
+cc.b = confusions.a;
+disp('validation')
+analyze_outcomes(cc)
+disp('training')
+analyze_outcomes(confusions)
 end
