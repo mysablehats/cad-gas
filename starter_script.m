@@ -139,7 +139,7 @@ params.tn = 3.33;
 params.age_inc                  = 1;
 params.lambda                   = 3;
 params.alpha                    = .5;     % q and f units error reduction constant.
-params.d                           = .99;   % Error reduction factor.
+params.d                           = .995;   % Error reduction factor.
 
 
 simvar = classifier_loop(simvar, params, env);
