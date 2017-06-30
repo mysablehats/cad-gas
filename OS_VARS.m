@@ -1,5 +1,5 @@
 function [SLASH, pathtodata] = OS_VARS()
-exthdname = 'docs';
+exthdname = 'Elements';
 if ispc
     SLASH = '\\'; % windows
     list_dir = {'d', 'e', 'f', 'g', 'h'};
