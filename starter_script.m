@@ -128,7 +128,7 @@ params.plottingstep = 0; % zero will make it plot only the end-gas
 
 %Exclusive for gwr
 params.STATIC = true;
-params.at = 0.95; %activity threshold
+params.at = 0.99; %activity threshold
 params.h0 = 1;
 params.ab = 0.95;
 params.an = 0.95;
