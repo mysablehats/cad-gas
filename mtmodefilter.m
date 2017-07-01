@@ -13,7 +13,11 @@ end
 
 
 
-newmt(size(mt)) = struct();
+%newmt(size(mt)) = struct(); %%% this failed for some weird reason!
+
+a = size(mt);
+newmt(a(1),a(2)) = struct();
+
 for i = 1:size(newmt,1)
     for j = 1:size(newmt,2)
         newmt(i,j).conffig.val{1} = mt(i,j).conffig.val{1};
