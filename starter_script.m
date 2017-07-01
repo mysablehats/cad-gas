@@ -97,7 +97,7 @@ else
 end
 simvar.NODES_VECT = [1000];
 simvar.MAX_EPOCHS_VECT = [10];
-simvar.ARCH_VECT = [16];
+simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
@@ -139,7 +139,7 @@ params.tn = 3.33;
 params.age_inc                  = 1;
 params.lambda                   = 3;
 params.alpha                    = .5;     % q and f units error reduction constant.
-params.d                           = .999;   % Error reduction factor.
+params.d                           = .995;   % Error reduction factor.
 
 
 simvar = classifier_loop(simvar, params, env);
