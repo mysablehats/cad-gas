@@ -14,11 +14,11 @@ switch validationtype
     case 'quarterset'
         Alldata = (1:17)+17*(randi(4,1,17)-1);
     case 'type2'
-        Alldata = 1;        
-        ValSubjectIndexes = {randperm(4,1)};        
+        Alldata = randperm(4,1);
     case 'type2notrandom'
-        Alldata = 1;        
-        ValSubjectIndexes = {2};        
+        Alldata = 2;     
+    case 'type2all'
+        Alldata = 1:4;
 end
 
 for alldata = Alldata%1:68 %2:5%68
@@ -53,9 +53,9 @@ if isempty(varargin)
     simvar.affinerepair = false;
     simvar.affrepvel = false;
     simvar.labels_names = []; % necessary so that same actions keep their order number
-    if strcmp(validationtype,'type2')||strcmp(validationtype,'type2notrandom')
+    if strcmp(validationtype,'type2')||strcmp(validationtype,'type2notrandom')||strcmp(validationtype,'type2all')
         simvar.sampling_type = 'type2';
-        simvar.ValSubjectIndexes = ValSubjectIndexes;
+        simvar.ValSubjectIndexes = {alldata};
         simvar.TrainSubjectIndexes = setdiff(1:4,[simvar.ValSubjectIndexes{:}]);
     else
         simvar.sampling_type = 'type1';
