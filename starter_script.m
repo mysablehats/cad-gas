@@ -2,7 +2,7 @@ function simvar_ = starter_script(varargin)
 myticvar = tic;
 global VERBOSE LOGIT TEST
 env = aa_environment; % load environment variables
-validationtype = 'quarterset'; %'type2notrandom';
+validationtype = 'type2all'; %'type2notrandom';
 pc = 999;
 switch validationtype
     case 'wholeset'        
