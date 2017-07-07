@@ -6,6 +6,7 @@ function allskel = affinerepair(allskel, simvar)
 %now we can maybe check this against our sample skeleton
 aaa = load([simvar.allmatpath 'skellstoplaywith.mat']);%allskel.skel(:,:,1);
 longsamp = aaa.a(:,1)';
+NN = size(allskel.skel,3);
 
 sampskel = reshape(longsamp,[],3);
 
