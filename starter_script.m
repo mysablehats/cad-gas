@@ -50,8 +50,8 @@ if isempty(varargin)
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
     simvar.prefilter = {'filter', 15};%{'filter',10}; % 'filter', 'none', 'median?'
     simvar.normrepair = true;
-    simvar.affinerepair = false;
-    simvar.affrepvel = false;
+    simvar.affinerepair = true;
+    simvar.affrepvel = true;
     simvar.labels_names = []; % necessary so that same actions keep their order number
     if strcmp(validationtype,'type2')||strcmp(validationtype,'type2notrandom')||strcmp(validationtype,'type2all')
         simvar.sampling_type = 'type2';
@@ -95,8 +95,8 @@ if simvar.PARA
 else
     simvar.P = 1;
 end
-simvar.NODES_VECT = [3];
-simvar.MAX_EPOCHS_VECT = [1];
+simvar.NODES_VECT = [600];
+simvar.MAX_EPOCHS_VECT = [10];
 simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
