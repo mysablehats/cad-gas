@@ -95,7 +95,7 @@ if simvar.PARA
 else
     simvar.P = 1;
 end
-simvar.NODES_VECT = [600];
+simvar.NODES_VECT = [1000];
 simvar.MAX_EPOCHS_VECT = [10];
 simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
@@ -128,7 +128,7 @@ params.plottingstep = 0; % zero will make it plot only the end-gas
 
 %Exclusive for gwr
 params.STATIC = true;
-params.at = 0.99; %activity threshold
+params.at = 0.995; %activity threshold
 params.h0 = 1;
 params.ab = 0.95;
 params.an = 0.95;
