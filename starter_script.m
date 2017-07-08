@@ -50,7 +50,7 @@ if isempty(varargin)
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
     simvar.prefilter = {'filter', 15};%{'filter',10}; % 'filter', 'none', 'median?'
     simvar.normrepair = true;
-    simvar.affinerepair = true;
+    simvar.affinerepair = false;%true;
     simvar.affrepvel = true;
     simvar.labels_names = []; % necessary so that same actions keep their order number
     if strcmp(validationtype,'type2')||strcmp(validationtype,'type2notrandom')||strcmp(validationtype,'type2all')
@@ -64,7 +64,7 @@ if isempty(varargin)
     end
     simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing
     simvar.extract = {'rand', 'wantvelocity'};
-    simvar.preconditions =  {};%{'nohips', 'mirrorx'};%,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %, 
+    simvar.preconditions =  {'nohips', 'mirrory'};%,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %, 
     simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
     simvar.trialdatafile = strcat(env.wheretosavestuff,env.SLASH,simvar.trialdataname,'.mat');
     simvar.allmatpath = env.allmatpath;
@@ -89,7 +89,7 @@ end
 
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
-simvar.PARA = 1;
+simvar.PARA = 0;
 if simvar.PARA
     simvar.P = feature('numCores');
 else

@@ -105,9 +105,9 @@ classdef gas
                 try
                     %%%omg,,, this bug n1 = gasgas.n1n2(:,1)
                     %n1.*gasgas.awk;
-                    gasgas.n1n2(:,1).*gasgas.awk;
+                    n1.*gasgas.awk;
                 catch
-                    error('Tried to use your awk definition, but I failed. Please debug')
+                    disp('Tried to use your awk definition, but I failed. Please debug')
                     gasgas.awk = ones(size(gasgas.n1n2,1),1);
                 end
             else
