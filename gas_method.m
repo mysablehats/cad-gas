@@ -45,7 +45,7 @@ dbgmsg('Finding best matching units for gas: ''',sstgasj.name,''' (', num2str(j)
 %This will be the noise removing function. I want this to be optional or allow other things to be done to the data and I
 %am still thinking about how to do it. Right now I will just create the
 %whattokill property and let setinput deal with it.
-if arq_connect.params.removepoints
+if arq_connect.params.oldremovepoints
     dbgmsg('Flagging noisy input for removal from gas: ''',sstgasj.name,''' (', num2str(j),') with points with more than',num2str(arq_connect.params.gamma),' standard deviations, for process:',num2str(labindex),0)
     sstv.gas(j).whotokill = removenoise(sstgasj.nodes, sstv.gas(j).inputs.input, sstv.gas(j).inputs.oldwhotokill, arq_connect.params.gamma, sstv.gas(j).inputs.index);
 else

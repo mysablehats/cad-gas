@@ -6,9 +6,15 @@ global logpath
 if ismac
     env.wheretosavestuff = '/Volumes/Elements/savesave';
     env.homepath = ['~/matlabprogs/' nameofcurrentrepo];
-    env.allmatpath = '';
-    error('define allmathpath!')
+    env.allmatpath = ['~/Dropbox/all.mat/'];
+    %error('define allmathpath!')
     %disp('reached ismac')
+    [elel, gitout] = system('git rev-parse HEAD');
+    if elel
+        error('could not get current hash')
+    end
+    env.currhash = gitout(1:end-1);
+    
 elseif isunix
     [~,cmdout] = system('echo $USER');
     env.wheretosavestuff = ['/media/' cmdout(1:end-1) '/docs/savesave'];

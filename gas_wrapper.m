@@ -1,4 +1,4 @@
-function [A,  C , outparams] = gas_wrapper(data, varargin)
+function [A,  C , outparams, gasgas] = gas_wrapper(data, varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %cf parisi,  2015 and cf marsland,  2002 based on the GNG algorithm from the
 %guy that did the GNG algorithm for matlab
@@ -77,6 +77,7 @@ if isempty(params)
     params.nodes = NODES; %maximum number of nodes/neurons in the gas
     params.en = 0.006; %epsilon subscript n
     params.eb = 0.2; %epsilon subscript b
+    params.gamma = 1; %%% technically only for gwr since not implemented for gng yet. change this comment when this is done
     
     %Exclusive for gwr
     params.STATIC = true;
@@ -205,6 +206,9 @@ for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more tim
         kset = randperm(datasetsize);
     else
         kset = 1:datasetsize;
+        if params.RANDOMSTART %% IF THE START IS RANDOM SO SHOULD BE THE BEGGING OF THE DATASET
+            kset = circshift(kset,randperm(datasetsize,1));
+        end
     end
     % start of the loop
     for k = kset %step 1
@@ -224,6 +228,9 @@ for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more tim
     
     % updating the number of epochs the gas has run
     gasgas = gasgas.update_epochs(num_of_epochs);
+    
+    % updating the standard deviation of activations:
+    gasgas = gasgas.update_meanandstddev(errorvect(1:therealk));
     
     % now save the resulting gas
     if isfield(params, 'savegas')&&isfield(params.savegas, 'save')&&params.savegas.save
@@ -490,12 +497,21 @@ function [gas]= gwr_core(eta, gas)
 
 %eta = data(:, k); % this the k-th data sample
 [gas.gwr.ws, ~, gas.gwr.s, gas.gwr.t, ~] = findnearest(eta, gas.A); %step 2 and 3
+
+%%% changed order so I can avoid changing anything in the algorithm if the
+%%% point is too unusual
+gas.a = exp(-norm((eta-gas.gwr.ws).*gas.awk)); %step 5
+
+if gas.params.removepoints&&(gas.a < gas.amean - gas.params.gamma*gas.astddev)
+    gas.skippedpoints = gas.skippedpoints +1;
+    return
+end
+    
 if gas.C(gas.gwr.s, gas.gwr.t)==0 %step 4
     gas.C = spdi_bind(gas.C, gas.gwr.s, gas.gwr.t);
 else
     gas.C_age = spdi_del(gas.C_age, gas.gwr.s, gas.gwr.t);
 end
-gas.a = exp(-norm((eta-gas.gwr.ws).*gas.awk)); %step 5
 
 %algorithm has some issues, so here I will calculate the neighbours of
 %s

@@ -18,6 +18,9 @@ classdef gas
         ni2
         n1n2
         gwr
+        astddev
+        amean
+        skippedpoints
     end
     methods
         function X = hs(gasgas, t)
@@ -34,6 +37,10 @@ classdef gas
         end
         function X = S(~,t)
             X = 1;
+        end
+        function gasgas = update_meanandstddev(gasgas, errorvect)
+            gasgas.astddev = std(errorvect);
+            gasgas.amean = mean(errorvect);
         end
         function [n1n2, ni1,ni2] = initialnodes(gasgas, data)
             
@@ -66,6 +73,13 @@ classdef gas
             n1n2 = [n1, n2];
         end
         function gasgas = gas_create(gasgas, params,data)
+            % sets initial std and mean for activations for an untrained
+            % gas
+            gasgas.astddev = Inf;
+            gasgas.amean = 0;
+            gasgas.skippedpoints = 0;
+            
+            % assigns params to gas class being created
             gasgas.params = params;
             gasgas.params.accumulatedepochs = 0;
             gasgas = gasgas.gas_finalize;
@@ -89,9 +103,11 @@ classdef gas
                         gasgas.awk = repmat(params.skelldef.awk.vel,1,params.q(1));
                 end
                 try
-                    n1.*gasgas.awk;
+                    %%%omg,,, this bug n1 = gasgas.n1n2(:,1)
+                    %n1.*gasgas.awk;
+                    gasgas.n1n2(:,1).*gasgas.awk;
                 catch
-                    disp('Tried to use your awk definition, but I failed. Please debug')
+                    error('Tried to use your awk definition, but I failed. Please debug')
                     gasgas.awk = ones(size(gasgas.n1n2,1),1);
                 end
             else

@@ -267,6 +267,19 @@ allconn_set = {...
     {'gwr1layer',   'gwr',{'vel'},                    'vel',[1 0],params}...
     {'gwr2layer',   'gwr',{'gwr1layer'},              'vel',[9 0],params}...
     }...
+    {... %%%% ARCHITECTURE 14
+    {'gwr1layer',   'gwr',{'vel'},                    'vel',[1 0],params}...
+    }...
+    {... %%%% ARCHITECTURE 15
+    {'gwr1layer',   'gwr',{'pos'},                    'pos',[1 0],params}...
+    {'gwr2layer',   'gwr',{'vel'},                    'vel',[1 0],params}...
+    {'gwr3layer',   'gwr',{'gwr1layer'},              'pos',[2 1],params}...
+    {'gwr4layer',   'gwr',{'gwr2layer'},              'vel',[2 1],params}...
+    {'gwrSTSlayer', 'gwr',{'gwr3layer','gwr4layer'},  'all',[4 3],params}...
+    }...
+    {... %%%% ARCHITECTURE 16
+    {'gwr1layer',   'gwr',{'pos'},                    'pos',[1 0],params}...
+    }...
     };
 allconn = allconn_set{n};
 end
@@ -295,22 +308,28 @@ if TEST
     
 else
     %%%WE ARE RUNNING OUT OF MEMORY TOO OFTEN. WILL NO LONGER STORE SS
-    %[ss, a.mt, gases] = starter_sc(data, baq(pallconn));
-    ss = struct();
-    [~, a.mt, gases] = starter_sc(data, baq(pallconn));    
+    clearmemory = 1;
+    if clearmemory
+        ss = struct();
+        [~, a.mt, gases] = starter_sc(data, baq(pallconn));
+        for jj = size(gases,2) %%%% I was running out of memory, so this had to be made
+            gases(jj).fig = struct();
+        end
     
-    if isfield(ss, 'val')&&isfield(ss.val, 'gas')
-        a.ssvalgas = ss.val.gas;    
-        distancegraph(ss.val.gas)
+    else
+        [ss, a.mt, gases] = starter_sc(data, baq(pallconn));        
+        if isfield(ss, 'val')&&isfield(ss.val, 'gas')
+            a.ssvalgas = ss.val.gas;
+            distancegraph(ss.val.gas)
+        end       
     end
+    
     simvar.env = env;
     
     a.gases = gases;
-    for jj = size(gases,2) %%%% I was running out of memory, so this had to be made
-        gases(jj).fig = struct();
-    end
     a.allconn = baq(pallconn);
     a.simvar = simvar;
+    
     %save(savefilesave2('realclassifier', env),'realclass')
     %[~, something_to_classify] = realvideo(realclass.outstruct, realclass.allconn, realclass.simvar,0);
     % realvideo(outstruct, baq(pallconn), simvar);

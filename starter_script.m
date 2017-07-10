@@ -1,9 +1,27 @@
-function simvar = starter_script(varargin)
+function simvar_ = starter_script(varargin)
 myticvar = tic;
 global VERBOSE LOGIT TEST
 env = aa_environment; % load environment variables
-pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
-for alldata = pcspecs.idxs%1:68 %2:5%68
+validationtype = 'type2all'; %'type2notrandom';
+pc = 999;
+switch validationtype
+    case 'wholeset'        
+        Alldata = 1:68;
+    case 'cluster'
+        pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
+        Alldata = pcspecs.idxs;
+        pc = pcspecs.pcid;
+    case 'quarterset'
+        Alldata = (1:17)+17*(randi(4,1,17)-1);
+    case 'type2'
+        Alldata = randperm(4,1);
+    case 'type2notrandom'
+        Alldata = 2;     
+    case 'type2all'
+        Alldata = 1:4;
+end
+
+for alldata = Alldata%1:68 %2:5%68
 TEST = 0;
 VERBOSE = 0;
 
@@ -29,17 +47,24 @@ if isempty(varargin)
     simvar.realtimeclassifier = false;
     simvar.generatenewdataset = 1; %true;
     simvar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
-    simvar.sampling_type = 'type1';
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
-    simvar.prefilter = {'none', 15};%{'filter',10}; % 'filter', 'none', 'median?'
-    simvar.affinerepair = false;
-    simvar.affrepvel = false;
+    simvar.prefilter = {'filter', 15};%{'filter',10}; % 'filter', 'none', 'median?'
+    simvar.normrepair = true;
+    simvar.affinerepair = false;%true;
+    simvar.affrepvel = true;
     simvar.labels_names = []; % necessary so that same actions keep their order number
-    simvar.TrainSubjectIndexes = [];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
-    simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
-    simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing 
+    if strcmp(validationtype,'type2')||strcmp(validationtype,'type2notrandom')||strcmp(validationtype,'type2all')
+        simvar.sampling_type = 'type2';
+        simvar.ValSubjectIndexes = {alldata};
+        simvar.TrainSubjectIndexes = setdiff(1:4,[simvar.ValSubjectIndexes{:}]);
+    else
+        simvar.sampling_type = 'type1';
+        simvar.TrainSubjectIndexes = [];%[];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
+        simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
+    end
+    simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing
     simvar.extract = {'rand', 'wantvelocity'};
-    simvar.preconditions =  {'nohips', 'mirrorx'};%,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %, 
+    simvar.preconditions =  {'nohips', 'mirrorz', 'mirrorx'};%,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %, 
     simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
     simvar.trialdatafile = strcat(env.wheretosavestuff,env.SLASH,simvar.trialdataname,'.mat');
     simvar.allmatpath = env.allmatpath;
@@ -64,7 +89,7 @@ end
 
 % set other additional simulation variables
 simvar.TEST = TEST; %change this in the beginning of the program
-simvar.PARA = 1;
+simvar.PARA = 0;
 if simvar.PARA
     simvar.P = feature('numCores');
 else
@@ -72,7 +97,7 @@ else
 end
 simvar.NODES_VECT = [1000];
 simvar.MAX_EPOCHS_VECT = [10];
-simvar.ARCH_VECT = [1];
+simvar.ARCH_VECT = [16];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
@@ -81,7 +106,8 @@ params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean
 params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow
 params.layertype = '';
 params.MAX_EPOCHS = [];
-params.removepoints = false;
+params.removepoints = true;
+params.oldremovepoints = false;
 params.PLOTIT = false;
 params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
 params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
@@ -97,12 +123,12 @@ params.amax = 50; %greatest allowed age
 params.nodes = []; %maximum number of nodes/neurons in the gas
 params.en = 0.006; %epsilon subscript n
 params.eb = 0.2; %epsilon subscript b
-params.gamma = 1; % for the denoising function
+params.gamma = 2; % for the denoising function
 params.plottingstep = 0; % zero will make it plot only the end-gas
 
 %Exclusive for gwr
 params.STATIC = true;
-params.at = 0.95; %activity threshold
+params.at = 0.995; %activity threshold
 params.h0 = 1;
 params.ab = 0.95;
 params.an = 0.95;
@@ -113,19 +139,19 @@ params.tn = 3.33;
 params.age_inc                  = 1;
 params.lambda                   = 3;
 params.alpha                    = .5;     % q and f units error reduction constant.
-params.d                           = .99;   % Error reduction factor.
+params.d                           = .995;   % Error reduction factor.
 
 
-simvar = classifier_loop(simvar, params, env);
+simvar_(alldata) = classifier_loop(simvar, params, env);
 try
-    b = evalin('base',['outcomes' num2str(pcspecs.pcid)]);
+    b = evalin('base',['outcomes' num2str(pc)]);
 catch
     b = struct();
 end
-[~, b(alldata).b] = analyze_outcomes(simvar);
-simvar = '';
-assignin('base', ['outcomes' num2str(pcspecs.pcid)], b);
-assignin('base', 'myidxs', pcspecs.idxs);
+[~, b(alldata).b] = analyze_outcomes(simvar_(alldata));
+%simvar = '';
+assignin('base', ['outcomes' num2str(pc)], b);
+assignin('base', 'myidxs',Alldata);
 % if params.PLOTIT
 %     for j = 1:size(simvar.trial,2)
 %         for i = 1:size(simvar.trial(j).metrics,1)
@@ -139,8 +165,8 @@ assignin('base', 'myidxs', pcspecs.idxs);
 end
 toc(myticvar)
 outcomes.b = b;
-outcomes.pcid = pcspecs.pcid;
-outcomes.idxs = pcspecs.idxs;
+outcomes.pcid = pc;
+outcomes.idxs = Alldata;%pcspecs.idxs;
 outcomes.hash = env.currhash;
-save([env.allmatpath 'outcomes' env.SLASH env.currhash '-outcomes-' num2str(pcspecs.pcid)], 'outcomes')
+save([env.allmatpath 'outcomes' env.SLASH env.currhash '-outcomes-' num2str(pc)], 'outcomes')
 combineoutcomes
