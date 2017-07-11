@@ -116,46 +116,49 @@ for architectures = simvar.ARCH_VECT
                         paramsZ(i) = params;
                         a(i).a = struct([]);                        
                                              
-                        n = randperm(size(data.train.data,2),2); 
+                        n = randperm(size(data.train.data,2)-3,2); % -(q-1) necessary because concatenation reduces the data size!
                         paramsZ(i).startingpoint = [n(1) n(2)];
-                        simvar.trial(trialcount).allconn{1,1}{1,6} = paramsZ(i); % I only change the initial points of the position gas
+                        pallconn = simvar.trial(trialcount).allconn;
+                        pallconn{1,1}{1,6} = paramsZ; % I only change the initial points of the position gas
                         %pallconn{1,3}{1,6} = paramsZ; %but I want the concatenation to reflect the same position that I randomized. actually this is not going to happen because of the sliding window scheme
                         %pallconn{1,4}{1,6} = pallconn{1,2}{1,6};
-                        arq_connect(i) = baq(simvar.trial(trialcount).allconn);
+                        raq(i) = baq(pallconn);
                         
                     end
                     
                     clear a
                     b = [];
                     
-                    
-                    starttime = tic;
-                    while toc(starttime)< simvar.MAX_RUNNING_TIME
-                        if length(b)> simvar.MAX_NUM_TRIALS
-                            break
+                    if ~TEST % there are so many different ways I want to test it, that this definition is pretty much pointless.
+                        starttime = tic;
+                        while toc(starttime)< simvar.MAX_RUNNING_TIME
+                            if length(b)> simvar.MAX_NUM_TRIALS
+                                break
+                            end
+                            if simvar.PARA
+                                spmd(simvar.P)
+                                    a(labindex).a = executioncore_in_starterscript(simvar.trial(trialcount), raq(labindex), data,simvar.env);
+                                end
+                                %b = cat(2,b,a.a);
+                                for i=1:length(a)
+                                    c = a{i};
+                                    a{i} = [];
+                                    b = [c.a b];
+                                end
+                                clear a c
+                                a(1:simvar.P) = struct();
+                            else
+                                for i = 1:simvar.P
+                                    a(i).a = executioncore_in_starterscript(simvar.trial(trialcount), raq(i), data,simvar.env);
+                                end
+                                b = cat(2,b,a.a);
+                                clear a
+                                a(1:simvar.P) = struct();
+                            end
                         end
-                        if simvar.PARA
-                            spmd(simvar.P)
-                                a(labindex).a = executioncore_in_starterscript(simvar.trial(trialcount), arq_connect(labindex), data);
-                            end
-                            %b = cat(2,b,a.a);
-                            for i=1:length(a)
-                                c = a{i};
-                                a{i} = [];
-                                b = [c.a b];
-                            end
-                            clear a c
-                            a(1:simvar.P) = struct();
-                        else
-                            for i = 1:simvar.P
-                                a(i).a = executioncore_in_starterscript(simvar.trial(trialcount), arq_connect(i), data);
-                            end
-                            b = cat(2,b,a.a);
-                            clear a
-                            a(1:simvar.P) = struct();
-                        end
+                    else
+                        b = executioncore_in_starterscript(simvar.trial(trialcount), raq(1), data,simvar.env);
                     end
-                    
                     
                     simvar.trial(trialcount).metrics = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
                     if isempty(varargin)
@@ -301,13 +304,13 @@ allconn_set = {...
     };
 allconn = allconn_set{n};
 end
-function a = executioncore_in_starterscript(simvar, arq_connect, data)
+function a = executioncore_in_starterscript(simvar, raq, data)
 
 
 %%%WE ARE RUNNING OUT OF MEMORY TOO OFTEN. WILL NO LONGER STORE SS
 clearmemory = 1;
 
-[ss, a.mt, gases] = starter_sc(data, arq_connect);
+[ss, a.mt, gases] = starter_sc(data, raq);
 
 
 if isfield(ss, 'val')&&isfield(ss.val, 'gas')
@@ -326,7 +329,7 @@ end
 %simvar.env = env;
 
 a.gases = gases;
-a.allconn = arq_connect;
+a.allconn = baq(pallconn);
 a.simvar = simvar;
 
 %save(savefilesave2('realclassifier', env),'realclass')

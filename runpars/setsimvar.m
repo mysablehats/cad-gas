@@ -1,5 +1,18 @@
-function simvar = setsimvar
+function simvar = setsimvar(varargin)
+
 simvar = struct();
+
+% set other additional simulation variables
+
+simvar.PARA = 0;
+if simvar.PARA
+    simvar.P = feature('numCores');
+else
+    simvar.P = 1;
+end
+
+simvar.env = aa_environment; % load environment variables
+
 % Each trial is trained on freshly partitioned/ generated data, so that we
 % have an unbiased understanding of how the chained-gas is classifying.
 %
@@ -13,13 +26,13 @@ simvar = struct();
 % always with a similar dataset, set
 % simvar.generatenewdataset = false
 
-validationtype = 'type2all'; %'type2notrandom';
+simvar.validationtype = 'type2all'; %'type2notrandom';
 simvar.pc = 999;
-switch validationtype
+switch simvar.validationtype
     case 'wholeset'        
         simvar.Alldata = 1:68;
     case 'cluster'
-        pcspecs = load([env.homepath env.SLASH '..' env.SLASH 'clust.mat']);
+        pcspecs = load([simvar.env.homepath simvar.env.SLASH '..' simvar.env.SLASH 'clust.mat']);
         simvar.Alldata = pcspecs.idxs;
         simvar.pc = pcspecs.pcid;
     case 'quarterset'
@@ -31,6 +44,14 @@ switch validationtype
     case 'type2all'
         simvar.Alldata = 1:4;
 end
+
+%this probably should be a class
+simvar.datainputvectorsize = [];
+simvar.allconn = [];
+simvar.TrainSubjectIndexes = [];
+simvar.ValSubjectIndexes = []; 
+%simvar.paramsZ(length(simvar.P)) = [];
+simvar.metrics = struct;
 
 simvar.disablesconformskel = 0;
 %% Choose dataset
@@ -45,21 +66,21 @@ if isempty(varargin)
     simvar.affinerepair = false;%true;
     simvar.affrepvel = true;
     simvar.labels_names = []; % necessary so that same actions keep their order number
-    if strcmp(validationtype,'type2')||strcmp(validationtype,'type2notrandom')||strcmp(validationtype,'type2all')
+    if strcmp(simvar.validationtype,'type2')||strcmp(simvar.validationtype,'type2notrandom')||strcmp(simvar.validationtype,'type2all')
         simvar.sampling_type = 'type2';
-        simvar.ValSubjectIndexes = {alldata};
-        simvar.TrainSubjectIndexes = setdiff(1:4,[simvar.ValSubjectIndexes{:}]);
+        %simvar.ValSubjectIndexes = {alldata};
+        %simvar.TrainSubjectIndexes = setdiff(1:4,[simvar.ValSubjectIndexes{:}]);
     else
         simvar.sampling_type = 'type1';
-        simvar.TrainSubjectIndexes = [];%[];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
-        simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
+        %simvar.TrainSubjectIndexes = [];%[];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
+        %simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
     end
     simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing
     simvar.extract = {'rand', 'wantvelocity'};
     simvar.preconditions =  {'nohips', 'mirrorz', 'mirrorx'};%,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %,
     simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
-    simvar.trialdatafile = strcat(env.wheretosavestuff,env.SLASH,simvar.trialdataname,'.mat');
-    simvar.allmatpath = env.allmatpath;
+    simvar.trialdatafile = strcat(simvar.env.wheretosavestuff,simvar.env.SLASH,simvar.trialdataname,'.mat');
+    simvar.allmatpath = simvar.env.allmatpath;
 else
     simvar.featuresall = 3;%size(varargin{1},2);
     simvar.generatenewdataset = false;
@@ -74,22 +95,16 @@ else
     simvar.extract = {''};
     simvar.preconditions = {''};
     simvar.trialdataname = strcat('other',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',simvar.prefilter, [simvar.extract{:}],[simvar.preconditions{:}]);
-    simvar.trialdatafile = strcat(env.wheretosavestuff,env.SLASH,simvar.trialdataname,'.mat');
+    simvar.trialdatafile = strcat(simvar.env.wheretosavestuff,simvar.env.SLASH,simvar.trialdataname,'.mat');
 end
 
 %% Setting up runtime variables
 
-% set other additional simulation variables
-simvar.TEST = TEST; %change this in the beginning of the program
-simvar.PARA = 0;
-if simvar.PARA
-    simvar.P = feature('numCores');
-else
-    simvar.P = 1;
-end
+
 simvar.NODES_VECT = [3];
 simvar.MAX_EPOCHS_VECT = [1];
 simvar.ARCH_VECT = [16];
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
+
 end

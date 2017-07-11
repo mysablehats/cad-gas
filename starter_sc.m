@@ -8,11 +8,6 @@ function [ss, metrics, gases] = starter_sc(ss, arq_connect)
 % attempt to implement Parisi, 2015's paper.
 
 %%
-global VERBOSE LOGIT
-VERBOSE = true;
-LOGIT = true;
-dbgmsg('ENTERING MAIN LOOP',0)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% making metrics structure
 

@@ -1,4 +1,4 @@
-function params = setparams
+function params = setparams(simvar)
 % set parameters for gas:
 params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean' 
 params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow
@@ -11,7 +11,7 @@ params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
 params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
 params.savegas.resume = false; % do not set to true. not working
 params.savegas.save = false;
-params.savegas.path = env.wheretosavestuff;
+params.savegas.path = simvar.env.wheretosavestuff;
 params.savegas.parallelgases = true;
 params.savegas.parallelgasescount = 0;
 params.savegas.accurate_track_epochs = true;
