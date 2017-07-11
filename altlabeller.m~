@@ -1,0 +1,11 @@
+function nodecount = altlabeller(bmbi, y)
+%disp('hello')
+numnodes = max(bmbi);
+nodecount = zeros(size(y,1),numnodes);
+for node =1:numnodes
+    for i = 1:size(bmbi,2)
+        if bmbi(i) == node
+        nodecount(:,node) = nodecount(:,np) +y(:,i);
+        end
+    end
+end

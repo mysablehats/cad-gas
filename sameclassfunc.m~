@@ -47,7 +47,7 @@ end
 for j = whatIlabel
     dbgmsg('Applying labels for gas: ''',gas(j).name,''' (', num2str(j),') for process:',num2str(labindex),0)
     if strcmp(vot,'train')
-        gas(j).nodesl = altlabeller(ssvot.gas(j).bestmatchbyindex,ssvot.gas(j).y); %%% new labelling scheme
+        gas(j).nodesl = altlabeller(ssvot.gas(j).bestmatchbyindex,ssvot.gas(j).y); 
         %gas(j).nodesl = labeling(gas(j).nodes,ssvot.gas(j).inputs.input,ssvot.gas(j).y);
     end
     if isfield(ssvot,'gas')&&j<=length(ssvot.gas)
