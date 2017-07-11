@@ -304,7 +304,7 @@ end
 function a = executioncore_in_starterscript(simvar, arq_connect, ss)
 
 %gases = [];
-%% starter_sc
+%% executioncore
 % This is the main function to run the chained classifier, label and
 % generate confusion matrices and recall, precision and F1 values for the
 % skeleton classifier of activities using an architecture of chained neural

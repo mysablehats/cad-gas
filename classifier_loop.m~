@@ -304,7 +304,7 @@ end
 function a = executioncore_in_starterscript(simvar, arq_connect, ss)
 
 %gases = [];
-%% starter_sc
+%% executioncore
 % This is the main function to run the chained classifier, label and
 % generate confusion matrices and recall, precision and F1 values for the
 % skeleton classifier of activities using an architecture of chained neural
@@ -350,12 +350,14 @@ if isfield(ss.gas(end).fig, 'val')&&~isempty(ss.gas(end).fig.val)
     plotconfusion(ss.gas(end).fig.val{:})
 end
 
-
+%% Displaying this nifty distance graph to see if thresholds would make my life easier, they don't
 if isfield(ss, 'val')&&isfield(ss.val, 'gas')
     a.ssvalgas = ss.val.gas;
     distancegraph(ss.val.gas)
 end
 
+
+%% setting output variables
 %simvar.env = env;
 a.mt = metrics;
 a.gases = ss.gas;
