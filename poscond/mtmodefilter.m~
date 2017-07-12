@@ -72,6 +72,6 @@ bigx = zeros(size(series));
 
 for i = 1:serieslength
     lim = min([serieslength i+numnum]);
-    bigx(:,i) = sum(series(:,i:lim),2)/(lim-i); %%% not numnum as a divisor, but lim-i, cause in the end it is smaller than numnum
+    bigx(i) = 
 end
     
