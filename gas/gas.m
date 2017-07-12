@@ -102,6 +102,7 @@ classdef gas
                     case 'vel'
                         gasgas.awk = repmat(params.skelldef.awk.vel,1,params.q(1));
                 end
+                gasgas.awk = reshape(gasgas.awk,[],1); %%% probably not the soundest programming here, but it solves the problem 
                 try
                     %%%omg,,, this bug n1 = gasgas.n1n2(:,1)
                     %n1.*gasgas.awk;
