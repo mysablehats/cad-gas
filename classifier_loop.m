@@ -121,7 +121,7 @@ for architectures = simvar.ARCH_VECT
                         simvar.trial(trialcount).allconn{1,1}{1,6} = paramsZ(i); % I only change the initial points of the position gas
                         %pallconn{1,3}{1,6} = paramsZ; %but I want the concatenation to reflect the same position that I randomized. actually this is not going to happen because of the sliding window scheme
                         %pallconn{1,4}{1,6} = pallconn{1,2}{1,6};
-                        arq_connect(i) = baq(simvar.trial(trialcount).allconn);
+                        arq_connect(i,:) = baq(simvar.trial(trialcount).allconn);
                         
                     end
                     
@@ -136,7 +136,7 @@ for architectures = simvar.ARCH_VECT
                         end
                         if simvar.PARA
                             spmd(simvar.P)
-                                a(labindex).a = executioncore_in_starterscript(simvar.trial(trialcount), arq_connect(labindex), data);
+                                a(labindex).a = executioncore_in_starterscript(simvar.trial(trialcount), arq_connect(labindex,:), data);
                             end
                             %b = cat(2,b,a.a);
                             for i=1:length(a)
@@ -148,7 +148,7 @@ for architectures = simvar.ARCH_VECT
                             a(1:simvar.P) = struct();
                         else
                             for i = 1:simvar.P
-                                a(i).a = executioncore_in_starterscript(simvar.trial(trialcount), arq_connect(i), data);
+                                a(i).a = executioncore_in_starterscript(simvar.trial(trialcount), arq_connect(i,:), data);
                             end
                             b = cat(2,b,a.a);
                             clear a
