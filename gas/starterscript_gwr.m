@@ -13,12 +13,13 @@ params.RANDOMSET = true;
 n = randperm(size(Data,2),2);
 params.startingpoint = [n(1) n(2)];
 params.removepoints = true;
+params.flippoints = true;
 
 params.amax = 50; %greatest allowed age
 params.nodes = NODES; %maximum number of nodes/neurons in the gas
 params.en = 0.006; %epsilon subscript n
 params.eb = 0.2; %epsilon subscript b
-params.MAX_EPOCHS = 10; % this means data will be run over MAX_EPOCHS times
+params.MAX_EPOCHS = 300; % this means data will be run over MAX_EPOCHS times
 params.gamma = 1;
 
 %Exclusive for gwr

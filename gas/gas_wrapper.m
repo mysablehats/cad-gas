@@ -496,11 +496,14 @@ function [gas]= gwr_core(eta, gas)
 %%%%%%%%%%%%%%%%%%%
 
 %eta = data(:, k); % this the k-th data sample
-[gas.gwr.ws, ~, gas.gwr.s, gas.gwr.t, ~] = findnearest(eta, gas.A); %step 2 and 3
+[eta, gas.gwr.ws, ~, gas.gwr.s, gas.gwr.t,d1,~, ~] = gas.findnearest(eta); %step 2 and 3
 
 %%% changed order so I can avoid changing anything in the algorithm if the
 %%% point is too unusual
-gas.a = exp(-norm((eta-gas.gwr.ws).*gas.awk)); %step 5
+%gas.a = exp(-norm((eta-gas.gwr.ws).*gas.awk)); %step 5
+%%% changed the expression so that I don't need to calculate the distance
+%%% twice. note that awk now does nothing. 
+gas.a = exp(-d1); %step 5
 
 if gas.params.removepoints&&(gas.a < gas.amean - gas.params.gamma*gas.astddev)
     gas.skippedpoints = gas.skippedpoints +1;
@@ -653,7 +656,7 @@ ne = find(C(s, :));
 neighbours = ne(ne~=0);
 end
 
-function [n1,  n2,  ni1,  ni2,  distvector] = findnearest(p, data)
+function [n1,  n2,  ni1,  ni2,  distvector] = findnearest_deactivated(p, data)
 maxindex = size(data, 2);
 % distvector = inf(1, maxindex, 'gpuArray');
 % ni1 = 0;
