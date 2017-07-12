@@ -105,9 +105,7 @@ classdef gas
                 gasgas.awk = reshape(gasgas.awk,[],1); %%% probably not the soundest programming here, but it solves the problem 
                 %%% actually this will only work for the first
                 %%% concatenation. I should save and generate awk in the
-                %%% same way the input is generated. this is difficult and
-                %%% also probably not very useful. I will only avoid the
-                %%% error. 
+                %%% same way the input is generated. t
                 try
                     %%%omg,,, this bug n1 = gasgas.n1n2(:,1)
                     %n1.*gasgas.awk;
