@@ -23,6 +23,7 @@ params.en = 0.006; %epsilon subscript n
 params.eb = 0.2; %epsilon subscript b
 params.gamma = 2; % for the denoising function
 params.plottingstep = 0; % zero will make it plot only the end-gas
+params.flippoints = true;
 
 %Exclusive for gwr
 params.STATIC = true;

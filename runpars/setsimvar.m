@@ -77,7 +77,7 @@ if isempty(varargin)
     end
     simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing
     simvar.extract = {'rand', 'wantvelocity'};
-    simvar.preconditions =  {'nohips', 'mirrorx'};% {'nohips', 'mirrorz', 'mirrorx'}; %,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %,
+    simvar.preconditions =  {'nohips'};%{'nohips', 'mirrorx'};% {'nohips', 'mirrorz', 'mirrorx'}; %,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %,
     simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
     simvar.trialdatafile = strcat(simvar.env.wheretosavestuff,simvar.env.SLASH,simvar.trialdataname,'.mat');
     simvar.allmatpath = simvar.env.allmatpath;
@@ -101,7 +101,7 @@ end
 %% Setting up runtime variables
 
 
-simvar.NODES_VECT = [1000];
+simvar.NODES_VECT = [3];
 simvar.MAX_EPOCHS_VECT = [1];
 simvar.ARCH_VECT = [1];
 simvar.MAX_NUM_TRIALS = 1;
