@@ -71,6 +71,8 @@ elseif strcmp(distancetype.source,'gas')
 else
     error('Unknown distance metric source!')
 end
+%if you want to see how many points are mapped to how many gas nodes
+%histogram(matmat_byindex,100)
 end
 function [ matmat, matmat_byindex, distances] = genbestmmatrix_Iconip(nodes, data,q, metric)
 
