@@ -1,5 +1,7 @@
 function params = setparams(simvar)
 % set parameters for gas:
+params.normdim = false; %% if true normalize the distance by the number of dimensions 
+params.distancetype.source = 'gas'; % or 'ext'
 params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean' 
 params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow
 params.layertype = '';

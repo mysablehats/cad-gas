@@ -60,7 +60,7 @@ if isempty(params)
     NODES = 100;
     
     params = struct();
-    
+    params.normdim = true; %% if true normalize the distance by the number of dimensions 
     params.use_gpu = false;
     params.PLOTIT = true; %
     params.RANDOMSTART = false; % if true it overrides the .startingpoint variable

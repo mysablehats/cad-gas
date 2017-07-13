@@ -21,7 +21,7 @@ dbgmsg('Working on gas: ''',sstgasj.name,''' (', num2str(j),') with method: ',ss
 % GWR function we wrote.
 if strcmp(vot, 'train')
     %DO GNG OR GWR
-    [sstgasj.nodes, sstgasj.edges, sstgasj.outparams] = gas_wrapper(sstv.gas(j).inputs.input_clip,arq_connect);
+    [sstgasj.nodes, sstgasj.edges, sstgasj.outparams, sstgasj.gasgas] = gas_wrapper(sstv.gas(j).inputs.input_clip,arq_connect);
     %%%% POS-MESSAGE
     dbgmsg('Finished working on gas: ''',sstgasj.name,''' (', num2str(j),') with method: ',sstgasj.method ,'.Num of nodes reached:',num2str(sstgasj.outparams.graph.nodesvect(end)),' for process:',num2str(labindex),0)
     
@@ -39,7 +39,7 @@ end
 % not be used... Still I will  not fix it unless I have to.
 %PRE MESSAGE
 dbgmsg('Finding best matching units for gas: ''',sstgasj.name,''' (', num2str(j),') for process:',num2str(labindex),0)
-[sstv.gas(j).distances, ~, sstv.gas(j).bestmatchbyindex] = genbestmmatrix(sstgasj.nodes, sstv.gas(j).inputs.input, arq_connect.layertype, arq_connect.q, arq_connect.params.distancetype); %assuming the best matching node always comes from initial dataset!
+[sstv.gas(j).distances, ~, sstv.gas(j).bestmatchbyindex] = genbestmmatrix(sstgasj.nodes, sstv.gas(j).inputs.input, arq_connect.layertype, arq_connect.q, arq_connect.params.distancetype, sstgasj.gasgas); %assuming the best matching node always comes from initial dataset!
 
 %% Post-conditioning function
 %This will be the noise removing function. I want this to be optional or allow other things to be done to the data and I
@@ -52,12 +52,24 @@ else
     dbgmsg('Skipping removal of noisy input for gas:',sstgasj.name,0)
 end
 end
-function [ distances, matmat, matmat_byindex] = genbestmmatrix(nodes, data, ~,q, distancetype)
+function [ distances, matmat, matmat_byindex] = genbestmmatrix(nodes, data, ~,q, distancetype, gasgas)
+if strcmp(distancetype.source,'ext')
 if distancetype.noaffine
     [ matmat, matmat_byindex, distances] = genbestmmatrix_Iconip(nodes, data, q, distancetype.metric);
 else
-    distances = [];
-    [ matmat, matmat_byindex] = genbestmmatrix_new(nodes, data, [],[]);
+    distfun = @(x,y)distancekernel(x,y);
+    dnodes = @(x,y,z)distnodes(x,y,z);
+    [ matmat, matmat_byindex, distances] = genbestmmatrix_new(nodes, data, [],[],dnodes, distfun);
+end
+elseif strcmp(distancetype.source,'gas')
+    
+    %distfun = @(x,y)distancekernel(x,y);
+    dnodes = @(eta, ~, ~)gasgas.fnearest(eta);
+    %[eta, n1,  n2,  ni1,  ni2, d1, d2,  distvector] = findnearest(gasgas,eta)
+    %dnodes = @(x,y,z)distnodes(x,y,z); %% this should be a gas method! but how are we going to access the gas structure from here?
+    [ matmat, matmat_byindex, distances] = genbestmmatrix_new(nodes, data, [],[],dnodes, []);
+else
+    error('Unknown distance metric source!')
 end
 end
 function [ matmat, matmat_byindex, distances] = genbestmmatrix_Iconip(nodes, data,q, metric)
@@ -90,26 +102,31 @@ end
 
 
 end
-function [ matmat, matmat_byindex] = genbestmmatrix_new(nodes, data, ~,~)
+function [ matmat, matmat_byindex, distances] = genbestmmatrix_new(nodes, data, ~,~, dnodes, distfun)
 
 matmat = [];
 %[~,matmat_byindex] = pdist2(nodes',data','euclidean','Smallest',1);
 %matmat = nodes(:,matmat_byindex);
 matmat_byindex = nan(1,size(data,2));
+distances = inf(size(matmat_byindex));
 for i = 1:size(data,2)
     %tic
     a = data(:,i);
-    distances = nan(1,size(nodes,2));
-    for j = 1:size(nodes,2)
-        b = nodes(:,j);
-        distances(j) = distancekernel(a,b);
-    end
-    [~,ind] = min(distances);
+    distancesA = dnodes(a,nodes,distfun);
+    [dd,ind] = min(distancesA);
     matmat_byindex(i) = ind;
+    distances(i) = dd;
     %toc
 end
 
 
+end
+function distances = distnodes(a,nodes,distfun)
+distances = nan(1,size(nodes,2));
+    for j = 1:size(nodes,2)
+        b = nodes(:,j);
+        distances(j) = distfun(a,b);
+    end
 end
 function dis = distancekernel(a,b)
 

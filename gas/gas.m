@@ -221,6 +221,9 @@ classdef gas
                 gasgas.params.accumulatedepochs = epochs;
             end
         end
+        function distvector = fnearest(gasgas,eta) %%% this seems strange and unusual, but to generate the genbestmatrix, it is simpler if I just write this wrapper like this. 
+            [~, ~,  ~,  ~,  ~, ~, ~,  distvector] = gasgas.findnearest(eta);
+        end
         function [eta, n1,  n2,  ni1,  ni2, d1, d2,  distvector] = findnearest(gasgas,eta)
             if gasgas.params.flippoints
                 % flip every which way and see which is best
@@ -315,6 +318,12 @@ classdef gas
                     end
                 else
                     [n1,  n2,  ni1,  ni2, d1, d2,  distvector] = findnearest_c(gasgas,eta);
+                end
+                %%% new addition, so that the distance is normalized by the
+                %%% number of dimensions
+                if gasgas.params.normdim
+                    d1 = d1/length(eta); %or size(,x)?
+                    d2 = d2/length(eta);
                 end
             else
                 [n1,  n2,  ni1,  ni2, d1, d2,  distvector] = findnearest_c(gasgas,eta);
