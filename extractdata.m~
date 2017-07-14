@@ -58,11 +58,6 @@ for i = randseq % I think each iteration is one action
     index = cat(2, index, repmat(structure(i).indexact,1,size(structure(i).skel,3)));
     ends = cat(2, ends, size(structure(i).skel,3));
 end
-%%% check y
-%yy = sum(Y.*[1:14]',1);
-%plot(yy)
-%%%
-
 if WANTVELOCITY
     Data_vel = [];
     for i = randseq % I think each iteration is one action
@@ -157,7 +152,7 @@ function nrandseq = order(lab,typetype,structure,randseq,RANDSQE)
 %nrandseq = zeros(size(randseq));
 nrandseq = [];
 if RANDSQE
-    labord = randperm(length(lab));
+    labord = randperm(1length(lab))
 else
     labord = 1:length(lab);
 end

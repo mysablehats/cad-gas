@@ -76,7 +76,7 @@ if isempty(varargin)
         %simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
     end
     simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing
-    simvar.extract = {'rand', 'wantvelocity'};
+    simvar.extract = {'rand', 'wantvelocity','order'};
     simvar.preconditions =  {'nohips'};%{'nohips', 'mirrorx'};% {'nohips', 'mirrorz', 'mirrorx'}; %,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %,
     simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simvar.extract{:}],[simvar.preconditions{:}]);
     simvar.trialdatafile = strcat(simvar.env.wheretosavestuff,simvar.env.SLASH,simvar.trialdataname,'.mat');
