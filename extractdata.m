@@ -1,19 +1,33 @@
 function [data, lab] = extractdata(structure, typetype, inputlabels,varargin)
 ORDER = false;
+labremove = {};
 for i = 1:length(varargin)
-    switch varargin{i}
-        case 'wantvelocity'
-            WANTVELOCITY = true;
-        case 'rand'
-            RANDSQE = true;
-        case 'novelocity'
-            WANTVELOCITY = true;
-        case 'seq'
-            RANDSQE = false;
-        case 'order'
-            ORDER = true; %%% will order the training set according to y values. this will hopefully prevent point merger in the output gas
-        otherwise
-            error('unexpected argument')
+    if ischar(varargin{i})
+        switch varargin{i}
+            case 'wantvelocity'
+                WANTVELOCITY = true;
+            case 'rand'
+                RANDSQE = true;
+            case 'novelocity'
+                WANTVELOCITY = true;
+            case 'seq'
+                RANDSQE = false;
+            case 'order'
+                ORDER = true; %%% will order the training set according to y values. this will hopefully prevent point merger in the output gas
+            otherwise
+                error('unexpected argument')
+        end
+    elseif iscell(varargin{i})
+        a = varargin{i};
+        for j=1:length(a)
+            switch a{j}
+                case 'removeaction'
+                otherwise
+                    if ~isempty(a{j})
+                        labremove = [labremove {a{j}}];
+                    end
+            end
+        end
     end
 end
 
@@ -47,6 +61,14 @@ else
     randseq = 1:length(structure);
 end
 
+
+%%% remove labels if labels need to be removed
+
+
+[randseq, lab] = removeelements(lab,labremove,structure,randseq);
+
+
+
 if ORDER
     %disp('hello')
     randseq = order(lab,typetype,structure,randseq,RANDSQE);
@@ -59,8 +81,8 @@ for i = randseq % I think each iteration is one action
     ends = cat(2, ends, size(structure(i).skel,3));
 end
 %%% check y
-%yy = sum(Y.*[1:14]',1);
-%plot(yy)
+yy = sum(Y.*[1:12]',1);
+plot(yy)
 %%%
 
 if WANTVELOCITY
@@ -162,11 +184,36 @@ else
     labord = 1:length(lab);
 end
 for j=labord
-    for i =1:length(randseq)
+    for i =randseq
         a = whichlab(structure(i),lab,typetype);
         if a(j)
             nrandseq = [nrandseq i];
         end
     end
 end
+end
+function [randseq, lab] = removeelements(lab,labremove,structure,randseq)
+%rseq = randseq;
+killlab = [];
+for i=1:length(lab)
+    for j=1:length(labremove)
+        if strcmp(lab{i},labremove{j})
+            killlab = [killlab i];
+        end
+    end
+end
+lab(killlab) = [];
+
+
+killdim = [];
+for i = randseq
+    for j=1:length(labremove)
+        if strcmp(structure(i).act_type, labremove{j})%%%% attention, should use whichlab!!!! but I am lazy and doing this the simple way now. if it breaks, this is what has to be done, check the matrix and whatnot
+            
+            killdim = [killdim i];
+        end
+    end
+end
+randseq = randseq(~ismember(randseq,killdim));
+
 end
