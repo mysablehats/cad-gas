@@ -81,8 +81,8 @@ for i = randseq % I think each iteration is one action
     ends = cat(2, ends, size(structure(i).skel,3));
 end
 %%% check y
-yy = sum(Y.*[1:12]',1);
-plot(yy)
+% yy = sum(Y.*[1:12]',1);
+% plot(yy)
 %%%
 
 if WANTVELOCITY
