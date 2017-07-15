@@ -29,7 +29,7 @@ params.flippoints = true;
 
 %Exclusive for gwr
 params.STATIC = true;
-params.at = 0.995; %activity threshold
+params.at = 0.9; %activity threshold
 params.h0 = 1;
 params.ab = 0.95;
 params.an = 0.95;
