@@ -1,6 +1,6 @@
 function params = setparams(simvar)
 % set parameters for gas:
-params.normdim = false; %% if true normalize the distance by the number of dimensions 
+params.normdim = true; %% if true normalize the distance by the number of dimensions 
 params.distancetype.source = 'gas'; % or 'ext'
 params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean' 
 params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow
@@ -23,13 +23,13 @@ params.amax = 50; %greatest allowed age
 params.nodes = []; %maximum number of nodes/neurons in the gas
 params.en = 0.006; %epsilon subscript n
 params.eb = 0.2; %epsilon subscript b
-params.gamma = 2; % for the denoising function
+params.gamma = 4; % for the denoising function
 params.plottingstep = 0; % zero will make it plot only the end-gas
 params.flippoints = true;
 
 %Exclusive for gwr
 params.STATIC = true;
-params.at = 0.9; %activity threshold
+params.at = 0.999832929230424; %activity threshold
 params.h0 = 1;
 params.ab = 0.95;
 params.an = 0.95;
