@@ -26,7 +26,7 @@ simvar.env = aa_environment; % load environment variables
 % always with a similar dataset, set
 % simvar.generatenewdataset = false
 
-simvar.validationtype = 'type2all'; %'type2notrandom';
+simvar.validationtype = 'type2notrandom'; %'type2notrandom';
 simvar.pc = 999;
 switch simvar.validationtype
     case 'wholeset'        
@@ -40,7 +40,7 @@ switch simvar.validationtype
     case 'type2'
         simvar.Alldata = randperm(4,1);
     case 'type2notrandom'
-        simvar.Alldata = 2;     
+        simvar.Alldata = 3;     
     case 'type2all'
         simvar.Alldata = 1:4;
 end
