@@ -236,12 +236,13 @@ classdef gas
                 %be defined somewhere.
                 datainputsize = size(eta,1);
                 if mod(datainputsize,3)==0 % it is divisible by 3, but does that mean that it is a 3d space? I will assume yes for now.
-                    xflipvect = floor(mod((1:7)/1,2));
-                    yflipvect = floor(mod((1:7)/2,2));
-                    zflipvect = floor(mod((1:7)/4,2));
+                    whattoflip = 1:7; % [1,2,4] is the old behaviour, that is, only flip each dimension once
+                    xflipvect = floor(mod((whattoflip)/1,2));
+                    yflipvect = floor(mod((whattoflip)/2,2));
+                    zflipvect = floor(mod((whattoflip)/4,2));
                     feta = reshape(eta,[],3);
                     [n1,  n2,  ni1,  ni2, d1, d2,  distvector] = findnearest_c(gasgas,eta);
-                    for dimdim = 1:7                        
+                    for dimdim = 1:length(whattoflip)                       
                         if xflipvect(dimdim)
                             feta(:,1) = -feta(:,1);
                         end
