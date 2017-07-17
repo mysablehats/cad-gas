@@ -106,11 +106,11 @@ for architectures = simvar.ARCH_VECT
                     %%% second layers only
                     paramsP(1).distancetype.source = 'gas'; % or 'ext'
                     paramsP(2).distancetype.source = 'gas'; % or 'ext'
-                    paramsP(1).at = 0.99983; %activity threshold
+                    paramsP(1).at = 0.999832929230424; %activity threshold
                     paramsP(2).at = 0.99999; %activity threshold
                     paramsP(3).at = 0.99995; %activity threshold
                     paramsP(4).at = 0.999998; %activity threshold
-                    paramsP(5).at = 0.99999; %activity threshold
+                    paramsP(5).at = 0.999832929230424; %activity threshold
                     
                     simvar.trial(trialcount).allconn = allconnset(architectures, paramsP);
                     

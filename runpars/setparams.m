@@ -1,14 +1,14 @@
 function params = setparams(simvar)
 % set parameters for gas:
 params.normdim = true; %% if true normalize the distance by the number of dimensions 
-params.distancetype.source = 'gas'; % or 'ext'
+params.distancetype.source = 'ext'; % or 'ext'
 params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean' 
 params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow
 params.layertype = '';
 params.MAX_EPOCHS = [];
 params.removepoints = true;
 params.oldremovepoints = false;
-params.PLOTIT = false;
+params.PLOTIT = true;
 params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
 params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
 params.savegas.resume = false; % do not set to true. not working
