@@ -26,7 +26,7 @@ simvar.env = aa_environment; % load environment variables
 % always with a similar dataset, set
 % simvar.generatenewdataset = false
 
-simvar.validationtype = 'type2notrandom'; %'type2notrandom';
+simvar.validationtype = 'type2all'; %'type2notrandom';
 simvar.pc = 999;
 switch simvar.validationtype
     case 'wholeset'        
