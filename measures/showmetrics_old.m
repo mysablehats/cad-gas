@@ -4,7 +4,7 @@ number_of_metrics = length(metricsname);
 
 
 for i = 1:length(AA)
-    fprintf('For gas with %2.0f nodes and %3.0f epoch(s) - evaluated on the validation set:\n', cst(i).NODES_VECT, cst(i).MAX_EPOCHS_VECT ) %%% well, I guess this won't work if the parameters for each trial are different
+    fprintf('For gas with %2.0f nodes and %3.0f epoch(s) - evaluated on the validation set:\n', cst(i).paramsZ(1).nodes, cst(i).paramsZ(1).MAX_EPOCHS ) %%% well, I guess this won't work if the parameters for each trial are different
     %%%choosing gas with highest precision on the training set and on last layer    
     for j = 1:number_of_metrics
         [ma, ima] = max((AA{i}(:,5,j,2)));

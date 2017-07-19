@@ -26,6 +26,9 @@ for k = 1:cstsize
 end
 end
 function mts = allmetrics(A)
+if size(A,1)>2
+    error('Calculate metrics with multiclass problems not implemented!')
+end
 sensitivity = A(2,2)/(A(2,2)+A(1,2));
 specificity = A(1,1)/(A(1,1)+A(2,1));
 precision = A(2,2)/(A(2,2)+A(2,1));
