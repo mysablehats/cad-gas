@@ -363,18 +363,18 @@ for j = whatIlabel
 end
 if ~isempty(metitems)
     figure
-    plotconf(metrics(metitems))
+    plotconf(metrics(metitems));
 end
 %plotconf(ss.figset{:})
 if isfield(ss.gas(end).fig, 'val')&&~isempty(ss.gas(end).fig.val)
     figure
-    plotconfusion(ss.gas(end).fig.val{:})
+    plotconfusion(ss.gas(end).fig.val{:});
 end
 
 %% Displaying this nifty distance graph to see if thresholds would make my life easier, they don't
 if isfield(ss, 'val')&&isfield(ss.val, 'gas')
     a.ssvalgas = ss.val.gas;
-    distancegraph(ss.val.gas)
+    distancegraph(ss.val.gas);
 end
 
 
