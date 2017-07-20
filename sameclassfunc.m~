@@ -14,15 +14,18 @@ dbgmsg('###Using multilayer GWR and GNG ###',0)
 if 0
     kindex = 1;
 else
-    kindex = 1:size(ssvot.y,1);
+    numlabs = size(ssvot.y,1);
+    kindex = 1:numlabs;
     labs = repmat('some label',12,1);  %%%% provisional. needs real labels
     %%%need to partition ssvot!
+    ssvotbt = ssvot;
     ssvot = pssvot(ssvot);
+    gas = repmat(gas,numlabs,1);
 end
 
 for k = kindex
     for j = 1:length(arq_connect)
-        if size(ssvot.data,1)>0&&strcmp(vot,'train')
+        if size(ssvot(k).data,1)>0&&strcmp(vot,'train')
             [gas(k,j), ssvot(k)] = gas_method(gas(k,:), ssvot(k),vot, arq_connect(j),j, size(ssvot(k).data,1)); % I had to separate it to debug it.
         elseif ~isempty(ssvot.data)
             [~, ssvot(k) ]= gas_method(gas(k,:), ssvot(k), vot, arq_connect(j),j, size(ssvot(k).data,1)); %%%hmmm, this will not work
@@ -30,6 +33,14 @@ for k = kindex
     end
 end
 
+%construct a combined gas
+
+
+for k = kindex
+    for j = 1:length(arq_connect)
+         ssvotbt = gas_method2(ssvotbt, gas(k,:), arq_connect(j),j);
+    end
+end
 
 %% Gas Outcomes
 if strcmp(vot,'train')
@@ -73,7 +84,9 @@ end
 
 end
 function ssvotp = pssvot(ssvot)
-disp('hello')
+%disp('hello')
+%%% at first glance this seems correct.
+
 nssvotl = size(ssvot.y,1);
 ssvotp(nssvotl) = struct;
 alldatasize = size(ssvot.data,2);
@@ -89,11 +102,12 @@ for i = 1:nssvotl
             %%% now need to create ends
             %if index of next point changes or does not exist then it is an end
             if j+1>alldatasize||ssvot.index(j+1)~=ssvot.index(j)               
-                ends = [ends j];
+                ends = [ends newindex-sum(ends)];
             end
         end
     end
+    ssvotp(i).ends = ends;
     ssvotp(i).seq = unique(ssvotp(i).index,'stable');
-    
+    ssvotp(i).gas = struct;
 end
 end
