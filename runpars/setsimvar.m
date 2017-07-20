@@ -1,6 +1,6 @@
 function simvar = setsimvar(varargin)
 
-simvar = Simvar({'PARA' 1}, {'validationtype' 'type2all'});
+simvar = Simvar({'PARA' 0}, {'validationtype' 'type2all'});
 
 % set other additional simulation variables
 

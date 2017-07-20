@@ -22,7 +22,7 @@ end
 
 for k = kindex
     for j = 1:length(arq_connect)
-        if size(ssvot(k).data,1)>0&&strcmp(vot,'train')
+        if size(ssvot.data,1)>0&&strcmp(vot,'train')
             [gas(k,j), ssvot(k)] = gas_method(gas(k,:), ssvot(k),vot, arq_connect(j),j, size(ssvot(k).data,1)); % I had to separate it to debug it.
         elseif ~isempty(ssvot.data)
             [~, ssvot(k) ]= gas_method(gas(k,:), ssvot(k), vot, arq_connect(j),j, size(ssvot(k).data,1)); %%%hmmm, this will not work
@@ -73,9 +73,7 @@ end
 
 end
 function ssvotp = pssvot(ssvot)
-%disp('hello')
-%%% at first glance this seems correct.
-
+disp('hello')
 nssvotl = size(ssvot.y,1);
 ssvotp(nssvotl) = struct;
 alldatasize = size(ssvot.data,2);
@@ -91,11 +89,10 @@ for i = 1:nssvotl
             %%% now need to create ends
             %if index of next point changes or does not exist then it is an end
             if j+1>alldatasize||ssvot.index(j+1)~=ssvot.index(j)               
-                ends = [ends newindex];
+                ends = [ends j];
             end
         end
     end
-    ssvotp(i).ends = ends;
     ssvotp(i).seq = unique(ssvotp(i).index,'stable');
     
 end
