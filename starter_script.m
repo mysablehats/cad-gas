@@ -1,4 +1,4 @@
-function simvar_ = starter_script(varargin)
+function outcomes = starter_script(varargin)
 myticvar = tic;
 global VERBOSE LOGIT TEST
 TEST = 0;
@@ -18,7 +18,7 @@ catch
     b = struct();
 end
 % 
-% [~, b(alldata).b] = analyze_outcomes(simvar_);
+[b.a, b.b] = simvar_.analyze_outcomes;
 % %simvar = '';
 % assignin('base', ['outcomes' num2str(simvar.pc)], b);
 % assignin('base', 'myidxs',simvar.Alldata);
@@ -34,8 +34,8 @@ end
 % % end
 
 
-% outcomes.b = b;
-outcomes.simvar = simvar_;
+outcomes.b = b;
+outcomes.trials = simvar_;
 outcomes.pcid = simvar.pc;
 outcomes.idxs = simvar.Alldata;%pcspecs.idxs;
 outcomes.hash = simvar.env.currhash;

@@ -1,4 +1,4 @@
-function simvar = classifier_loop(simvar,params, varargin)
+function simvartrial = classifier_loop(simvar,params, varargin)
 asmvar = simvar;
 %% Begin loop
 trialcount = 0;
@@ -27,7 +27,7 @@ for architectures = simvar.ARCH_VECT
                     %%%% OK, here, so that you don't make any more
                     %%%% mistakes, simvar changed, so you have to reassign
                     %%%% the parameters here.
-                    simvar.trial(trialcount) = asmvar;%% does this solve
+                    simvartrial(trialcount) = asmvar;%% does this solve
                     %the problem?
                     %                     simvar.trial(trialcount).disablesconformskel = simvar.disablesconformskel;
                     %                     simvar.trial(trialcount).arch = architectures;
@@ -47,13 +47,13 @@ for architectures = simvar.ARCH_VECT
                     data =  makess(length(baq(allconnset(architectures, [])))); % I need to know the length of architectures...
                     if ~strcmp(simvar.datasettype,'Ext!')
                         datasetmissing = false;
-                        if ~exist(simvar.trialdatafile, 'file')&&~simvar.trial(trialcount).generatenewdataset
+                        if ~exist(simvar.trialdatafile, 'file')&&~simvartrial(trialcount).generatenewdataset
                             dbgmsg('There is no data on the specified location. Will generate new dataset.',1)
                             datasetmissing = true;
                         end
-                        if simvar.trial(trialcount).generatenewdataset||datasetmissing
-                            [allskel1, allskel2, simvar.trial(trialcount).TrainSubjectIndexes, simvar.trial(trialcount).ValSubjectIndexes] = generate_skel_data(simvar.datasettype, simvar.sampling_type, simvar.TrainSubjectIndexes, simvar.ValSubjectIndexes, simvar.randSubjEachIteration);
-                            [data.train,simvar.trial(trialcount).labels_names, params.skelldef] = all3(allskel1, simvar.trial(trialcount));
+                        if simvartrial(trialcount).generatenewdataset||datasetmissing
+                            [allskel1, allskel2, simvartrial(trialcount).TrainSubjectIndexes, simvartrial(trialcount).ValSubjectIndexes] = generate_skel_data(simvar.datasettype, simvar.sampling_type, simvar.TrainSubjectIndexes, simvar.ValSubjectIndexes, simvar.randSubjEachIteration);
+                            [data.train,simvartrial(trialcount).labels_names, params.skelldef] = all3(allskel1, simvartrial(trialcount));
                             %                         [allskel1] = conformactions(allskel1, simvar.prefilter);
                             %                         [data.train, simvar.labels_names] = extractdata(allskel1, simvar.activity_type, simvar.labels_names,simvar.extract{:});
                             %                         [data.train, params.skelldef] = conformskel(data.train, simvar.preconditions{:});
@@ -70,12 +70,12 @@ for architectures = simvar.ARCH_VECT
                             %showdataset(data,simvar)
                             %%%%
                             %%%%
-                            [data.val,simvar.trial(trialcount).labels_names, ~] = all3(allskel2, simvar.trial(trialcount));
+                            [data.val,simvartrial(trialcount).labels_names, ~] = all3(allskel2, simvartrial(trialcount));
                             %                         [allskel2] = conformactions(allskel2, simvar.prefilter);
                             %                         [data.val, simvar.labels_names] = extractdata(allskel2, simvar.activity_type, simvar.labels_names,simvar.extract{:});
                             %                         [data.val, ~                ] = conformskel(data.val,   simvar.preconditions{:});
                             
-                            simvar.trial(trialcount).trialdatafile = savefilesave(simvar.trialdataname, {data, simvar.trial(trialcount),params},simvar.env);
+                            simvartrial(trialcount).trialdatafile = savefilesave(simvar.trialdataname, {data, simvartrial(trialcount),params},simvar.env);
                             %save(simvar.trialdataname,'data', 'simvar','params');
                             dbgmsg('Training and Validation data saved.')
                             clear datasetmissing
@@ -83,14 +83,14 @@ for architectures = simvar.ARCH_VECT
                             loadedtrial = loadfileload(simvar.trialdataname,simvar.env);
                             data = loadedtrial.data;
                             params.skelldef = loadedtrial.params.skelldef;
-                            simvar.trial(trialcount).generatenewdataset = false;
+                            simvartrial(trialcount).generatenewdataset = false;
                         end
-                        simvar.trial(trialcount).datainputvectorsize = size(data.train.data,1);
+                        simvartrial(trialcount).datainputvectorsize = size(data.train.data,1);
                     else
                         data = varargin{1};
                         data = data(featuress);
                         simvar.datainputvectorsize = size(data.inputs,2);
-                        params.skelldef = struct('length', simvar.trial(trialcount).datainputvectorsize, 'notskeleton', true, 'awk', struct('pos', [],'vel',[]), 'pos', simvar.trial(trialcount).datainputvectorsize, 'vel', []);
+                        params.skelldef = struct('length', simvartrial(trialcount).datainputvectorsize, 'notskeleton', true, 'awk', struct('pos', [],'vel',[]), 'pos', simvartrial(trialcount).datainputvectorsize, 'vel', []);
                         data.train.data = data.inputs'; % not empty so that the algorithm doesnt complain
                         data.train.y = data.labelsM;
                         data.train.ends = ones(1,size(data.inputs,1));
@@ -112,7 +112,7 @@ for architectures = simvar.ARCH_VECT
                     paramsP(4).at = 0.999998; %activity threshold
                     paramsP(5).at = 0.99999; %activity threshold
                     
-                    simvar.trial(trialcount).allconn = allconnset(architectures, paramsP);
+                    simvartrial(trialcount).allconn = allconnset(architectures, paramsP);
                     
                     %%%%%does this look like good programming?
                     
@@ -128,10 +128,10 @@ for architectures = simvar.ARCH_VECT
                                              
                         n = randperm(size(data.train.data,2),2); 
                         paramsZ(1,i).startingpoint = [n(1) n(2)];
-                        simvar.trial(trialcount).allconn{1,1}{1,6} = paramsZ(i); % I only change the initial points of the position gas
+                        simvartrial(trialcount).allconn{1,1}{1,6} = paramsZ(i); % I only change the initial points of the position gas
                         %pallconn{1,3}{1,6} = paramsZ; %but I want the concatenation to reflect the same position that I randomized. actually this is not going to happen because of the sliding window scheme
                         %pallconn{1,4}{1,6} = pallconn{1,2}{1,6};
-                        arq_connect(i,:) = baq(simvar.trial(trialcount).allconn);
+                        arq_connect(i,:) = baq(simvartrial(trialcount).allconn);
                         
                     end
 
@@ -147,7 +147,7 @@ for architectures = simvar.ARCH_VECT
                         end
                         if simvar.PARA
                             spmd(simvar.P)
-                                a(labindex).a = executioncore_in_starterscript(simvar.trial(trialcount), arq_connect(labindex,:), data);
+                                a(labindex).a = executioncore_in_starterscript(arq_connect(labindex,:), data);
                             end
                             %b = cat(2,b,a.a);
                             for i=1:length(a)
@@ -159,7 +159,7 @@ for architectures = simvar.ARCH_VECT
                             a(1:simvar.P) = struct();
                         else
                             for i = 1:simvar.P
-                                a(i).a = executioncore_in_starterscript(simvar.trial(trialcount), arq_connect(i,:), data);
+                                a(i).a = executioncore_in_starterscript( arq_connect(i,:), data);
                             end
                             b = cat(2,b,a.a);
                             clear a
@@ -168,7 +168,7 @@ for architectures = simvar.ARCH_VECT
                     end
                     
                     
-                    simvar.trial(trialcount).metrics = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
+                    simvartrial(trialcount).metrics = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
                     if isempty(varargin)
                         
                         %%%
@@ -322,7 +322,7 @@ allconn_set = {...
 allconn = allconn_set{n};
 end
 
-function a = executioncore_in_starterscript(simvar, arq_connect, ss)
+function a = executioncore_in_starterscript(arq_connect, ss)
 
 %gases = [];
 %% executioncore
@@ -383,7 +383,7 @@ end
 a.mt = metrics;
 a.gases = ss.gas;
 a.allconn = arq_connect;
-a.simvar = simvar;
+%a.simvar = simvar;
 
 % if clearmemory
 %     ss = struct();
