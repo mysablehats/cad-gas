@@ -28,7 +28,7 @@ for k = kindex
     for j = 1:length(arq_connect)
         if size(ssvot(k).data,1)>0&&strcmp(vot,'train')
             [gas(k,j), ssvot(k)] = gas_method(gas(k,:), ssvot(k),vot, arq_connect(j),j, size(ssvot(k).data,1)); % I had to separate it to debug it.
-        elseif ~isempty(ssvot.data)
+        elseif ~isempty(ssvot(k).data)
             [~, ssvot(k) ]= gas_method(gas(k,:), ssvot(k), vot, arq_connect(j),j, size(ssvot(k).data,1)); %%%hmmm, this will not work
         end
     end
