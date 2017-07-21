@@ -1,4 +1,21 @@
-function  sstv = gas_method2(sstv,sstgasj, arq_connect,j,k)
+function  sstv = gas_method2(sstv,sstgas, arq_connect,j,k)
+dimdim = 1;
+%% Gas Method
+% This is a function to go over a gas of the classifier, populate it with the apropriate input and generate the best matching units for the next layer.
+%% Setting up some labels
+sstgasj = sstgas(j);
+sstgasj.name = arq_connect.name;
+sstgasj.method = arq_connect.method;
+sstgasj.layertype = arq_connect.layertype;
+arq_connect.params.layertype = arq_connect.layertype;
+
+%% Choosing the right input for this layer
+% This calls the function set input that chooses what will be written on the .inputs variable. It also handles the sliding window concatenations and saves the .input_ends properties, so that this can be done recursevely.
+% After some consideration, I have decided that all of the long inputing
+% will be done inside setinput, because it it would be easier.
+dbgmsg('Working on gas: ''',sstgasj.name,''' (', num2str(j),') with method: ',sstgasj.method ,' for process:',num2str(labindex),0)
+
+[sstv.gas(j).inputs.input_clip, sstv.gas(j).inputs.input, sstv.gas(j).inputs.input_ends, sstv.gas(j).y, sstv.gas(j).inputs.oldwhotokill, sstv.gas(j).inputs.index, sstv.gas(j).inputs.awk ]  = setinput(arq_connect, sstgas, dimdim, sstv); %%%%%%
 
 %% Best-matching units
 % The last part is actually finding the best matching units for the gas.

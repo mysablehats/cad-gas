@@ -19,6 +19,7 @@ else
     labs = repmat('some label',12,1);  %%%% provisional. needs real labels
     %%%need to partition ssvot!
     ssvotbt = ssvot;
+    ssvotbt.gas.bestmatchbyindex = [];
     ssvot = pssvot(ssvot);
     gas = repmat(gas,numlabs,1);
 end
@@ -38,7 +39,7 @@ end
 
 for k = kindex
     for j = 1:length(arq_connect)
-         ssvotbt = gas_method2(ssvotbt, gas(k,:), arq_connect(j),j);
+         ssvotbt = gas_method2(ssvotbt, gas(k,:), arq_connect(j),j,k);
     end
 end
 
@@ -67,7 +68,7 @@ end
 % action-lets.
 % Specific part on what I want to label
 for j = whatIlabel
-    if 0
+    if length(kindex)==1
         dbgmsg('Applying labels for gas: ''',gas(j).name,''' (', num2str(j),') for process:',num2str(labindex),0)
         if strcmp(vot,'train')
             gas(j).nodesl = altlabeller(ssvot.gas(j).bestmatchbyindex, gas(j).nodes,ssvot.gas(j).inputs.input,ssvot.gas(j).y); %%% new labelling scheme
@@ -77,7 +78,9 @@ for j = whatIlabel
             ssvot.gas(j).class = labeller(gas(j).nodesl, ssvot.gas(j).bestmatchbyindex);
         end
     else
-        disp('hello')
+        traindist = c_dist(ssvot); %%%% maybe I should compare with this for better results. first trial won't have it though.
+        ssvotbt.gas(j).class = newlabeller(ssvotbt.gas(j).distances);
+        ssvot = ssvotbt; %%% so many potential errors... :(
     end
     
 end
