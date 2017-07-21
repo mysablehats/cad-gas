@@ -43,7 +43,7 @@ end
 %% Setting up runtime variables
 
 
-simvar.NODES_VECT = [100];
+simvar.NODES_VECT = [200];
 simvar.MAX_EPOCHS_VECT = [1];
 simvar.ARCH_VECT = [17];
 
