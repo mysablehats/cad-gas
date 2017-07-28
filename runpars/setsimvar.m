@@ -45,7 +45,7 @@ end
 
 
 simvar.NODES_VECT = [1000];
-simvar.MAX_EPOCHS_VECT = [10];
+simvar.MAX_EPOCHS_VECT = [50];
 simvar.ARCH_VECT = [16];
 
 simvar.MAX_NUM_TRIALS = 1;
