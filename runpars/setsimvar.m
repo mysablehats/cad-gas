@@ -44,8 +44,8 @@ end
 %% Setting up runtime variables
 
 
-simvar.NODES_VECT = [3];
-simvar.MAX_EPOCHS_VECT = [1];
+simvar.NODES_VECT = [1000];
+simvar.MAX_EPOCHS_VECT = [10];
 simvar.ARCH_VECT = [16];
 
 simvar.MAX_NUM_TRIALS = 1;
