@@ -11,6 +11,7 @@ classdef Simvar
         allconn
         TrainSubjectIndexes
         ValSubjectIndexes
+        AllSubjects
         metrics
         featuresall
         realtimeclassifier
@@ -34,6 +35,7 @@ classdef Simvar
         ARCH_VECT
         MAX_NUM_TRIALS
         MAX_RUNNING_TIME
+        numlayers
     end
     methods
         function simvar = Simvar(varargin)
@@ -62,6 +64,7 @@ classdef Simvar
             simvar.labels_names = []; % necessary so that same actions keep their order number
             simvar.TrainSubjectIndexes = [];%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
             simvar.ValSubjectIndexes = [];%[1,2,7];%% comment these out to have random new samples
+            simvar.AllSubjects = 1:4;
             simvar.randSubjEachIteration = true;
             simvar.extract = {''};
             simvar.preconditions = {''};
@@ -111,7 +114,7 @@ classdef Simvar
                 case 'type2notrandom'
                     simvar.Alldata = 3;
                 case 'type2all'
-                    simvar.Alldata = 1:4;
+                    simvar.Alldata = simvar.AllSubjects;
             end
             if strcmp(simvar.validationtype,'type2')||strcmp(simvar.validationtype,'type2notrandom')||strcmp(simvar.validationtype,'type2all')
                 simvar.sampling_type = 'type2';
@@ -133,6 +136,7 @@ classdef Simvar
             simvar = simvar.updatevalidationtype;
             simvar = simvar.updateparallelprocessors;
             simvar = simvar.updatesavenames;
+            simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, []))));
         end
         function confusions = showmetrics(simvar)
             confusions = plotconf(simvar.metrics);

@@ -23,6 +23,7 @@ simvar.validationtype = 'type2all'; %'type2notrandom'; 'cluster' 'quarterset' 't
 
 %% Choose dataset
 if isempty(varargin)
+    simvar.AllSubjects = [1 2 4]; %% I will exclude the trouble boy...
     simvar.disablesconformskel = 0;
     simvar.generatenewdataset = 1; %true;
     simvar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
@@ -43,8 +44,8 @@ end
 %% Setting up runtime variables
 
 
-simvar.NODES_VECT = [85];
-simvar.MAX_EPOCHS_VECT = [100];
+simvar.NODES_VECT = [3];
+simvar.MAX_EPOCHS_VECT = [1];
 simvar.ARCH_VECT = [16];
 
 simvar.MAX_NUM_TRIALS = 1;

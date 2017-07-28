@@ -52,7 +52,9 @@ if strcmp(vot,'train')
             for j = 1:length(arq_connect)
                 subplot(1,length(arq_connect),j)
                 hist(gas(k,j).outparams.graph.errorvect)
-                title([(gas(k,j).name) labs(k,:)])
+                if k>1
+                    title([(gas(k,j).name) labs(k,:)])
+                end
             end
         end
     end

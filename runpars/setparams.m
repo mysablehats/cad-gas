@@ -4,7 +4,7 @@ params.normdim = true; %% if true normalize the distance by the number of dimens
 params.distancetype.source = 'ext'; % or 'ext'
 params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean' 
 params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow
-params.distance.simple = false; %if false will flip stuff around. all these distances have to be condensed into a single thing...
+params.distance.simple = true; %if false will rotate stuff around to a better position. TO DO: all these distances have to be condensed into a single thing...
 params.layertype = '';
 params.MAX_EPOCHS = [];
 params.removepoints = true;
@@ -22,6 +22,7 @@ params.savegas.P = simvar.P;
 params.startingpoint = [1 2];
 params.amax = 50; %greatest allowed age
 params.nodes = []; %maximum number of nodes/neurons in the gas
+params.numlayers = []; %%% will depend on the architecture used in simvar.
 params.en = 0.006; %epsilon subscript n
 params.eb = 0.2; %epsilon subscript b
 params.gamma = 4; % for the denoising function
@@ -29,7 +30,7 @@ params.plottingstep = 0; % zero will make it plot only every epoch
 params.plotonlyafterallepochs = true;
 params.flippoints = false;
 
-params.multigas = true; %%%% creates a different gas for each action sequence. at least it is faster. 
+params.multigas = false; %%%% creates a different gas for each action sequence. at least it is faster. 
 
 %Exclusive for gwr
 params.STATIC = true;

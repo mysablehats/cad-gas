@@ -12,7 +12,7 @@ for i= 1:length(allskel)
     end
 end
 
-[data, labels_names] = extractdata(allskel, simvar.activity_type, simvar.labels_names,simvar.extract{:});
+[data, labels_names] = extractdata(allskel, simvar.numlayers ,simvar.activity_type, simvar.labels_names,simvar.extract{:});
 if 0 %isfield(simvar, 'notzeroedaction')
       
     a.train = data;
