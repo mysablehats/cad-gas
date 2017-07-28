@@ -27,9 +27,9 @@ if isempty(varargin)
     simvar.generatenewdataset = 1; %true;
     simvar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
     simvar.activity_type = 'act_type'; %'act_type' or 'act'
-    simvar.prefilter = {'filter', 15};%{'filter',10}; % 'filter', 'none', 'median?'
+    simvar.prefilter = {'none', 15};%{'filter',10}; % 'filter', 'none', 'median?'
     simvar.normrepair = true;
-    simvar.affinerepair = false;%true;
+    simvar.affinerepair = true;
     simvar.affrepvel = true;
     simvar.randSubjEachIteration = false; %%% must be set to false for systematic testing
     simvar.extract = {'rand', 'wantvelocity','order',{'removeaction','still','random'}};
@@ -43,9 +43,9 @@ end
 %% Setting up runtime variables
 
 
-simvar.NODES_VECT = [200];
-simvar.MAX_EPOCHS_VECT = [1];
-simvar.ARCH_VECT = [17];
+simvar.NODES_VECT = [85];
+simvar.MAX_EPOCHS_VECT = [100];
+simvar.ARCH_VECT = [16];
 
 simvar.MAX_NUM_TRIALS = 1;
 simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this

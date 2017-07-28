@@ -11,7 +11,7 @@ function [gas, ssvot] = sameclassfunc(gas, ssvot, vot, whatIlabel, arq_connect)
 dbgmsg('Starting chain structure for GWR and GNG for nodes:',num2str(labindex),0)
 dbgmsg('###Using multilayer GWR and GNG ###',0)
 
-if 0
+if ~arq_connect.params.multigas
     kindex = 1;
 else
     numlabs = size(ssvot.y,1);
@@ -27,22 +27,23 @@ end
 for k = kindex
     for j = 1:length(arq_connect)
         if size(ssvot(k).data,1)>0&&strcmp(vot,'train')
-            [gas(k,j), ssvot(k)] = gas_method(gas(k,:), ssvot(k),vot, arq_connect(j),j, size(ssvot(k).data,1)); % I had to separate it to debug it.
+            %size(ssvot(k).data)
+            [gas(k,j), ssvot(k)] = gas_method2(gas(k,:), ssvot(k),vot, arq_connect(j),j, k); % I had to separate it to debug it.
         elseif ~isempty(ssvot(k).data)
-            [~, ssvot(k) ]= gas_method(gas(k,:), ssvot(k), vot, arq_connect(j),j, size(ssvot(k).data,1)); %%%hmmm, this will not work
+            [~, ssvot(k) ]= gas_method2(gas(k,:), ssvot(k), vot, arq_connect(j),j,k); %%%hmmm, this will not work
         end
     end
 end
 
 %construct a combined gas
 
-
-for k = kindex
-    for j = 1:length(arq_connect)
-         ssvotbt = gas_method2(ssvotbt, gas(k,:), arq_connect(j),j,k);
+if arq_connect.params.multigas
+    for k = kindex
+        for j = 1:length(arq_connect)
+            [~, ssvotbt] = gas_method2(gas(k,:), ssvotbt,'NOTRAIN', arq_connect(j),j,k);
+        end
     end
 end
-
 %% Gas Outcomes
 if strcmp(vot,'train')
     if arq_connect(j).params.PLOTIT
@@ -93,7 +94,7 @@ function ssvotp = pssvot(ssvot)
 nssvotl = size(ssvot.y,1);
 ssvotp(nssvotl) = struct;
 alldatasize = size(ssvot.data,2);
-for i = 1:nssvotl 
+for i = 1:nssvotl
     newindex = 0;
     ends = [];
     for j = 1:alldatasize
@@ -101,10 +102,10 @@ for i = 1:nssvotl
             newindex = newindex +1;
             ssvotp(i).data(:,newindex) = ssvot.data(:,j);
             ssvotp(i).y(:,newindex) = ssvot.y(:,j);
-            ssvotp(i).index(:,newindex) = ssvot.index(j); 
+            ssvotp(i).index(:,newindex) = ssvot.index(j);
             %%% now need to create ends
             %if index of next point changes or does not exist then it is an end
-            if j+1>alldatasize||ssvot.index(j+1)~=ssvot.index(j)               
+            if j+1>alldatasize||ssvot.index(j+1)~=ssvot.index(j)
                 ends = [ends newindex-sum(ends)];
             end
         end

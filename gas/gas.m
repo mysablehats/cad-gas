@@ -221,7 +221,7 @@ classdef gas
                 gasgas.params.accumulatedepochs = epochs;
             end
         end
-        function distvector = fnearest(gasgas,eta) %%% this seems strange and unusual, but to generate the genbestmatrix, it is simpler if I just write this wrapper like this. 
+        function distvector = fnearest(gasgas,eta) %%% this seems strange and unusual, but to generate the genbestmatrix, it is simpler if I just write this wrapper like this.
             [~, ~,  ~,  ~,  ~, ~, ~,  distvector] = gasgas.findnearest(eta);
         end
         function [eta, n1,  n2,  ni1,  ni2, d1, d2,  distvector] = findnearest(gasgas,eta)
@@ -242,7 +242,7 @@ classdef gas
                     zflipvect = floor(mod((whattoflip)/4,2));
                     feta = reshape(eta,[],3);
                     [n1,  n2,  ni1,  ni2, d1, d2,  distvector] = findnearest_c(gasgas,eta);
-                    for dimdim = 1:length(whattoflip)                       
+                    for dimdim = 1:length(whattoflip)
                         if xflipvect(dimdim)
                             feta(:,1) = -feta(:,1);
                         end
@@ -314,6 +314,108 @@ classdef gas
             end
         end
         function [n1,  n2,  ni1,  ni2, d1, d2,  distvector] = findnearest_c(gasgas,eta)
+            if gasgas.params.distance.simple
+                distvector = gasgas.finddist(eta);
+            else
+                distvector = gasgas.fafdis(eta);
+            end
+            [n1,  n2,  ni1,  ni2, d1, d2] = gasgas.fnear(distvector);
+        end
+        function [n1,  n2,  ni1,  ni2, d1, d2] = fnear(gasgas, distvector)
+            [d1, ni1] = min(distvector);
+            n1 = gasgas.A(:, ni1);
+            %pushdist = distvector(ni1);
+            distvector(ni1) = NaN; % I use some cleverness. Hopefully this is fast.
+            [d2, ni2] = min(distvector);
+            n2 = gasgas.A(:, ni2);
+            %distvector(ni1) = pushdist;
+        end
+        function distvector = fafdis(gasgas,eta)
+            distvector = nan(1,size(gasgas.A,2));
+            for i =1:size(gasgas.A,2)
+                b = gasgas.A(:,i);
+                distvector(i) = afdis(eta, b);
+            end
+            function dis = afdis(a,b)
+                mata = reshape(a,[],3);
+                matb = reshape(b,[],3);
+                
+                meana = mean(mata);
+                meanb = mean(matb);
+                
+                ca = mata - meana;
+                cb = matb - meanb;
+                
+                cov_ = ca.'*cb;
+                
+                %[u,s,v] = svd(cov_);
+                [u,~,v] = svd(cov_);
+                
+                r_ = v*u.';
+                
+                tsb = cb*r_;
+                tsa = (r_*ca.').';
+                
+                longa = a(:,1);
+                longb = b(:,1);
+                
+                longca = reshape(ca,[],1);
+                longcb = reshape(cb,[],1);
+                
+                longtsb = reshape(tsb,[],1);
+                longtsa = reshape(tsa,[],1);
+                
+                %calculate the distance without any change between vectors a and b
+                
+                %disp('Original distance:')
+                % I'm retarded...
+                dis = norm(longa-longb);
+                %dis = pdist2(longa',longb','euclidean','Smallest',1);
+                
+                %calculate the distance with means removed (centered around the centroids)
+                
+                %disp('Distance with means removed (a and b centered):')
+                ndis = norm(longca-longcb);
+                %ndis = pdist2(longca',longcb','euclidean','Smallest',1);
+                
+                if dis<ndis
+                    warning('Removing centroids is actually worse!!!!')
+                else
+                    dis = ndis;
+                end
+                
+                %calculates the distance with svd rotation matrix
+                
+                %disp('Distance with rotation on a, b just centered:')
+                ndis1 = norm(longtsa-longcb);
+                %ndis1 = pdist2(longtsa',longcb','euclidean','Smallest',1);
+                
+                %disp('Distance with rotation on a and b:')
+                ndis2 = norm(longtsa-longtsb);% this shouldnt
+                %be the fastest
+                
+                %disp('Distance with rotation on b, a just centered:')
+                dis3 = norm(longtsb-longca);
+                
+                [dis,iii] = min([ndis1 dis ndis2 dis3]); %nndis = min([ndis1 ndis2 ndis3]);
+                if (~(iii==1||iii==4)||abs(ndis1-dis3)>100000*eps(ndis1))&&(ndis1/norm(a)>0.01/100) %%% i mean, maybe the distances are different, but it is such a small distance that it doesn't matter. 
+                    warning(['you thought that your function is always giving better results, but it doesnt!' num2str(iii)])
+                end
+                
+            end
+        end
+        function distvector = finddist(gasgas,eta)
+            %data = gasgas.A;
+            maxindex = size(gasgas.A, 2);
+            % distvector = inf(1, maxindex, 'gpuArray');
+            % ni1 = 0;
+            % ni2 = 0;
+            ppp = repmat(eta, 1, maxindex);
+            dada = gasgas.A - ppp;
+            dada = dada.*dada;
+            distvector = sum(dada).^(1/2);
+        end
+        function [n1,  n2,  ni1,  ni2, d1, d2,  distvector] = findnearest_c_old(gasgas,eta)
             %data = gasgas.A;
             maxindex = size(gasgas.A, 2);
             % distvector = inf(1, maxindex, 'gpuArray');

@@ -220,9 +220,9 @@ for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more tim
         errorvect(therealk) = gasgas.a;
         epochvect(therealk) = therealk;
         nodesvect(therealk) = gasgas.r-1;
-        if PLOTIT&&mod(k, plottingstep)==0&&numlabs==1 % also checks to see if it is inside a parpool
+        if PLOTIT&&mod(k, plottingstep)==0&&numlabs==1&&~params.plotonlyafterallepochs % also checks to see if it is inside a parpool
             plotgwr(gasgas.A, gasgas.C, errorvect, epochvect, nodesvect, skelldef, layertype)
-            drawnow
+            drawnow            
         end        
     end
     
@@ -237,6 +237,12 @@ for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more tim
         save(strcat(savegas, '-e', num2str(num_of_epochs)), 'gasgas')
     end
 end
+
+if PLOTIT&&numlabs==1&&params.plotonlyafterallepochs 
+    plotgwr(gasgas.A, gasgas.C, errorvect, epochvect, nodesvect, skelldef, layertype)
+    drawnow
+end
+
 outparams.graph.errorvect = errorvect;
 outparams.graph.epochvect = epochvect;
 outparams.graph.nodesvect = nodesvect;

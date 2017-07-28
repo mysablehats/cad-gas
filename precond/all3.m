@@ -3,11 +3,11 @@ function [data,labels_names, skelldef] = all3(allskel, simvar)
 for i= 1:length(allskel)
     allskel(i).indexact = i;
     %%%
-    if isfield(simvar,'normrepair')&&simvar.normrepair
+    if simvar.normrepair
         allskel(i) = normrepair(allskel(i));
     end
     
-    if isfield(simvar,'affinerepair')&&simvar.affinerepair
+    if simvar.affinerepair
         allskel(i) = affinerepair(allskel(i), simvar);
     end
 end

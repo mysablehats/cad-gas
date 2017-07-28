@@ -1,30 +1,3 @@
-function  sstv = gas_method2(sstv, arq_connect,j,k)
-
-%% Best-matching units
-% The last part is actually finding the best matching units for the gas.
-% This is a simple procedure where we just find from the gas units (nodes
-% or vectors, as you wish to call them), which one is more like our input.
-% It is a filter of sorts, and the bestmatch matrix is highly repetitive.
-
-% I questioned if I actually need to compute this matrix here or maybe
-% inside the setinput function. But I think this doesnt really matter.
-% Well, for the last gas it does make a difference, since these units will
-% not be used... Still I will  not fix it unless I have to.
-%PRE MESSAGE
-dbgmsg('Finding best matching units for gas: ''',sstgasj.name,''' (', num2str(j),') for process:',num2str(labindex),0)
-[sstv.gas(j).distances, ~, sstv.gas(j).bestmatchbyindex] = genbestmmatrix(sstgasj.nodes, sstv.gas(j).inputs.input, arq_connect.layertype, arq_connect.q, arq_connect.params.distancetype, sstgasj.gasgas); %assuming the best matching node always comes from initial dataset!
-
-%% Post-conditioning function
-%This will be the noise removing function. I want this to be optional or allow other things to be done to the data and I
-%am still thinking about how to do it. Right now I will just create the
-%whattokill property and let setinput deal with it.
-if arq_connect.params.oldremovepoints
-    dbgmsg('Flagging noisy input for removal from gas: ''',sstgasj.name,''' (', num2str(j),') with points with more than',num2str(arq_connect.params.gamma),' standard deviations, for process:',num2str(labindex),0)
-    sstv.gas(j).whotokill = removenoise(sstgasj.nodes, sstv.gas(j).inputs.input, sstv.gas(j).inputs.oldwhotokill, arq_connect.params.gamma, sstv.gas(j).inputs.index);
-else
-    dbgmsg('Skipping removal of noisy input for gas:',sstgasj.name,0)
-end
-end
 function [ distances, matmat, matmat_byindex] = genbestmmatrix(nodes, data, ~,q, distancetype, gasgas)
 if strcmp(distancetype.source,'ext')
 if distancetype.noaffine
