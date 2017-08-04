@@ -6,10 +6,16 @@ VERBOSE = 0;
 
 addpath('gas','runpars','precond','poscond','measures','debug','utils');
 
-simvar = setsimvar(varargin{:});
-params = setparams(simvar);
+datavar = setdatavar(varargin{:});
+datavar_ = datavar.loop;
 
-simvar_ = classifier_loop(simvar, params);
+params = setparams(datavar_(1).skelldef, 'init', []); %hmmm...
+
+simvar = setsimvar(varargin{:});
+simvar_ = simvar.loop(params);
+
+
+simvar_ = runcore(simvar_,datavar_);
 toc(myticvar)
  
 try
@@ -36,8 +42,8 @@ end
 
 outcomes.b = b;
 outcomes.trials = simvar_;
-outcomes.pcid = simvar.pc;
-outcomes.idxs = simvar.Alldata;%pcspecs.idxs;
-outcomes.hash = simvar.env.currhash;
-save([simvar.env.allmatpath 'outcomes' simvar.env.SLASH simvar.env.currhash '-SIMVAR+outcomes-' num2str(simvar.pc)], 'simvar_')
+outcomes.pcid = datavar.pc;
+outcomes.idxs = datavar.Alldata;%pcspecs.idxs;
+outcomes.hash = datavar.env.currhash;
+save([datavar.env.allmatpath 'outcomes' datavar.env.SLASH datavar.env.currhash '-SIMVAR+outcomes-' num2str(datavar.pc)], 'simvar_')
 %combineoutcomes

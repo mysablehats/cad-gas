@@ -1,4 +1,4 @@
-function [data, lab] = extractdata(structure,l, typetype, inputlabels,varargin)
+function [data, lab] = extractdata(structure, typetype, inputlabels,varargin)
 ORDER = false;
 labremove = {};
 for i = 1:length(varargin)
@@ -104,7 +104,7 @@ else
 end
 %Y = Y';
 %Data, vectordata, Y, ends, lab]
-data = makess(l);
+%data = makess(1,0);
 
 data.data = vectordata;
 %data.tensor = Data;

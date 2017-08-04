@@ -2,74 +2,26 @@ classdef Simvar
     properties
         PARA
         P
-        env
-        validationtype
-        sampling_type
-        pc
-        Alldata
-        datainputvectorsize
         allconn
-        TrainSubjectIndexes
-        ValSubjectIndexes
-        AllSubjects
         metrics
-        featuresall
         realtimeclassifier
-        disablesconformskel
-        generatenewdataset
-        datasettype
-        activity_type
-        prefilter
-        normrepair
-        affinerepair
-        affrepvel
-        labels_names
-        randSubjEachIteration
-        extract
-        preconditions
-        trialdataname
-        trialdatafile
-        allmatpath
         NODES_VECT
         MAX_EPOCHS_VECT
         ARCH_VECT
         MAX_NUM_TRIALS
         MAX_RUNNING_TIME
         numlayers
+        arq_connect
     end
     methods
         function simvar = Simvar(varargin)
-            simvar.featuresall = 1;
             simvar.realtimeclassifier = false;
             simvar.PARA = 1;
             simvar = simvar.updateparallelprocessors;
             
-            simvar.env = aa_environment; % load environment variables
-            simvar.datainputvectorsize = [];
             simvar.allconn = [];
-            simvar.TrainSubjectIndexes = [];
-            simvar.ValSubjectIndexes = [];
-            %simvar.paramsZ(length(simvar.P)) = [];
             simvar.metrics = struct;
-            simvar.labels_names = []; % necessary so that same actions keep their order number
-            simvar.disablesconformskel = 0;
-            simvar.pc = 999;
             simvar.metrics = struct;
-            
-            simvar.generatenewdataset = false;
-            simvar.datasettype = 'Ext!';
-            simvar.sampling_type = '';
-            simvar.activity_type = ''; %'act_type' or 'act'
-            simvar.prefilter = {'none' 0}; % 'filter', 'none', 'median?'
-            simvar.labels_names = []; % necessary so that same actions keep their order number
-            simvar.TrainSubjectIndexes = [];%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
-            simvar.ValSubjectIndexes = [];%[1,2,7];%% comment these out to have random new samples
-            simvar.AllSubjects = 1:4;
-            simvar.randSubjEachIteration = true;
-            simvar.extract = {''};
-            simvar.preconditions = {''};
-            simvar.trialdataname = strcat('other',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',simvar.prefilter, [simvar.extract{:}],[simvar.preconditions{:}]);
-            simvar.trialdatafile = strcat(simvar.env.wheretosavestuff,simvar.env.SLASH,simvar.trialdataname,'.mat');
             
             simvar.NODES_VECT = [3]; %%% minimum number is 3
             simvar.MAX_EPOCHS_VECT = [1];
@@ -84,9 +36,6 @@ classdef Simvar
                         case 'PARA'
                             simvar.PARA = varargin{i}{2};
                             simvar = simvar.updateparallelprocessors;
-                        case 'validationtype'
-                            simvar.validationtype = varargin{i}{2};
-                            simvar = simvar.updatevalidationtype;
                     end
                 end
             end
@@ -99,43 +48,8 @@ classdef Simvar
             end
             
         end
-        function simvar = updatevalidationtype(simvar)
-            switch simvar.validationtype
-                case 'wholeset'
-                    simvar.Alldata = 1:68;
-                case 'cluster'
-                    pcspecs = load([simvar.env.homepath simvar.env.SLASH '..' simvar.env.SLASH 'clust.mat']);
-                    simvar.Alldata = pcspecs.idxs;
-                    simvar.pc = pcspecs.pcid;
-                case 'quarterset'
-                    simvar.Alldata = (1:17)+17*(randi(4,1,17)-1);
-                case 'type2'
-                    simvar.Alldata = randperm(4,1);
-                case 'type2notrandom'
-                    simvar.Alldata = 3;
-                case 'type2all'
-                    simvar.Alldata = simvar.AllSubjects;
-            end
-            if strcmp(simvar.validationtype,'type2')||strcmp(simvar.validationtype,'type2notrandom')||strcmp(simvar.validationtype,'type2all')
-                simvar.sampling_type = 'type2';
-                %simvar.ValSubjectIndexes = {alldata};
-                %simvar.TrainSubjectIndexes = setdiff(1:4,[simvar.ValSubjectIndexes{:}]);
-            else
-                simvar.sampling_type = 'type1';
-                %simvar.TrainSubjectIndexes = [];%[];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
-                %simvar.ValSubjectIndexes = {alldata};%num2cell(1:68);%, [2]};%[1,2,7];%% comment these out to have random new samples
-            end
-        end
-        function simvar = updatesavenames(simvar)
-            simextractname = [simvar.extract{:}];
-            simvar.trialdataname = strcat('skel',simvar.datasettype,'_',simvar.sampling_type,simvar.activity_type,'_',[simvar.prefilter{1} num2str(simvar.prefilter{2})], [simextractname{:}],[simvar.preconditions{:}]);
-            simvar.trialdatafile = strcat(simvar.env.wheretosavestuff,simvar.env.SLASH,simvar.trialdataname,'.mat');
-            simvar.allmatpath = simvar.env.allmatpath;
-        end
         function simvar = init(simvar)
-            simvar = simvar.updatevalidationtype;
             simvar = simvar.updateparallelprocessors;
-            simvar = simvar.updatesavenames;
             simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, []))));
         end
         function confusions = showmetrics(simvar)
@@ -179,12 +93,18 @@ classdef Simvar
             end
         end
         function [endacc, combinedval] = analyze_outcomes(simvartrial)
+            if isempty(simvartrial.metrics)
+                error('Metrics not set! Ending.')
+            end
             combsize = [size(simvartrial(1).metrics(1, 1).val) size(simvartrial(1).metrics,2)];
             combinedval = zeros(combsize);
-            for i=1:size(simvartrial,2)
+            for i=1:size(simvartrial.metrics,3)
                 for gaslayer = 1: size(simvartrial(1).metrics,2)
                     for worker =1:size(simvartrial(1).metrics,1)
-                        combinedval(:,:,gaslayer) = simvartrial(i).metrics(worker, gaslayer).val + combinedval(:,:,gaslayer);
+                        %%doesn't exist anymore... this will break all the time if I
+                        %%insist on using workers for different things.
+                        %worker = 1;
+                        combinedval(:,:,gaslayer) = simvartrial.metrics(worker, gaslayer,i).val + combinedval(:,:,gaslayer);
                     end
                 end
             end
@@ -194,5 +114,54 @@ classdef Simvar
                 endacc(gaslayer) = sum(diag(combinedval(:,:,gaslayer)))/sum(sum(combinedval(:,:,gaslayer)));%%% actually some function of combinedval, but not now...
             end
         end
+        function simvartrial = loop(simvar,params)
+            %% Begin loop
+            trialcount = 0;
+            simvartrial = repmat(simvar,length(simvar.ARCH_VECT)*length(simvar.NODES_VECT)*length(simvar.MAX_EPOCHS_VECT),1);
+            for architectures = simvar.ARCH_VECT
+                for NODES = simvar.NODES_VECT
+                    for MAX_EPOCHS = simvar.MAX_EPOCHS_VECT
+                        if NODES ==100000 && (simvar.MAX_EPOCHS==1||simvar.MAX_EPOCHS==1)
+                            dbgmsg('Did this already',1)
+                            break
+                        end
+                        trialcount = trialcount +1;
+                        params.MAX_EPOCHS = MAX_EPOCHS;% simvar.trial(trialcount).MAX_EPOCHS;
+                        params.nodes = NODES;%simvar.trial(trialcount).NODES; %maximum number of nodes/neurons in the gas
+                        
+                        %%%
+                        params = setparams([], 'layerdefs', params);
+                        
+                        simvartrial(trialcount).allconn = allconnset(architectures, params);
+                        
+                        %%% ATTENTION 2: PARALLEL PROCESSES ARE NO LONGER DOING WHAT THEY
+                        %%% USUALLY DID. SO THEY ARE NOT STARTING THE GAS AT DIFFERENT
+                        %%% RANDOM POINTS. ALTHOUGH THAT SEEMS LIKE A GOOD IDEA, I NEED
+                        %%% PARALLEL PROCESSING FOR OTHER THINGS, AND THIS WILL HAVE TO
+                        %%% WAIT.
+                        
+                        
+                        %             %% Setting up different parameters for each of parallel trial
+                        %             % Maybe you want to do that; in case you don't, then we just
+                        %             % use a for to put the same parameters for each.
+                        %             paramsZ = repmat(paramsP,1,simvar.P);
+                        %             for i = 1:simvar.P
+                        %                 %paramsZ(i) = params;
+                        %
+                        %                 n = randperm(size(data.train.data,2),2);
+                        %                 paramsZ(1,i).startingpoint = [n(1) n(2)];
+                        %                 simvartrial(trialcount).allconn{1,1}{1,6} = paramsZ(i); % I only change the initial points of the position gas
+                        %                 %pallconn{1,3}{1,6} = paramsZ; %but I want the concatenation to reflect the same position that I randomized. actually this is not going to happen because of the sliding window scheme
+                        %                 %pallconn{1,4}{1,6} = pallconn{1,2}{1,6};
+                        %                 simvartrial(trialcount).arq_connect(i,:) = baq(simvartrial(trialcount).allconn);
+                        %
+                        %             end
+                        %
+                        simvartrial(trialcount).arq_connect = baq(simvartrial(trialcount).allconn);
+                    end
+                    
+                end
+            end
+        end    
     end
 end

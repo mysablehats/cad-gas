@@ -11,7 +11,7 @@ function [gas, ssvot] = sameclassfunc(gas, ssvot, vot, whatIlabel, arq_connect)
 dbgmsg('Starting chain structure for GWR and GNG for nodes:',num2str(labindex),0)
 dbgmsg('###Using multilayer GWR and GNG ###',0)
 
-if ~arq_connect.params.multigas
+if ~arq_connect(1).params.multigas %%% hmm,,,,
     kindex = 1;
 else
     numlabs = size(ssvot.y,1);
@@ -37,7 +37,7 @@ end
 
 %construct a combined gas
 
-if arq_connect.params.multigas
+if arq_connect(1).params.multigas %%% hmm,,,,
     for k = kindex
         for j = 1:length(arq_connect)
             [~, ssvotbt] = gas_method2(gas(k,:), ssvotbt,'NOTRAIN', arq_connect(j),j,k);
@@ -46,11 +46,11 @@ if arq_connect.params.multigas
 end
 %% Gas Outcomes
 if strcmp(vot,'train')
-    if arq_connect(j).params.PLOTIT
-        for k = kindex
-            figure
-            for j = 1:length(arq_connect)
-                subplot(1,length(arq_connect),j)
+    for j = 1:length(arq_connect)
+        if arq_connect(j).params.PLOTIT %%% this is a mess
+            for k = kindex
+                %figure(k)                
+                subplot(max(kindex),length(arq_connect),j*k)
                 hist(gas(k,j).outparams.graph.errorvect)
                 if k>1
                     title([(gas(k,j).name) labs(k,:)])
