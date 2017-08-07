@@ -8,7 +8,7 @@ datavar.validationtype = 'type2all'; %'type2notrandom'; 'cluster' 'quarterset' '
 
 %% Choose dataset
 if isempty(varargin)
-    datavar.AllSubjects = [1 2 4]; %% I will exclude the trouble boy...
+    datavar.AllSubjects = [1 2 3 4]; %% I will exclude the trouble boy...
     datavar.disablesconformskel = 0;
     datavar.generatenewdataset = false; %true;
     datavar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
