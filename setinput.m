@@ -1,4 +1,4 @@
-function [extinput_clipped, extinput, inputends,y, removeremove, indexes, awko] = setinput(arq_connect, savestrucgas,data_size, svst_t_v) %needs to receive the correct data size so that generateidx may work well
+function [extinput_clipped, extinput, inputends,y, removeremove, indexes, awko, extaccdist] = setinput(arq_connect, savestrucgas,data_size, svst_t_v,k) %needs to receive the correct data size so that generateidx may work well
 %%%%%% this is the place to get long inputs actually.
 %arqconnect has only the current layer, so it is flat
 %inputends need to be the same for everything to work out fine
@@ -14,9 +14,11 @@ function [extinput_clipped, extinput, inputends,y, removeremove, indexes, awko] 
 extinput = [];
 midremove = [];
 awko = [];
+extaccdist = [];
 inputinput = cell(length(arq_connect.sourcelayer),1);
 removeremove = struct([]);
 awk = inputinput; %it is also the same size...
+accdist = awk; %%% I am not really thinking, just copying what I did for the other variables. 
 %if inputends dont coincide this function will give a strange error
 inputends = [];
 [posidx, velidx] = generateidx(data_size, arq_connect.params.skelldef);
@@ -28,7 +30,7 @@ for j = 1:length(arq_connect.sourcelayer)
                 error('wrong computation order. bestmatch field not yet defined.')
             end
             oldinputends = inputends;
-            [inputinput{j},inputends,y, indexes] = longinput( savestrucgas(i).nodes(:,svst_t_v.gas(i).bestmatchbyindex), arq_connect.q, svst_t_v.gas(i).inputs.input_ends, svst_t_v.gas(i).y,svst_t_v.gas(i).inputs.index);
+            [inputinput{j},inputends,y, indexes, accdist{j}] = longinput( savestrucgas(i).nodes(:,svst_t_v.gas(i).bestmatchbyindex(k,:)), arq_connect.q, svst_t_v.gas(i).inputs.input_ends, svst_t_v.gas(i).y,svst_t_v.gas(i).inputs.index, svst_t_v.gas(i).inputs.accdist);
             
             %%%check for misalignments of inputends
             if ~isempty(oldinputends)
@@ -54,17 +56,17 @@ for j = 1:length(arq_connect.sourcelayer)
     end
     if ~foundmysource
         if strcmp(arq_connect.layertype, 'pos')
-            [inputinput{j},inputends,y, indexes] = longinput(svst_t_v.data(posidx,:), arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)));
+            [inputinput{j},inputends,y, indexes,accdist{j}] = longinput(svst_t_v.data(posidx,:), arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)),zeros(1,size(sstv.data,2))); %%% distance starts off as zero. 
             %inputinput{j} = svst_t_v.data(posidx,:); %
             %ends is savestructure.train.ends
             awk{j} = makeawk(arq_connect.q, arq_connect.params.skelldef.awk.pos);
         elseif strcmp(arq_connect.layertype, 'vel')
-            [inputinput{j},inputends,y, indexes] = longinput(svst_t_v.data(velidx,:), arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)));
+            [inputinput{j},inputends,y, indexes,accdist{j}] = longinput(svst_t_v.data(velidx,:), arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)),zeros(1,size(sstv.data,2)));
             %inputinput{j} = svst_t_v.data(velidx,:); %
             %ends is savestructure.train.ends
             awk{j} = makeawk(arq_connect.q, arq_connect.params.skelldef.awk.vel);
         elseif strcmp(arq_connect.layertype, 'all')
-            [inputinput{j},inputends,y, indexes] = longinput(svst_t_v.data, arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)));
+            [inputinput{j},inputends,y, indexes,accdist{j}] = longinput(svst_t_v.data, arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)),zeros(1,size(sstv.data,2)));
             %inputinput{j} = svst_t_v.data; %
             %ends is savestructure.train.ends
             awk{j} = makeawk(arq_connect.q, [arq_connect.params.skelldef.awk.pos;  arq_connect.params.skelldef.awk.vel] );
@@ -82,9 +84,11 @@ if length(inputinput)>1
             midremove = structcat(midremove,removeremove); %{i}
             %midremove = cat(1,midremove,removeremove{i}); %{i}
         end
+        extaccdist = cat(1,extaccdist,accdist{i});
         awko = cat(1,awko,awk{i});
     end
 else
+    extaccdist = accdist{:};
     extinput = inputinput{:};
     midremove = removeremove; %no turtles!
     awko = awk{:};
@@ -99,10 +103,12 @@ end
 function awk = makeawk(q,inawk)
 awk = repmat(inawk,q(1),1);
 end
-function [linput,newends, newy, indexes] = longinput(shortinput, qp, ends, y, iindex)
+function [linput,newends, newy, indexes,newdist] = longinput(shortinput, qp, ends, y, iindex,shortdist)
 % this function was getting messy, so I decided to recreate the structure
 % that generated her, so to make easier debugging
 % It is very disellegant of me. I apologise.
+newdist = shortdist; 
+
 q = qp(1);
 switch length(qp)
     case 1
