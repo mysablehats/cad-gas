@@ -13,7 +13,7 @@ switch argarg
         params.MAX_EPOCHS = [];
         params.removepoints = true;
         params.oldremovepoints = false;
-        params.PLOTIT = true;
+        params.PLOTIT = false;
         params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
         params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
         params.savegas.resume = false; % do not set to true. not working
@@ -34,7 +34,7 @@ switch argarg
         params.plotonlyafterallepochs = true;
         params.flippoints = false;
         
-        params.multigas = false; %%%% creates a different gas for each action sequence. at least it is faster.
+        params.multigas = true; %%%% creates a different gas for each action sequence. at least it is faster.
         
         %Exclusive for gwr
         params.STATIC = true;
