@@ -1,4 +1,4 @@
-function [ distances, matmat, matmat_byindex] = genbestmmatrix(nodes, data, ~,q, distancetype, gasgas)
+function [ distances, matmat, matmat_byindex] = genbestmmatrix(nodes, data, awk, olddist,ltype,q, distancetype, gasgas)
 if strcmp(distancetype.source,'ext')
 if distancetype.noaffine
     [ matmat, matmat_byindex, distances] = genbestmmatrix_Iconip(nodes, data, q, distancetype.metric);
@@ -16,6 +16,9 @@ elseif strcmp(distancetype.source,'gas')
     [ matmat, matmat_byindex, distances] = genbestmmatrix_new(nodes, data, [],[],dnodes, []);
 else
     error('Unknown distance metric source!')
+end
+if distancetype.cum 
+    distances = distances + olddist;
 end
 %if you want to see how many points are mapped to how many gas nodes
 %histogram(matmat_byindex,100)

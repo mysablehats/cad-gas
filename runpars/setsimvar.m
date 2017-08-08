@@ -4,7 +4,7 @@ function simvar = setsimvar
 
 simvar = Simvar({'PARA' 0});
 
-simvar.NODES_VECT = [100];
+simvar.NODES_VECT = [10];
 simvar.MAX_EPOCHS_VECT = [2];
 simvar.ARCH_VECT = [1];
 

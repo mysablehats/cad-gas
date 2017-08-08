@@ -15,7 +15,7 @@ arq_connect.params.layertype = arq_connect.layertype;
 % will be done inside setinput, because it it would be easier.
 dbgmsg('Working on gas: ''',sstgasj.name,''' (', num2str(j),') with method: ',sstgasj.method ,' for process:',num2str(labindex),0)
 
-[sstv.gas(j).inputs.input_clip, sstv.gas(j).inputs.input, sstv.gas(j).inputs.input_ends, sstv.gas(j).y, sstv.gas(j).inputs.oldwhotokill, sstv.gas(j).inputs.index, sstv.gas(j).inputs.awk ]  = setinput(arq_connect, sstgas, dimdim, sstv,k); %%%%%%
+[sstv.gas(j).inputs.input_clip, sstv.gas(j).inputs.input, sstv.gas(j).inputs.input_ends, sstv.gas(j).y, sstv.gas(j).inputs.oldwhotokill, sstv.gas(j).inputs.index, sstv.gas(j).inputs.awk, sstv.gas(j).distances(k,:)]  = setinput(arq_connect, sstgas, dimdim, sstv,k); %%%%%%
 
 %%
 % After setting the input, we can actually run the gas, either a GNG or the
@@ -41,7 +41,7 @@ end
 % not be used... Still I will  not fix it unless I have to.
 %PRE MESSAGE
 dbgmsg('Finding best matching units for gas: ''',sstgasj.name,''' (', num2str(j),') for process:',num2str(labindex),0)
-[sstv.gas(j).distances(k,:), ~, sstv.gas(j).bestmatchbyindex(k,:)] = genbestmmatrix(sstgasj.nodes, sstv.gas(j).inputs.input, arq_connect.layertype, arq_connect.q, arq_connect.params.distancetype, sstgasj.gasgas); %assuming the best matching node always comes from initial dataset!
+[sstv.gas(j).distances(k,:), ~, sstv.gas(j).bestmatchbyindex(k,:)] = genbestmmatrix(sstgasj.nodes, sstv.gas(j).inputs.input, sstv.gas(j).inputs.awk, sstv.gas(j).distances(k,:), arq_connect.layertype, arq_connect.q, arq_connect.params.distancetype, sstgasj.gasgas); %assuming the best matching node always comes from initial dataset!
 
 %% Post-conditioning function
 %This will be the noise removing function. I want this to be optional or allow other things to be done to the data and I
