@@ -2,9 +2,9 @@ function simvar = setsimvar
 
 %%% sets the running parameters for the classifier.
 
-simvar = Simvar({'PARA' 0});
+simvar = Simvar({'PARA' 1});
 
-simvar.NODES_VECT = [10];
+simvar.NODES_VECT = [100];
 simvar.MAX_EPOCHS_VECT = [2];
 simvar.ARCH_VECT = [1];
 
