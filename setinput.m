@@ -84,7 +84,12 @@ if length(inputinput)>1
             midremove = structcat(midremove,removeremove); %{i}
             %midremove = cat(1,midremove,removeremove{i}); %{i}
         end
-        extaccdist = cat(1,extaccdist,accdist{i});
+        if isempty(extaccdist)
+            extaccdist = accdist{i};
+        else
+            extaccdist = extaccdist + accdist{i};
+        end
+        %extaccdist = cat(1,extaccdist,accdist{i});
         awko = cat(1,awko,awk{i});
     end
 else
