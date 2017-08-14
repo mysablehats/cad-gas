@@ -4,22 +4,24 @@ global VERBOSE LOGIT TEST
 TEST = 0;
 VERBOSE = 0;
 
-addpath('gas','runpars','precond','poscond','measures','debug','utils');
+addpath('runpars','precond','poscond','measures','debug','utils');
 
 datavar = setdatavar(varargin{:});
 datavar_ = datavar.loop;
 
-params = setparams(datavar_(1).skelldef, 'init', []); %hmmm...
-
-simvar = setsimvar(varargin{:});
-simvar_ = simvar.loop(params);
-
+if 1
+    addpath('gas');
+    params = setparams(datavar_(1).skelldef, 'init', []); %hmmm..    
+    simvar_ = setsimvar(params);
+else
+    simvar_ = setsimvarkf;
+end
 
 simvar_ = runcore(simvar_,datavar_);
 toc(myticvar)
  
 try
-    b = evalin('base',['outcomes' num2str(simvar.pc)]);
+    b = evalin('base',['outcomes' num2str(simvar_.pc)]);
 catch
     b = struct();
 end

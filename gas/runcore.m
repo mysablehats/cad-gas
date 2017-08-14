@@ -2,16 +2,25 @@ function simvar = runcore(simvar,datavar)
 a = [];
 b = [];
 
-%%%% i have to break big chunks of simvar/datavar into something my parpool
-%%%% can handle
-met_struc = struct('conffig',[],'val',[],'train',[], 'accumulatedepochs',0);
-
-for i =1:length(datavar)
-    datavar(i).data = structcat2(makess(simvar.numlayers,true),datavar(i).data);
+switch simvar.method
+    case 'gas'
+    met_struc = struct('conffig',[],'val',[],'train',[], 'accumulatedepochs',0);
+    
+    for i =1:length(datavar)
+        datavar(i).data = structcat2(makess(simvar.numlayers,true),datavar(i).data);
+    end
+    
+    for ii = 1:length(simvar)
+        simvar(ii).metrics =repmat(met_struc,length(datavar),simvar.numlayers);
+    end
+    case 'knearest'
+    case 'kforget'
+    otherwise
+        error('classification method not defined. ')
 end
 
+
 for ii = 1:length(simvar)
-    simvar(ii).metrics =repmat(met_struc,length(datavar),simvar.numlayers);
     starttime = tic;
     while toc(starttime)< simvar(ii).MAX_RUNNING_TIME
         if length(b)> simvar(ii).MAX_NUM_TRIALS
@@ -19,7 +28,7 @@ for ii = 1:length(simvar)
         end
         if simvar(ii).PARA
             spmd(length(datavar))
-                a(labindex).a = executioncore_in_starterscript(simvar(ii).arq_connect, datavar(labindex).data);
+                a(labindex).a = simvar(ii).excfun(datavar(labindex).data,ii);
             end
             %b = cat(2,b,a.a);
             for i=1:length(a)
@@ -31,7 +40,7 @@ for ii = 1:length(simvar)
             a(1:simvar(ii).P) = struct();
         else
             for i = 1:length(datavar)
-                a(i).a = executioncore_in_starterscript(simvar(ii).arq_connect, datavar(i).data);
+                a(i).a = simvar(ii).excfun(datavar(labindex).data,ii);
             end
             b = cat(2,b,a.a);
             clear a
