@@ -8,7 +8,13 @@ classdef Simvargas < Simvar
         arq_connect
     end
     methods
-        function simvar = Simvar(varargin)
+        function simvar = Simvargas(varargin)
+            %% Object Initialization %%
+            % Call superclass constructor before accessing object
+            % You cannot conditionalize this statement
+            simvar = simvar@Simvar(varargin{:});
+            
+            %% Post initialization
             simvar.method = 'gas';
             simvar.excfun = @(data,ii)executioncore_in_starterscript(simvar(ii).arq_connect, data);
             simvar.allconn = [];
@@ -16,6 +22,8 @@ classdef Simvargas < Simvar
             simvar.NODES_VECT = [3]; %%% minimum number is 3
             simvar.MAX_EPOCHS_VECT = [1];
             simvar.ARCH_VECT = [1];
+            
+            
         end
         function simvar = init(simvar)
             simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, []))));
