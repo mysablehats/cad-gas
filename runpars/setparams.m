@@ -1,0 +1,77 @@
+function params = setparams(skelldef, argarg, params)
+
+switch argarg
+    case 'init'       
+        params.skelldef = skelldef;
+        % set parameters for gas:
+        params.normdim = true; %% if true normalize the distance by the number of dimensions
+        params.distancetype.source = 'ext'; % or 'ext'
+        params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean'
+        params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow - if on ext.
+        params.distancetype.cum = true;
+        params.distance.simple = true; %if false will rotate stuff around to a better position. TO DO: all these distances have to be condensed into a single thing...
+        params.flippoints = true;
+        
+        params.layertype = '';
+        params.MAX_EPOCHS = [];
+        params.removepoints = true;
+        params.oldremovepoints = false;
+        params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
+        params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
+        params.savegas.resume = false; % do not set to true. not working
+        params.savegas.save = false;
+        %params.savegas.path = simvar.env.wheretosavestuff;
+        params.savegas.parallelgases = true;
+        params.savegas.parallelgasescount = 0;
+        params.savegas.accurate_track_epochs = true;
+        %params.savegas.P = simvar.P;
+        params.startingpoint = [1 2];
+        params.amax = 50; %greatest allowed age
+        params.nodes = []; %maximum number of nodes/neurons in the gas
+        params.numlayers = []; %%% will depend on the architecture used in simvar.
+        params.en = 0.006; %epsilon subscript n
+        params.eb = 0.2; %epsilon subscript b
+        params.gamma = 4; % for the denoising function
+        
+        params.PLOTIT = false;
+        params.plottingstep = 0; % zero will make it plot only every epoch
+        params.plotonlyafterallepochs = true;
+
+        
+        params.multigas = true; %%%% creates a different gas for each action sequence. at least it is faster.
+        
+        %Exclusive for gwr
+        params.STATIC = true;
+        params.at = 0.999832929230424; %activity threshold
+        params.h0 = 1;
+        params.ab = 0.95;
+        params.an = 0.95;
+        params.tb = 3.33;
+        params.tn = 3.33;
+        
+        %Exclusive for gng
+        params.age_inc                  = 1;
+        params.lambda                   = 3;
+        params.alpha                    = .5;     % q and f units error reduction constant.
+        params.d                           = .995;   % Error reduction factor.
+        
+    case 'layerdefs'
+        %% Classifier structure definitions
+        
+        %paramsP = repmat(params,simvar.numlayers,1);
+        
+        params = repmat(params,5,1);
+        
+        %%% we need to enable the gas distance for first and
+        %%% second layers only
+        %params(1).distancetype.source = 'gas'; % or 'ext'
+        %params(2).distancetype.source = 'gas'; % or 'ext'
+        params(1).at = 0.99983; %activity threshold
+        params(2).at = 0.99999; %activity threshold
+        params(3).at = 0.99995; %activity threshold
+        params(4).at = 0.999998; %activity threshold
+        params(5).at = 0.99999; %activity threshold
+        
+        
+end
+end

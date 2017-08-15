@@ -5,7 +5,14 @@ function icli = removebaddata(inp, idxx,rev, qp)
 %%%% would probably require to not use cells anymore, but a structure with
 %%%% variable number of fields and go through them in order. 
 
-aaaa = fieldnames(rev);
+if isstruct(rev)    
+    aaaa = fieldnames(rev);
+else
+    aaaa = []; %%% this is already a warning and the warning below should be an error, but I have little time and would need more help with this to do it the right way
+    if ~isempty(rev)
+        warning('wrong initialization for rev variable! please debug.')
+    end
+end
 something_to_remove = false;
 for i = 1:length(aaaa)
     if ~isempty(rev.(aaaa{i}))

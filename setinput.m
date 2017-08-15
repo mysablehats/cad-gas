@@ -1,4 +1,4 @@
-function [extinput_clipped, extinput, inputends,y, removeremove, indexes, awko] = setinput(arq_connect, savestrucgas,data_size, svst_t_v) %needs to receive the correct data size so that generateidx may work well
+function [extinput_clipped, extinput, inputends,y, removeremove, indexes, awko, extaccdist] = setinput(arq_connect, savestrucgas,data_size, svst_t_v,k) %needs to receive the correct data size so that generateidx may work well
 %%%%%% this is the place to get long inputs actually.
 %arqconnect has only the current layer, so it is flat
 %inputends need to be the same for everything to work out fine
@@ -14,9 +14,11 @@ function [extinput_clipped, extinput, inputends,y, removeremove, indexes, awko] 
 extinput = [];
 midremove = [];
 awko = [];
+extaccdist = [];
 inputinput = cell(length(arq_connect.sourcelayer),1);
 removeremove = struct([]);
 awk = inputinput; %it is also the same size...
+accdist = awk; %%% I am not really thinking, just copying what I did for the other variables. 
 %if inputends dont coincide this function will give a strange error
 inputends = [];
 [posidx, velidx] = generateidx(data_size, arq_connect.params.skelldef);
@@ -28,7 +30,7 @@ for j = 1:length(arq_connect.sourcelayer)
                 error('wrong computation order. bestmatch field not yet defined.')
             end
             oldinputends = inputends;
-            [inputinput{j},inputends,y, indexes] = longinput( savestrucgas(i).nodes(:,svst_t_v.gas(i).bestmatchbyindex), arq_connect.q, svst_t_v.gas(i).inputs.input_ends, svst_t_v.gas(i).y,svst_t_v.gas(i).inputs.index);
+            [inputinput{j},inputends,y, indexes, accdist{j}] = longinput( savestrucgas(i).nodes(:,svst_t_v.gas(i).bestmatchbyindex(k,:)), arq_connect.q, svst_t_v.gas(i).inputs.input_ends, svst_t_v.gas(i).y,svst_t_v.gas(i).inputs.index, svst_t_v.gas(i).distances(k,:));
             
             %%%check for misalignments of inputends
             if ~isempty(oldinputends)
@@ -54,17 +56,17 @@ for j = 1:length(arq_connect.sourcelayer)
     end
     if ~foundmysource
         if strcmp(arq_connect.layertype, 'pos')
-            [inputinput{j},inputends,y, indexes] = longinput(svst_t_v.data(posidx,:), arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)));
+            [inputinput{j},inputends,y, indexes,accdist{j}] = longinput(svst_t_v.data(posidx,:), arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)),zeros(1,size(svst_t_v.data,2))); %%% distance starts off as zero. 
             %inputinput{j} = svst_t_v.data(posidx,:); %
             %ends is savestructure.train.ends
             awk{j} = makeawk(arq_connect.q, arq_connect.params.skelldef.awk.pos);
         elseif strcmp(arq_connect.layertype, 'vel')
-            [inputinput{j},inputends,y, indexes] = longinput(svst_t_v.data(velidx,:), arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)));
+            [inputinput{j},inputends,y, indexes,accdist{j}] = longinput(svst_t_v.data(velidx,:), arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)),zeros(1,size(svst_t_v.data,2)));
             %inputinput{j} = svst_t_v.data(velidx,:); %
             %ends is savestructure.train.ends
             awk{j} = makeawk(arq_connect.q, arq_connect.params.skelldef.awk.vel);
         elseif strcmp(arq_connect.layertype, 'all')
-            [inputinput{j},inputends,y, indexes] = longinput(svst_t_v.data, arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)));
+            [inputinput{j},inputends,y, indexes,accdist{j}] = longinput(svst_t_v.data, arq_connect.q, svst_t_v.ends, svst_t_v.y, (1:size(svst_t_v.data,2)),zeros(1,size(svst_t_v.data,2)));
             %inputinput{j} = svst_t_v.data; %
             %ends is savestructure.train.ends
             awk{j} = makeawk(arq_connect.q, [arq_connect.params.skelldef.awk.pos;  arq_connect.params.skelldef.awk.vel] );
@@ -82,9 +84,16 @@ if length(inputinput)>1
             midremove = structcat(midremove,removeremove); %{i}
             %midremove = cat(1,midremove,removeremove{i}); %{i}
         end
+        if isempty(extaccdist)
+            extaccdist = accdist{i};
+        else
+            extaccdist = extaccdist + accdist{i};
+        end
+        %extaccdist = cat(1,extaccdist,accdist{i});
         awko = cat(1,awko,awk{i});
     end
 else
+    extaccdist = accdist{:};
     extinput = inputinput{:};
     midremove = removeremove; %no turtles!
     awko = awk{:};
@@ -99,10 +108,12 @@ end
 function awk = makeawk(q,inawk)
 awk = repmat(inawk,q(1),1);
 end
-function [linput,newends, newy, indexes] = longinput(shortinput, qp, ends, y, iindex)
+function [linput,newends, newy, indexes,newdist] = longinput(shortinput, qp, ends, y, iindex,shortdist)
 % this function was getting messy, so I decided to recreate the structure
 % that generated her, so to make easier debugging
 % It is very disellegant of me. I apologise.
+newdist = shortdist; 
+
 q = qp(1);
 switch length(qp)
     case 1
@@ -123,12 +134,14 @@ actionstructure(1).pose = shortinput(:,1:realends(1));
 actionstructure(1).end = ends(1);
 actionstructure(1).y = y(:,realends(1));
 actionstructure(1).index = iindex(1:ends(1));
+actionstructure(1).dist = shortdist(1:ends(1));
 
 for i = 2:size(ends,2)
     actionstructure(i).pose = shortinput(:,realends(i-1)+1:realends(i));
     actionstructure(i).end = ends(i);
     actionstructure(i).y = y(:,realends(i));
     actionstructure(i).index = iindex(realends(i-1):realends(i));
+    actionstructure(i).dist = shortdist(realends(i-1):realends(i));
 end
 shortdim = size(shortinput,1);
 for i = 1:length(actionstructure)
@@ -136,6 +149,7 @@ for i = 1:length(actionstructure)
     for j = 1:1+p:actionstructure(i).end
         a = zeros(shortdim*q,1);
         indexx = zeros(1,q);
+        dist = 0;
         if j+q*r-1>actionstructure(i).end
             %cant complete the whole vector!
             break
@@ -144,12 +158,14 @@ for i = 1:length(actionstructure)
             for lop = 1:q
                 a(1+(k-1)*shortdim:k*shortdim) = actionstructure(i).pose(:,j+lop*r-1);
                 indexx(lop) = actionstructure(i).index(j+lop*r-1);
+                dist = dist + actionstructure(i).dist(j+lop*r-1);
                 k = k+1;
             end
         end
         %have to save a somewhere
         actionstructure(i).long(m).vec = a;
         actionstructure(i).long(m).index = indexx;
+        actionstructure(i).long(m).dist = dist;
         m = m+1;
     end
     %should concatenate long now
@@ -157,9 +173,11 @@ for i = 1:length(actionstructure)
     actionstructure(i).longinput = zeros(q*shortdim,actionstructure(i).newend);
     actionstructure(i).longy = repmat(actionstructure(i).y,1,actionstructure(i).newend);
     actionstructure(i).longindex = zeros(q,size(actionstructure(i).longy,2));
+    actionstructure(i).longdist = zeros(1,size(actionstructure(i).longy,2)); 
     for j = 1:actionstructure(i).newend
         actionstructure(i).longinput(:,j) = actionstructure(i).long(j).vec;
         actionstructure(i).longindex(:,j) = actionstructure(i).long(j).index;
+        actionstructure(i).longdist(j) = actionstructure(i).long(j).dist;
     end
 end
 linput = actionstructure(1).longinput;
@@ -167,10 +185,12 @@ newy = actionstructure(1).longy;
 newends = zeros(1,length(actionstructure));
 newends(1) = actionstructure(1).newend;
 indexes = actionstructure(1).longindex;
+newdist = actionstructure(1).longdist;
 for i = 2:length(actionstructure)
     linput = cat(2,linput,actionstructure(i).longinput);
     newy = cat(2,newy, actionstructure(i).longy);
     newends(i) = actionstructure(i).newend;
     indexes = cat(2,indexes, actionstructure(i).longindex);
+    newdist = cat(2,newdist, actionstructure(i).longdist);
 end
 end

@@ -160,8 +160,9 @@ if strcmp(sampling_type,'type2')
         allskel1 = cat(2,loadfun(allskeli1(i)),allskel1 );
     end
     
-    allskeli2 = setdiff(1:datasize,allskeli1); % use the remaining data as validation set
-    
+    if isempty(allskeli2)
+        allskeli2 = setdiff(1:datasize,allskeli1); % use the remaining data as validation set if allskeli2 not defined.
+    end
     allskel2 = []; %initializes the training dataset
     for i=1:length(allskeli2)
         allskel2 = cat(2,loadfun(allskeli2(i)),allskel2 );

@@ -11,25 +11,51 @@ function [gas, ssvot] = sameclassfunc(gas, ssvot, vot, whatIlabel, arq_connect)
 dbgmsg('Starting chain structure for GWR and GNG for nodes:',num2str(labindex),0)
 dbgmsg('###Using multilayer GWR and GNG ###',0)
 
+if ~arq_connect(1).params.multigas %%% hmm,,,,
+    kindex = 1;
+else
+    numlabs = size(ssvot.y,1);
+    kindex = 1:numlabs;
+    labs = repmat('some label',12,1);  %%%% provisional. needs real labels
+    %%%need to partition ssvot!
+    ssvotbt = ssvot;
+    ssvotbt.gas.bestmatchbyindex = [];
+    ssvot = pssvot(ssvot);
+    gas = repmat(gas,numlabs,1);
+end
 
-for j = 1:length(arq_connect)
-    if size(ssvot.data,1)>0&&strcmp(vot,'train')
-        [gas(j), ssvot] = gas_method(gas, ssvot,vot, arq_connect(j),j, size(ssvot.data,1)); % I had to separate it to debug it.
-    elseif ~isempty(ssvot.data)
-        [~, ssvot ]= gas_method(gas, ssvot, vot, arq_connect(j),j, size(ssvot.data,1)); %%%hmmm, this will not work
+for k = kindex
+    for j = 1:length(arq_connect)
+        if size(ssvot(k).data,1)>0&&strcmp(vot,'train')
+            %size(ssvot(k).data)
+            [gas(k,j), ssvot(k)] = gas_method2(gas(k,:), ssvot(k),vot, arq_connect(j),j, k); % I had to separate it to debug it.
+        elseif ~isempty(ssvot(k).data)
+            [~, ssvot(k) ]= gas_method2(gas(k,:), ssvot(k), vot, arq_connect(j),j,k); %%%hmmm, is this useful at all?
+        end
     end
 end
 
+%construct a combined gas
 
-
+if arq_connect(1).params.multigas %%% hmm,,,,
+    for k = kindex
+        for j = 1:length(arq_connect)
+            [~, ssvotbt] = gas_method2(gas(k,:), ssvotbt,'NOTRAIN', arq_connect(j),j,k);
+        end
+    end
+end
 %% Gas Outcomes
 if strcmp(vot,'train')
-    if arq_connect(j).params.PLOTIT
-        figure
-        for j = 1:length(arq_connect)
-            subplot(1,length(arq_connect),j)
-            hist(gas(j).outparams.graph.errorvect)
-            title((gas(j).name))
+    for j = 1:length(arq_connect)
+        if arq_connect(j).params.PLOTIT %%% this is a mess
+            for k = kindex
+                %figure(k)                
+                subplot(max(kindex),length(arq_connect),j*k)
+                hist(gas(k,j).outparams.graph.errorvect)
+                if k>1
+                    title([(gas(k,j).name) labs(k,:)])
+                end
+            end
         end
     end
 end
@@ -45,14 +71,67 @@ end
 % action-lets.
 % Specific part on what I want to label
 for j = whatIlabel
-    dbgmsg('Applying labels for gas: ''',gas(j).name,''' (', num2str(j),') for process:',num2str(labindex),0)
-    if strcmp(vot,'train')
-        gas(j).nodesl = labeling(gas(j).nodes,ssvot.gas(j).inputs.input,ssvot.gas(j).y);
-    end
-    if isfield(ssvot,'gas')&&j<=length(ssvot.gas)
-        ssvot.gas(j).class = labeller(gas(j).nodesl, ssvot.gas(j).bestmatchbyindex);
+    if length(kindex)==1
+        dbgmsg('Applying labels for gas: ''',gas(j).name,''' (', num2str(j),') for process:',num2str(labindex),0)
+        if strcmp(vot,'train')
+            gas(j).nodesl = altlabeller(ssvot.gas(j).bestmatchbyindex, gas(j).nodes,ssvot.gas(j).inputs.input,ssvot.gas(j).y); %%% new labelling scheme
+            %gas(j).nodesl = labeling(gas(j).nodes,ssvot.gas(j).inputs.input,ssvot.gas(j).y);
+        end
+        if isfield(ssvot,'gas')&&j<=length(ssvot.gas)
+            ssvot.gas(j).class = labeller(gas(j).nodesl, ssvot.gas(j).bestmatchbyindex);
+        end
+    else
+        traindist = c_dist(ssvot); %%%% maybe I should compare with this for better results. first trial won't have it though.
+        ssvotbt.gas(j).class = newlabeller(ssvotbt.gas(j).distances);
+        %%% some interesting graphs here
+        if 0
+            for ii = 1:length(arq_connect)
+                figure
+                cd = ssvotbt.gas(ii).distances(find(ssvotbt.gas(ii).y==1));
+                id = ssvotbt.gas(ii).distances(find(ssvotbt.gas(ii).y==0));
+                histogram(cd,200);
+                hold on
+                histogram(id,200);
+                for i = 1:length(kindex)
+                    pg(i).c = ssvotbt.gas(ii).distances(find(ssvotbt.gas(ii).y(i,:)==1));
+                    pg(i).i = ssvotbt.gas(ii).distances(find(ssvotbt.gas(ii).y(i,:)==0));
+                end
+                [ocv,ma] = findoptimalcutoffvalue({pg(:).c},{pg(:).i});
+                %[ocv,ma] = findoptimalcutoffvalue(cd,id);
+
+            end
+        end
+        ssvot = ssvotbt; %%% so many potential errors... :(
     end
     
 end
 
+end
+function ssvotp = pssvot(ssvot)
+%disp('hello')
+%%% at first glance this seems correct.
+
+nssvotl = size(ssvot.y,1);
+ssvotp(nssvotl) = struct;
+alldatasize = size(ssvot.data,2);
+for i = 1:nssvotl
+    newindex = 0;
+    ends = [];
+    for j = 1:alldatasize
+        if ssvot.y(i,j) == 1
+            newindex = newindex +1;
+            ssvotp(i).data(:,newindex) = ssvot.data(:,j);
+            ssvotp(i).y(:,newindex) = ssvot.y(:,j);
+            ssvotp(i).index(:,newindex) = ssvot.index(j);
+            %%% now need to create ends
+            %if index of next point changes or does not exist then it is an end
+            if j+1>alldatasize||ssvot.index(j+1)~=ssvot.index(j)
+                ends = [ends newindex-sum(ends)];
+            end
+        end
+    end
+    ssvotp(i).ends = ends;
+    ssvotp(i).seq = unique(ssvotp(i).index,'stable');
+    ssvotp(i).gas = struct;
+end
 end
