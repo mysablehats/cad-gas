@@ -16,7 +16,7 @@ classdef Simvargas < Simvar
             
             %% Post initialization
             simvar.method = 'gas';
-            simvar.excfun = @(data,ii)executioncore_in_starterscript(simvar(ii).arq_connect, data);
+            %simvar.excfun = @(data,ii)executioncore_in_starterscript(simvar(ii).arq_connect, data); %useless to set here, since arq_connect is empty! 
             simvar.allconn = [];
             
             simvar.NODES_VECT = [3]; %%% minimum number is 3
@@ -25,8 +25,11 @@ classdef Simvargas < Simvar
             
             
         end
-        function simvar = init(simvar)
+        function simvar = init(simvar,params)
             simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, []))));
+            simvar = simvar.loop(params);
+            %%% I need to set after everything is done, since in the 
+            simvar.excfun = @(data,ii)executioncore_in_starterscript(simvar(ii).arq_connect, data);
         end
         function [endacc, combinedval] = analyze_outcomes(simvartrial)
             if isempty(simvartrial.metrics)
