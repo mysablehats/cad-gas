@@ -9,12 +9,13 @@ addpath('runpars','precond','poscond','measures','debug','utils');
 datavar = setdatavar(varargin{:});
 datavar_ = datavar.loop;
 
-if 1
+if 0
     addpath('gas');
     params = setparams(datavar_(1).skelldef, 'init', []); %hmmm..    
     simvar_ = setsimvar(params);
 else
-    simvar_ = setsimvarkf;
+    addpath('..\k-forget')
+    simvar_ = simpar;
 end
 
 simvar_ = runcore(simvar_,datavar_);
