@@ -164,9 +164,11 @@ else
             if isequal(func, @mirrorx)||isequal(func,@mirrory)||isequal(func, @mirrorz)
                 data_mirror = conformstruc.data;
                 data_ymirror = conformstruc.y;
+                data_imirror = conformstruc.index;
             else
                 data_mirror = [];                
                 data_ymirror = [];
+                data_imirror = [];
            end
             
             if isequal(func,@normalize)||isequal(func,@normnorm)
@@ -234,7 +236,8 @@ else
                 skelldef = boundingbox(conformstruc.data, skelldef);
             end
             conformstruc.data = [conformstruc.data data_mirror];
-            conformstruc.y = [conformstruc.y data_ymirror];           
+            conformstruc.y = [conformstruc.y data_ymirror];        
+            conformstruc.index = [conformstruc.index data_imirror]; 
         end
     end
     % squeeze them accordingly?
