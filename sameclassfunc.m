@@ -30,7 +30,7 @@ for k = kindex
             %size(ssvot(k).data)
             [gas(k,j), ssvot(k)] = gas_method2(gas(k,:), ssvot(k),vot, arq_connect(j),j, k); % I had to separate it to debug it.
         elseif ~isempty(ssvot(k).data)
-            [~, ssvot(k) ]= gas_method2(gas(k,:), ssvot(k), vot, arq_connect(j),j,k); %%%hmmm, this will not work
+            [~, ssvot(k) ]= gas_method2(gas(k,:), ssvot(k), vot, arq_connect(j),j,k); %%%hmmm, is this useful at all?
         end
     end
 end
@@ -83,6 +83,24 @@ for j = whatIlabel
     else
         traindist = c_dist(ssvot); %%%% maybe I should compare with this for better results. first trial won't have it though.
         ssvotbt.gas(j).class = newlabeller(ssvotbt.gas(j).distances);
+        %%% some interesting graphs here
+        if 0
+            for ii = 1:length(arq_connect)
+                figure
+                cd = ssvotbt.gas(ii).distances(find(ssvotbt.gas(ii).y==1));
+                id = ssvotbt.gas(ii).distances(find(ssvotbt.gas(ii).y==0));
+                histogram(cd,200);
+                hold on
+                histogram(id,200);
+                for i = 1:length(kindex)
+                    pg(i).c = ssvotbt.gas(ii).distances(find(ssvotbt.gas(ii).y(i,:)==1));
+                    pg(i).i = ssvotbt.gas(ii).distances(find(ssvotbt.gas(ii).y(i,:)==0));
+                end
+                [ocv,ma] = findoptimalcutoffvalue({pg(:).c},{pg(:).i});
+                %[ocv,ma] = findoptimalcutoffvalue(cd,id);
+
+            end
+        end
         ssvot = ssvotbt; %%% so many potential errors... :(
     end
     
