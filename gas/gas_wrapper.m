@@ -198,8 +198,11 @@ end
 
 therealk = 0; %% a real counter for epochs
 
+alphaincrement = 0;
 %%%starting main loop
-
+while(isnan(nodesvect(end))||nodesvect(end)<gasgas.params.nodes*.9)
+    alphaincrement = alphaincrement +1;
+    gasgas.params.at = 1-exp(-alphaincrement);
 for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more times - actually this makes it overfit the data, but, still it is interesting.
 
     if params.RANDOMSET
@@ -208,6 +211,12 @@ for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more tim
         kset = 1:datasetsize;
         if params.RANDOMSTART %% IF THE START IS RANDOM SO SHOULD BE THE BEGGING OF THE DATASET
             kset = circshift(kset,randperm(datasetsize,1));
+        end
+        %%%%
+        if params.startdistributed 
+            a = kset(1:ceil(size(kset,2)/params.nodes):end);
+            b = setdiff(kset,a);
+            kset = [a,b];
         end
     end
     % start of the loop
@@ -242,7 +251,10 @@ if PLOTIT&&numlabs==1&&params.plotonlyafterallepochs
     plotgwr(gasgas.A, gasgas.C, errorvect, epochvect, nodesvect, skelldef, layertype)
     drawnow
 end
-
+% disp('==========================================================================================')
+% disp(['final number of nodes reached: ' num2str(nodesvect(end))])
+% 
+end
 outparams.graph.errorvect = errorvect;
 outparams.graph.epochvect = epochvect;
 outparams.graph.nodesvect = nodesvect;
@@ -250,6 +262,12 @@ outparams.accumulatedepochs = gasgas.params.accumulatedepochs;
 outparams.initialnodes = [gasgas.ni1, gasgas.ni2];
 A = gasgas.A;
 C = gasgas.C;
+disp('==========================================================================================')
+disp('==========================================================================================')
+disp(['final number of nodes reached: ' num2str(nodesvect(end))])
+disp('==========================================================================================')
+disp('==========================================================================================')
+
 end %#codegen
 function gasgas = gng_core(eta, gasgas)
 

@@ -16,6 +16,7 @@ switch argarg
         params.MAX_EPOCHS = [];
         params.removepoints = true;
         params.oldremovepoints = false;
+        params.startdistributed = true;
         params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
         params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
         params.savegas.resume = false; % do not set to true. not working
@@ -66,11 +67,11 @@ switch argarg
         %%% second layers only
         %params(1).distancetype.source = 'gas'; % or 'ext'
         %params(2).distancetype.source = 'gas'; % or 'ext'
-        params(1).at = 0.99983; %activity threshold
-        params(2).at = 0.99999; %activity threshold
-        params(3).at = 0.99995; %activity threshold
-        params(4).at = 0.999998; %activity threshold
-        params(5).at = 0.99999; %activity threshold
+        params(1).at = 0.0099983; %activity threshold
+        params(2).at = 0.0099999; %activity threshold
+        params(3).at = 0.0099995; %activity threshold
+        params(4).at = 0.00999998; %activity threshold
+        params(5).at = 0.0099999; %activity threshold
         
         
 end

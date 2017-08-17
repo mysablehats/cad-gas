@@ -9,7 +9,7 @@ addpath('runpars','precond','poscond','measures','debug','utils');
 datavar = setdatavar(varargin{:});
 datavar_ = datavar.loop;
 
-if 0
+if 1
     addpath('gas');
     params = setparams(datavar_(1).skelldef, 'init', []); %hmmm..    
     simvar_ = setsimvar(params);
