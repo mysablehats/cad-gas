@@ -16,7 +16,7 @@ switch argarg
         params.MAX_EPOCHS = [];
         params.removepoints = true;
         params.oldremovepoints = false;
-        params.startdistributed = true;
+        params.startdistributed = false;
         params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
         params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
         params.savegas.resume = false; % do not set to true. not working
