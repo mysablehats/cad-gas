@@ -39,7 +39,7 @@ switch argarg
         params.plotonlyafterallepochs = true;
 
         
-        params.multigas = true; %%%% creates a different gas for each action sequence. at least it is faster.
+        params.multigas = false; %%%% creates a different gas for each action sequence. at least it is faster.
         
         %Exclusive for gwr
         params.STATIC = true;
