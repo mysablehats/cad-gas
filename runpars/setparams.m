@@ -34,12 +34,12 @@ switch argarg
         params.eb = 0.2; %epsilon subscript b
         params.gamma = 4; % for the denoising function
         
-        params.PLOTIT = false;
+        params.PLOTIT = true;
         params.plottingstep = 0; % zero will make it plot only every epoch
         params.plotonlyafterallepochs = true;
 
         
-        params.multigas = false; %%%% creates a different gas for each action sequence. at least it is faster.
+        params.multigas = true; %%%% creates a different gas for each action sequence. at least it is faster.
         
         %Exclusive for gwr
         params.STATIC = true;

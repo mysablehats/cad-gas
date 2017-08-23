@@ -10,7 +10,7 @@ datavar.validationtype = 'type2all'; %'type2notrandom'; 'cluster' 'quarterset' '
 if isempty(varargin)
     datavar.AllSubjects = [1 2 3 4]; %% 
     datavar.disablesconformskel = 0;
-    datavar.generatenewdataset = false; %true;
+    datavar.generatenewdataset = true; %true;
     datavar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
     datavar.activity_type = 'act_type'; %'act_type' or 'act'
     datavar.prefilter = {'none', 15};%{'filter',10}; % 'filter', 'none', 'median?'
