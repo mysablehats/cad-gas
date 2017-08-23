@@ -8,9 +8,9 @@ switch argarg
         params.distancetype.source = 'ext'; % or 'ext'
         params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean'
         params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow - if on ext.
-        params.distancetype.cum = false;
+        params.distancetype.cum = true;
         params.distance.simple = true; %if false will rotate stuff around to a better position. TO DO: all these distances have to be condensed into a single thing...
-        params.flippoints = false;
+        params.flippoints = true;
         
         params.layertype = '';
         params.MAX_EPOCHS = [];
@@ -65,8 +65,8 @@ switch argarg
         
         %%% we need to enable the gas distance for first and
         %%% second layers only
-        %params(1).distancetype.source = 'gas'; % or 'ext'
-        %params(2).distancetype.source = 'gas'; % or 'ext'
+        params(1).distancetype.source = 'gas'; % or 'ext'
+        params(2).distancetype.source = 'gas'; % or 'ext'
         params(1).at = 0.0099983; %activity threshold
         params(2).at = 0.0099999; %activity threshold
         params(3).at = 0.0099995; %activity threshold
