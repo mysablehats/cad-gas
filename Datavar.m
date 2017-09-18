@@ -159,16 +159,17 @@ classdef Datavar
                         end
                         datavartrial(trialcount).datainputvectorsize = size(datavartrial(trialcount).data.train.data,1);
                     else
+                        datain = varargin{1};
                         datavartrial(trialcount).data = varargin{1};
                         datavartrial(trialcount).data = datavartrial(trialcount).data(featuress);
                         datavar.datainputvectorsize = size(datavartrial(trialcount).data.inputs,2);
                         datavartrial(trialcount).skelldef = struct('length', datavartrial(trialcount).datainputvectorsize, 'notskeleton', true, 'awk', struct('pos', [],'vel',[]), 'pos', datavartrial(trialcount).datainputvectorsize, 'vel', []);
-                        datavartrial(trialcount).data.train.data = data.inputs'; % not empty so that the algorithm doesnt complain
-                        datavartrial(trialcount).data.train.y = data.labelsM;
-                        datavartrial(trialcount).data.train.ends = ones(1,size(data.inputs,1));
-                        datavartrial(trialcount).data.val.data = data.inputs';
-                        datavartrial(trialcount).data.val.y = data.labelsM;
-                        datavartrial(trialcount).data.val.ends = ones(1,size(data.inputs,1));
+                        datavartrial(trialcount).data.train.data = datain.inputs'; % not empty so that the algorithm doesnt complain
+                        datavartrial(trialcount).data.train.y = datain.labelsM;
+                        datavartrial(trialcount).data.train.ends = ones(1,size(datain.inputs,1));
+                        datavartrial(trialcount).data.val.data = datain.inputs';
+                        datavartrial(trialcount).data.val.y = datain.labelsM;
+                        datavartrial(trialcount).data.val.ends = ones(1,size(datain.inputs,1));
                     end
                     
                 end
