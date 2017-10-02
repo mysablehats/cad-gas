@@ -40,7 +40,7 @@ for ii = 1:length(simvar)
             a(1:simvar(ii).P) = struct();
         else
             for i = 1:length(datavar)
-                a(i).a = simvar(ii).excfun(datavar(labindex).data,ii);
+                a(i).a = simvar(ii).excfun(datavar(i).data,ii);
             end
             b = cat(2,b,a.a);
             clear a
@@ -49,7 +49,8 @@ for ii = 1:length(simvar)
     end
     
     
-    simvar(ii).metrics(:,:) = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
+    simvar(ii).metrics = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
+    %simvar(ii).metrics(:,:) = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
     
     for i = 1:length(b) %%%% this is broken. if you want to fix it change... erm... stuff
         if isfield(b(i), 'ssvalgas')

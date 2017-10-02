@@ -6,10 +6,10 @@ for ii = 1:length(b)
         metrics(ii,jj).conffig = b(ii).mt(jj).conffig;
         metrics(ii,jj).val = b(ii).mt(jj).confusions.val;
         metrics(ii,jj).train = b(ii).mt(jj).confusions.train;
-        if ~isfield(b(ii).mt(jj).outparams, 'accumulatedepochs')
-            metrics(ii,jj).accumulatedepochs = paramsZ(ii).MAX_EPOCHS;
+        if isfield( b(ii).mt(jj),'outparams')&&isfield(b(ii).mt(jj).outparams, 'accumulatedepochs')
+            metrics(ii,jj).accumulatedepochs = b(ii).mt(jj).outparams.accumulatedepochs;            
         else
-            metrics(ii,jj).accumulatedepochs = b(ii).mt(jj).outparams.accumulatedepochs;
+            metrics(ii,jj).accumulatedepochs = nan;            
         end
     end
 end
