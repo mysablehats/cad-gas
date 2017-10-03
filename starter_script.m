@@ -9,7 +9,7 @@ addpath('runpars','precond','poscond','measures','debug','utils');
 datavar = setdatavar(varargin{:});
 datavar_ = datavar.loop;
 
-method = 'knn';
+method = 'svm';
 
 switch method
     case 'gas'
@@ -22,6 +22,9 @@ switch method
     case 'knn'
         addpath('../svm-knn')
         simvar_ = SimvarKNN;
+    case 'svm'
+        addpath('../svm-knn')
+        simvar_ = SimvarSVM;
 end
 
 simvar_ = runcore(simvar_,datavar_);
