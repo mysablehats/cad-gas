@@ -9,7 +9,7 @@ addpath('runpars','precond','poscond','measures','debug','utils');
 datavar = setdatavar(varargin{:});
 datavar_ = datavar.loop;
 
-method = 'svm';
+method = 'knn';
 
 switch method
     case 'gas'

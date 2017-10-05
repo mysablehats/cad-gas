@@ -9,55 +9,55 @@ conformstruc = struct('data', [],'y',[]);
 if isempty(varargin)||strcmp(varargin{1},'test')||(isstruct(varargin{1})&&isfield(varargin{1},'data')&&isempty(varargin{1}.data))||isempty(varargin{1})
     %maybe warn that I am not doing anything\?
     return
-else    
-    conformstruc = varargin{1};    
+else
+    conformstruc = varargin{1};
     lindx = 2;
     awk = generate_awk(conformstruc.data);
-%     if isstruct(varargin{1})
-%         if isfield(varargin{1},'train')
-%             outputisstruc = true;
-%             conformstruc = varargin{1};
-%             data_train = conformstruc.train.data;
-%             data_val = conformstruc.val.data;
-%             data_ytrain = conformstruc.train.y ;
-%             data_yval = conformstruc.val.y;
-%             
-%             if isfield(conformstruc,'awk')
-%                 awk = conformstruc.awk;
-%             else
-%                 awk = generate_awk(data_train);
-%                 dbgmsg('awk not defined. considering all joints as having equal importance.',1)
-%             end
-%             lindx = 2;
-%             singleskelset = false;
-%         else
-%  
-%         end
-%     else
-%         outputisstruc = false;
-%         data_train = varargin{1};
-%         if nargin>2
-%             data_val = varargin{2};            
-%             if isnumeric(varargin{3})
-%                 awk = varargin{3};
-%                 lindx = 4;
-%             elseif ischar(varargin{3})
-%                 awk = generate_awk(data_train);
-%                 lindx = 3;
-%                 dbgmsg('awk not defined. considering all joints as having equal importance.',1)
-%             else
-%                 error('Strange input. I don''t know what to do with it. ')
-%             end
-%             singleskelset = false;
-%         else
-%             awk = generate_awk(data_train);
-%             lindx = 2;
-%             singleskelset = true;
-%         end 
-%         %awk = generate_awk;
-%         data_ytrain = []; %% I need to change this if I plan on increasing the size of the data, such as with the mirror func
-%         data_yval = []; %%same        
-%    end
+    %     if isstruct(varargin{1})
+    %         if isfield(varargin{1},'train')
+    %             outputisstruc = true;
+    %             conformstruc = varargin{1};
+    %             data_train = conformstruc.train.data;
+    %             data_val = conformstruc.val.data;
+    %             data_ytrain = conformstruc.train.y ;
+    %             data_yval = conformstruc.val.y;
+    %
+    %             if isfield(conformstruc,'awk')
+    %                 awk = conformstruc.awk;
+    %             else
+    %                 awk = generate_awk(data_train);
+    %                 dbgmsg('awk not defined. considering all joints as having equal importance.',1)
+    %             end
+    %             lindx = 2;
+    %             singleskelset = false;
+    %         else
+    %
+    %         end
+    %     else
+    %         outputisstruc = false;
+    %         data_train = varargin{1};
+    %         if nargin>2
+    %             data_val = varargin{2};
+    %             if isnumeric(varargin{3})
+    %                 awk = varargin{3};
+    %                 lindx = 4;
+    %             elseif ischar(varargin{3})
+    %                 awk = generate_awk(data_train);
+    %                 lindx = 3;
+    %                 dbgmsg('awk not defined. considering all joints as having equal importance.',1)
+    %             else
+    %                 error('Strange input. I don''t know what to do with it. ')
+    %             end
+    %             singleskelset = false;
+    %         else
+    %             awk = generate_awk(data_train);
+    %             lindx = 2;
+    %             singleskelset = true;
+    %         end
+    %         %awk = generate_awk;
+    %         data_ytrain = []; %% I need to change this if I plan on increasing the size of the data, such as with the mirror func
+    %         data_yval = []; %%same
+    %    end
     %%% initiallize variables to make skelldef
     killdim = [];
     skelldef.realkilldim = [];
@@ -78,11 +78,11 @@ else
     %%%
     skelldef.bodyparts = genbodyparts(skelldef.length);
     
-%     %%%errorkarling
-%     if ~singleskelset&&(size(data_val,1)~=skelldef.length)&&size(data_val,2)~=0
-%         error('data_train and data_val must have the same length!!!')
-%     end
-
+    %     %%%errorkarling
+    %     if ~singleskelset&&(size(data_val,1)~=skelldef.length)&&size(data_val,2)~=0
+    %         error('data_train and data_val must have the same length!!!')
+    %     end
+    
     % creates the function handle cell array
     conformations = {};
     killdim = [];
@@ -92,6 +92,15 @@ else
             switch varargin{i}
                 case 'test'
                     test = true;
+                case 'disthips'
+                    conformations = [conformations, {@disthips}];    
+                    %warning('not implemented')
+                case 'distshoulder'
+                    conformations = [conformations, {@distshoulder}];                    
+                    warning('not implemented')
+                case 'disthipsandshoulder'
+                    conformations = [conformations, {@disthipsandshoulder}];
+                    warning('not implemented')
                 case 'highhips'
                     conformations = [conformations, {@highhips}]; %#ok<*AGROW>
                 case 'nohips'
@@ -149,7 +158,7 @@ else
                 extskeldef = varargin{i};
             else
                 error('struct defined without ''test'' set to on. I don''t know what to do with this parameter.')
-            end            
+            end
         else
             error('Unexpected input type! I don''t know what to do with this parameter.')
         end
@@ -166,10 +175,10 @@ else
                 data_ymirror = conformstruc.y;
                 data_imirror = conformstruc.index;
             else
-                data_mirror = [];                
+                data_mirror = [];
                 data_ymirror = [];
                 data_imirror = [];
-           end
+            end
             
             if isequal(func,@normalize)||isequal(func,@normnorm)
                 if 1%~test
@@ -204,13 +213,13 @@ else
                 else
                     %%%
                     %normalization will be very strange in this case and will not be a real normalization
-                    %%% 
+                    %%%
                     % I want to find a constant by which I multiply the
                     % skeleton so to make my current skeleton the closest I
                     % can to my skelldef.template
                     %disp('')
-                    alpha_p = sum(mean(conformstruc.data(1:45,:),2).*extskeldef.templaten(1:45))/sum(extskeldef.templaten(1:45).^2); 
-                    %alpha_v = sum(extskeldef.template(46:end))/sum(sum(conformstruc.data(46:end,:)))*size(conformstruc.data,2); 
+                    alpha_p = sum(mean(conformstruc.data(1:45,:),2).*extskeldef.templaten(1:45))/sum(extskeldef.templaten(1:45).^2);
+                    %alpha_v = sum(extskeldef.template(46:end))/sum(sum(conformstruc.data(46:end,:)))*size(conformstruc.data,2);
                     %sum(conformstruc.data.'*extskeldef.template)/size(conformstruc.data,2)/(extskeldef.template.'*extskeldef.template);
                     skelldef.pos_std =alpha_p; %%% my normalizing function didnt work, this was fitted by hand
                     skelldef.pos_mean= 0 ;
@@ -219,12 +228,12 @@ else
                 end
             end
             for j = 1:size(conformstruc.data,2)
-                [tdskel,skelldef.hh] = makefatskel(conformstruc.data(:,j));               
+                [tdskel,skelldef.hh] = makefatskel(conformstruc.data(:,j));
                 conformstruc.data(:,j) = makethinskel(func(tdskel, skelldef));
-%                 if isequal(func,@normalize)&&(size(conformstruc.data,2)<15)
-%                     figure; skeldraw(tdskel,'f',skelldef); hold on;
-%                     skeldraw(conformstruc.data(:,j),'t',skelldef);
-%                 end
+                %                 if isequal(func,@normalize)&&(size(conformstruc.data,2)<15)
+                %                     figure; skeldraw(tdskel,'f',skelldef); hold on;
+                %                     skeldraw(conformstruc.data(:,j),'t',skelldef);
+                %                 end
             end
             %%%%normalize with the bounding box option will need a post
             %%%%processing part
@@ -236,25 +245,112 @@ else
                 skelldef = boundingbox(conformstruc.data, skelldef);
             end
             conformstruc.data = [conformstruc.data data_mirror];
-            conformstruc.y = [conformstruc.y data_ymirror];        
-            conformstruc.index = [conformstruc.index data_imirror]; 
+            conformstruc.y = [conformstruc.y data_ymirror];
+            conformstruc.index = [conformstruc.index data_imirror];
         end
     end
     % squeeze them accordingly?
     if 1 %~test
         whattokill = reshape(1:skelldef.length,skelldef.length/3,3);
         realkilldim = whattokill(killdim,:);
-        conform_train = conformstruc.data(setdiff(1:skelldef.length,realkilldim),:); %sorry for the in-liners..       
+        conform_train = conformstruc.data(setdiff(1:skelldef.length,realkilldim),:); %sorry for the in-liners..
         skelldef.elementorder = skelldef.elementorder(setdiff(1:skelldef.length,realkilldim));
     else
-        conform_train = conformstruc.data; 
+        conform_train = conformstruc.data;
     end
-
-        conformstruc.data = conform_train;
-        conformstruc.y = conformstruc.y;
+    
+    conformstruc.data = conform_train;
+    conformstruc.y = conformstruc.y;
 end
 skelldef.realkilldim = realkilldim;
 [skelldef.pos, skelldef.vel] = generateidx(skelldef.length, skelldef);
+
+end
+function newskel = disthips(tdskel,skelldef)
+%disp('Hello')
+%bod = skelldef.bodyparts;
+hip = (tdskel(skelldef.bodyparts.LEFT_HIP,:) + tdskel(skelldef.bodyparts.RIGHT_HIP,:))/2;
+
+%%% first calculate new next skeleton with adding velocities if necessary
+if isfield(skelldef.awk,'vel') %%% we have velocity!
+    tdskel1 = tdskel(1:skelldef.hh/2,:);
+    tdskel2 = tdskel(skelldef.hh/2+1:end,:) +tdskel1;
+else
+    tdskel1 = tdskel;
+    tdskel2 = [];
+end
+%%% then calculate the distances twice for old and new skeleton if
+%%% necessary
+distmat1 = sqrt(sum((tdskel1-hip).^2,2));
+vel2 = [];
+if isfield(skelldef.awk,'vel') %%% we have velocity!
+    distmat2 = sqrt(sum((tdskel2-hip).^2,2));
+    vel2 = distmat2-distmat1;
+end
+%%% then subtract to create velocities if necessary
+newskel = zeros(size(tdskel));
+newskel(:,1) = [distmat1; vel2];
+
+end
+
+function newskel = distshoulder(tdskel,skelldef)
+%disp('Hello')
+%bod = skelldef.bodyparts;
+shoulder= tdskel(skelldef.bodyparts.TORSO,:);
+
+%%% first calculate new next skeleton with adding velocities if necessary
+if isfield(skelldef.awk,'vel') %%% we have velocity!
+    tdskel1 = tdskel(1:skelldef.hh/2,:);
+    tdskel2 = tdskel(skelldef.hh/2+1:end,:) +tdskel1;
+else
+    tdskel1 = tdskel;
+    tdskel2 = [];
+end
+%%% then calculate the distances twice for old and new skeleton if
+%%% necessary
+distmat1 = sqrt(sum((tdskel1-shoulder).^2,2));
+vel2 = [];
+if isfield(skelldef.awk,'vel') %%% we have velocity!
+    distmat2 = sqrt(sum((tdskel2-shoulder).^2,2));
+    vel2 = distmat2-distmat1;
+end
+%%% then subtract to create velocities if necessary
+newskel = zeros(size(tdskel));
+newskel(:,1) = [distmat1; vel2];
+
+end
+
+function newskel = disthipsandshoulder(tdskel,skelldef)
+hip = (tdskel(skelldef.bodyparts.LEFT_HIP,:) + tdskel(skelldef.bodyparts.RIGHT_HIP,:))/2;
+shoulder= tdskel(skelldef.bodyparts.TORSO,:);
+%disp('Hello')
+%%% first calculate new next skeleton with adding velocities if necessary
+if isfield(skelldef.awk,'vel') %%% we have velocity!
+    tdskel1 = tdskel(1:skelldef.hh/2,:);
+    tdskel2 = tdskel(skelldef.hh/2+1:end,:) +tdskel1;
+else
+    tdskel1 = tdskel;
+    tdskel2 = [];
+end
+%%% then calculate the distances twice for old and new skeleton if
+%%% necessary
+distmat1s = sqrt(sum((tdskel1-shoulder).^2,2));
+vel2s = [];
+
+distmat1h = sqrt(sum((tdskel1-hip).^2,2));
+vel2h = [];
+
+if isfield(skelldef.awk,'vel') %%% we have velocity!
+    distmat2s = sqrt(sum((tdskel2-shoulder).^2,2));
+    distmat2h = sqrt(sum((tdskel2-hip).^2,2));
+    vel2s = distmat2s-distmat1s;
+    vel2h = distmat2h-distmat1h;
+end
+%%% then subtract to create velocities if necessary
+newskel = zeros(size(tdskel));
+newskel(:,1) = [distmat1s; vel2s];
+newskel(:,2) = [distmat1h; vel2h];
+
 
 end
 function newskel = centerhips(tdskel, skelldef)
@@ -281,7 +377,7 @@ else
     hip = tdskel(bod.hip_center,:);
 end
 %hip([1,2]) = 0; %% no idea if this right
-hip(2) = 0; %%%% y is height, so we want that to be preserved. 
+hip(2) = 0; %%%% y is height, so we want that to be preserved.
 
 if skelldef.novel
     hips = repmat(hip,skelldef.hh,1);
