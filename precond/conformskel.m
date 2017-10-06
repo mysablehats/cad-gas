@@ -97,10 +97,10 @@ else
                     %warning('not implemented')
                 case 'distshoulder'
                     conformations = [conformations, {@distshoulder}];                    
-                    warning('not implemented')
+                    %warning('not implemented')
                 case 'disthipsandshoulder'
                     conformations = [conformations, {@disthipsandshoulder}];
-                    warning('not implemented')
+                    %warning('not implemented')
                 case 'highhips'
                     conformations = [conformations, {@highhips}]; %#ok<*AGROW>
                 case 'nohips'
