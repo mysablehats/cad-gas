@@ -6,6 +6,13 @@ test = false;
 skelldef = struct();
 extskeldef = struct();
 conformstruc = struct('data', [],'y',[]);
+
+%%% setting up variables to remove zeros from some kernels and hopefully
+%%% still allow the gas to work. 
+nonmatrixkilldim = [];
+nonmatrixkilldim_proposals = [];
+
+%%% some old error checking, maybe useless now. 
 if isempty(varargin)||strcmp(varargin{1},'test')||(isstruct(varargin{1})&&isfield(varargin{1},'data')&&isempty(varargin{1}.data))||isempty(varargin{1})
     %maybe warn that I am not doing anything\?
     return
@@ -90,20 +97,26 @@ else
     for i =lindx:length(varargin)
         if ischar(varargin{i})
             switch varargin{i}
+                case 'nonmatrixkilldim'
+                    nonmatrixkilldim = nonmatrixkilldim_proposals;
                 case 'test'
                     test = true;
                 case 'disthips'
-                    conformations = [conformations, {@disthips}];    
+                    conformations = [conformations, {@disthips}];
                     %warning('not implemented')
+                    nonmatrixkilldim_proposals = nmc(@disthips, nonmatrixkilldim_proposals, skelldef);                    
                 case 'distshoulder'
-                    conformations = [conformations, {@distshoulder}];                    
+                    conformations = [conformations, {@distshoulder}];
                     %warning('not implemented')
+                    nonmatrixkilldim_proposals = nmc(@distshoulder, nonmatrixkilldim_proposals, skelldef);
                 case 'disthipsandshoulder'
                     conformations = [conformations, {@disthipsandshoulder}];
                     %warning('not implemented')
+                    nonmatrixkilldim_proposals = nmc(@disthipsandshoulder, nonmatrixkilldim_proposals, skelldef);
                 case 'disthipsandhead'
                     conformations = [conformations, {@disthipsandhead}];
                     %warning('not implemented')
+                    nonmatrixkilldim_proposals = nmc(@disthipsandhead, nonmatrixkilldim_proposals, skelldef);
                 case 'highhips'
                     conformations = [conformations, {@highhips}]; %#ok<*AGROW>
                 case 'nohips'
@@ -255,7 +268,7 @@ else
     % squeeze them accordingly?
     if 1 %~test
         whattokill = reshape(1:skelldef.length,skelldef.length/3,3);
-        realkilldim = whattokill(killdim,:);
+        realkilldim = [reshape(whattokill(killdim,:),1,[]) nonmatrixkilldim'] ;
         conform_train = conformstruc.data(setdiff(1:skelldef.length,realkilldim),:); %sorry for the in-liners..
         skelldef.elementorder = skelldef.elementorder(setdiff(1:skelldef.length,realkilldim));
     else
@@ -268,6 +281,15 @@ end
 skelldef.realkilldim = realkilldim;
 [skelldef.pos, skelldef.vel] = generateidx(skelldef.length, skelldef);
 
+end
+function nonmatrixkilldim_proposals = nmc(func, nmco, skelldef)
+[exampleskel1, skelldef.hh] = makefatskel((skelldef.length:-1:1)'*1.8756327 +1.9072136);
+[exampleskel2, skelldef.hh] = makefatskel((1:skelldef.length)'*0.3385476 +2.547346);
+[exampleskel3, skelldef.hh] = makefatskel(ones(90,1)*2.432328 +4.545346);
+a = func(exampleskel1, skelldef);
+b = func(exampleskel2, skelldef);
+c = func(exampleskel3, skelldef);
+nonmatrixkilldim_proposals = unique([setdiff(1:skelldef.length, unique([find(a); find(b); find(c)])) nmco]);
 end
 function newskel = disthips(tdskel,skelldef)
 %disp('Hello')
