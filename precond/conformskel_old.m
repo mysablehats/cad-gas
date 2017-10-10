@@ -9,11 +9,11 @@ extskeldef = struct();
 conformstruc = struct('data', [],'y',[]);
 
 %%% setting up variables to remove zeros from some kernels and hopefully
-%%% still allow the gas to work.
+%%% still allow the gas to work. 
 nonmatrixkilldim = [];
 nonmatrixkilldim_proposals = [];
 
-%%% some old error checking, maybe useless now.
+%%% some old error checking, maybe useless now. 
 if isempty(varargin)||strcmp(varargin{1},'test')||(isstruct(varargin{1})&&isfield(varargin{1},'data')&&isempty(varargin{1}.data))||isempty(varargin{1})
     %maybe warn that I am not doing anything\?
     return
@@ -21,7 +21,51 @@ else
     conformstruc = varargin{1};
     lindx = 2;
     awk = generate_awk(conformstruc.data);
-    
+    %     if isstruct(varargin{1})
+    %         if isfield(varargin{1},'train')
+    %             outputisstruc = true;
+    %             conformstruc = varargin{1};
+    %             data_train = conformstruc.train.data;
+    %             data_val = conformstruc.val.data;
+    %             data_ytrain = conformstruc.train.y ;
+    %             data_yval = conformstruc.val.y;
+    %
+    %             if isfield(conformstruc,'awk')
+    %                 awk = conformstruc.awk;
+    %             else
+    %                 awk = generate_awk(data_train);
+    %                 dbgmsg('awk not defined. considering all joints as having equal importance.',1)
+    %             end
+    %             lindx = 2;
+    %             singleskelset = false;
+    %         else
+    %
+    %         end
+    %     else
+    %         outputisstruc = false;
+    %         data_train = varargin{1};
+    %         if nargin>2
+    %             data_val = varargin{2};
+    %             if isnumeric(varargin{3})
+    %                 awk = varargin{3};
+    %                 lindx = 4;
+    %             elseif ischar(varargin{3})
+    %                 awk = generate_awk(data_train);
+    %                 lindx = 3;
+    %                 dbgmsg('awk not defined. considering all joints as having equal importance.',1)
+    %             else
+    %                 error('Strange input. I don''t know what to do with it. ')
+    %             end
+    %             singleskelset = false;
+    %         else
+    %             awk = generate_awk(data_train);
+    %             lindx = 2;
+    %             singleskelset = true;
+    %         end
+    %         %awk = generate_awk;
+    %         data_ytrain = []; %% I need to change this if I plan on increasing the size of the data, such as with the mirror func
+    %         data_yval = []; %%same
+    %    end
     %%% initiallize variables to make skelldef
     killdim = [];
     skelldef.realkilldim = [];
@@ -42,6 +86,11 @@ else
     %%%
     skelldef.bodyparts = genbodyparts(skelldef.length);
     
+    %     %%%errorkarling
+    %     if ~singleskelset&&(size(data_val,1)~=skelldef.length)&&size(data_val,2)~=0
+    %         error('data_train and data_val must have the same length!!!')
+    %     end
+    
     % creates the function handle cell array
     conformations = {};
     killdim = [];
@@ -56,7 +105,7 @@ else
                 case 'disthips'
                     conformations = [conformations, {@disthips}];
                     %warning('not implemented')
-                    nonmatrixkilldim_proposals = nmc(@disthips, nonmatrixkilldim_proposals, skelldef);
+                    nonmatrixkilldim_proposals = nmc(@disthips, nonmatrixkilldim_proposals, skelldef);                    
                 case 'distshoulder'
                     conformations = [conformations, {@distshoulder}];
                     %warning('not implemented')
@@ -69,7 +118,7 @@ else
                     conformations = [conformations, {@disthipsandhead}];
                     %warning('not implemented')
                     nonmatrixkilldim_proposals = nmc(@disthipsandhead, nonmatrixkilldim_proposals, skelldef);
-                case 'disthipsandheadandextendedupperlimb'
+                    case 'disthipsandheadandextendedupperlimb'
                     conformations = [conformations, {@disthipsandheadandextendedupperlimb}];
                     %warning('not implemented')
                     nonmatrixkilldim_proposals = nmc(@disthipsandheadandextendedupperlimb, nonmatrixkilldim_proposals, skelldef);
@@ -173,7 +222,10 @@ else
                         skelldef.vel_std = std(vectdata_vel);
                         skelldef.vel_mean=mean(vectdata_vel);
                     end
-                    
+                    %                 case {@mirrorx,@mirrory,@mirrorz}
+                    %                     data_trainmirror = data_train;
+                    %                     data_valmirror = data_val;
+                    %%%%
                     %lets construct a nice skeleton to normalize things by
                     %when it comes to the testing phase
                     template = maketemplate(conformstruc.data, skelldef); % maybe I should separate velocities and positions
@@ -219,12 +271,14 @@ else
         end
     end
     % squeeze them accordingly?
-    
-    whattokill = reshape(1:skelldef.length,skelldef.length/3,3);
-    realkilldim = [reshape(whattokill(killdim,:),1,[]) nonmatrixkilldim'] ;
-    conform_train = conformstruc.data(setdiff(1:skelldef.length,realkilldim),:); %sorry for the in-liners..
-    skelldef.elementorder = skelldef.elementorder(setdiff(1:skelldef.length,realkilldim));
-    
+    if 1 %~test
+        whattokill = reshape(1:skelldef.length,skelldef.length/3,3);
+        realkilldim = [reshape(whattokill(killdim,:),1,[]) nonmatrixkilldim'] ;
+        conform_train = conformstruc.data(setdiff(1:skelldef.length,realkilldim),:); %sorry for the in-liners..
+        skelldef.elementorder = skelldef.elementorder(setdiff(1:skelldef.length,realkilldim));
+    else
+        conform_train = conformstruc.data;
+    end
     
     conformstruc.data = conform_train;
     conformstruc.y = conformstruc.y;
@@ -233,3 +287,27 @@ skelldef.realkilldim = realkilldim;
 [skelldef.pos, skelldef.vel] = generateidx(skelldef.length, skelldef);
 
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
