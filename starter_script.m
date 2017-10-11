@@ -6,8 +6,12 @@ VERBOSE = 0;
 
 addpath('runpars','precond','poscond','measures','debug','utils');
 
-datavar = setdatavar(varargin{:});
-datavar_ = datavar.loop;
+if isa(varargin{1},'Datavar')
+    datavar_ = varargin{1};
+else
+    datavar = setdatavar(varargin{:});
+    datavar_ = datavar.loop;
+end
 
 method = 'knn';
 
@@ -57,5 +61,6 @@ outcomes.trials = simvar_;
 outcomes.pcid = datavar.pc;
 outcomes.idxs = datavar.Alldata;%pcspecs.idxs;
 outcomes.hash = datavar.env.currhash;
+outcomes.datavar = datavar_;
 save([datavar.env.allmatpath 'outcomes' datavar.env.SLASH datavar.env.currhash '-SIMVAR+outcomes-' num2str(datavar.pc)], 'simvar_')
 %combineoutcomes

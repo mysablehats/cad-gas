@@ -8,6 +8,7 @@ classdef Simvar
         MAX_RUNNING_TIME
         method
         excfun
+        model
     end
     methods
         function simvar = Simvar(varargin)

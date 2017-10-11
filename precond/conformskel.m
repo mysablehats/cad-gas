@@ -2,7 +2,7 @@ function [conformstruc, skelldef] = conformskel(varargin )
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 dbgmsg('Applies preconditioning functions to both training and validation datasets')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath('precondfun')
+addpath('precond/precondfun')
 test = false;
 skelldef = struct();
 extskeldef = struct();
@@ -101,7 +101,7 @@ else
                     dbgmsg('WARNING, the normalization: ' , varargin{i},' is performing poorly, it should not be used.', true);
                 case 'notorax'
                     conformations = [conformations, {@centertorax}];
-                    dbgmsg('WARNING, the normalization: ' , varargin{i},' is performing poorly, it should not be used.', true);
+                    %dbgmsg('WARNING, the normalization: ' , varargin{i},' is performing poorly, it should not be used.', true);
                     killdim = [killdim, skelldef.bodyparts.TORSO];
                 case 'nofeet'
                     conformations = [conformations, {@nofeet}]; %not sure i need this...
@@ -196,6 +196,7 @@ else
                     skelldef.vel_mean=0;
                 end
             end
+            nonmatrixkilldim_proposals = nmc(func, nonmatrixkilldim_proposals, skelldef);
             for j = 1:size(conformstruc.data,2)
                 [tdskel,skelldef.hh] = makefatskel(conformstruc.data(:,j));
                 conformstruc.data(:,j) = makethinskel(func(tdskel, skelldef));

@@ -49,6 +49,11 @@ for ii = 1:length(simvar)
         end
     end
     
+    for iiiii = 1:length(b)
+        simvar(ii).model(iiiii).mdl = b(iiiii).mdl;
+        simvar(ii).model(iiiii).IDX = b(iiiii).IDX;
+    end
+    
     
     simvar(ii).metrics = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
     %simvar(ii).metrics(:,:) = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
