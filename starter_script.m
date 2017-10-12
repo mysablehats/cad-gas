@@ -6,7 +6,7 @@ VERBOSE = 0;
 
 addpath('runpars','precond','poscond','measures','debug','utils');
 
-if isa(varargin{1},'Datavar')
+if ~isempty(varargin)&&isa(varargin{1},'Datavar')
     datavar_ = varargin{1};
 else
     datavar = setdatavar(varargin{:});
@@ -58,9 +58,9 @@ end
 
 outcomes.b = b;
 outcomes.trials = simvar_;
-outcomes.pcid = datavar.pc;
-outcomes.idxs = datavar.Alldata;%pcspecs.idxs;
-outcomes.hash = datavar.env.currhash;
+outcomes.pcid = datavar_(1).pc;
+outcomes.idxs = datavar_(1).Alldata;%pcspecs.idxs;
+outcomes.hash = datavar_(1).env.currhash;
 outcomes.datavar = datavar_;
-save([datavar.env.allmatpath 'outcomes' datavar.env.SLASH datavar.env.currhash '-SIMVAR+outcomes-' num2str(datavar.pc)], 'simvar_')
+save([datavar_(1).env.allmatpath 'outcomes' datavar_(1).env.SLASH datavar_(1).env.currhash '-SIMVAR+outcomes-' num2str(datavar_(1).pc)], 'simvar_')
 %combineoutcomes
