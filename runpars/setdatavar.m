@@ -19,7 +19,7 @@ if isempty(varargin)
     datavar.affrepvel = false;
     datavar.randSubjEachIteration = false; %%% must be set to false for systematic testing
     datavar.extract = {'rand', 'wantvelocity','order',{'removeaction','still','random'}};
-    datavar.preconditions =  {'notorax','mirrorx','mirrorz'};%'disthips', 'nonmatrixkilldim'};%, 'mirrorx'};% {'nohips'};% {'nohips', 'mirrorz', 'mirrorx'}; %,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %,
+    datavar.preconditions =  {'notorax','polar'};%'disthips', 'nonmatrixkilldim'};%, 'mirrorx'};% {'nohips'};% {'nohips', 'mirrorz', 'mirrorx'}; %,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %,
 
 else
     datavar.featuresall = 3;%size(varargin{1},2);
