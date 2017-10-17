@@ -1,4 +1,4 @@
-function drawerrorskels(fivenn,tn,range)
+function drawerrorskels(rt,tn,range)
 figure
-skeldraw(fivenn.datavar(tn, 1).data.val.data(:,range),fivenn.datavar(1, 1).skelldef,'A')
-skeldraw(fivenn.datavar(tn, 1).data.train.data(:,fivenn.trials.model(tn).IDX(range)),fivenn.datavar(1, 1).skelldef,'W')
+skeldraw(rt.datavar(tn, 1).data.val.data(:,range),rt.datavar(1, 1).skelldef,'A')
+skeldraw(rt.datavar(tn, 1).data.train.data(:,rt.trials.model(tn).IDX(range)),rt.datavar(1, 1).skelldef,'W')

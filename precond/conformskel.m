@@ -118,6 +118,8 @@ else
                     conformations = [conformations, {@to_spherical}];
                 case 'polar'
                     conformations = [conformations, {@to_polar}];
+                case 'polarC'
+                    conformations = [conformations, {@to_polarSINCOSCORRECT}];
                 case 'intostick'
                     conformations = [conformations, {@intostick}];
                     killdim = [4:(skelldef.length/6) (skelldef.length/6+4):(skelldef.length/3) ];

@@ -1,4 +1,4 @@
-function newskel = to_polar(tdskel, ~)
+function newskel = to_polar(tdskel, skelldef)
 %newskel3 = zeros(size(tdskel));
 %lets break this down into steps so that I don't mess up
 

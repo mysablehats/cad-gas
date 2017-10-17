@@ -43,7 +43,7 @@ for ii = 1:length(simvar)
             for i = 1:length(datavar)
                 a(i).a = simvar(ii).excfun(datavar(i).data,ii);
             end
-            b = cat(2,b,a.a);
+            b = cat(2,a.a,b);
             clear a
             a(1:length(datavar)) = struct();
         end
