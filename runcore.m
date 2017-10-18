@@ -16,6 +16,8 @@ switch simvar.method
     case 'knearest'
     case 'kforget'
     case 'svm'
+        
+    case '???'
     otherwise
         error('classification method not defined. ')
 end
