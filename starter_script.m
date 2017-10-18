@@ -25,7 +25,8 @@ switch method
         simvar_ = simpar;
     case 'knn'
         addpath('../svm-knn')
-        simvar_ = SimvarKNN;
+        %simvar_ = SimvarKNN;
+        simvar_ = SimvarMC;
     case 'svm'
         addpath('../svm-knn')
         simvar_ = SimvarSVM;
