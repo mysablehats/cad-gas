@@ -13,7 +13,7 @@ else
     datavar_ = datavar.loop;
 end
 
-method = 'knn';
+method = 'svm';
 
 switch method
     case 'gas'
@@ -29,7 +29,7 @@ switch method
         simvar_ = SimvarMC;
     case 'svm'
         addpath('../svm-knn')
-        simvar_ = SimvarSVM;
+        simvar_ = SimvarMC;
 end
 
 simvar_ = runcore(simvar_,datavar_);
