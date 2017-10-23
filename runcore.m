@@ -52,8 +52,13 @@ for ii = 1:length(simvar)
     end
     
     for iiiii = 1:length(b)
-        simvar(ii).model(iiiii).mdl = b(iiiii).mdl;
-        simvar(ii).model(iiiii).IDX = b(iiiii).IDX;
+        if isfield(b(iiiii),'mdl')
+            simvar(ii).model(iiiii).mdl = b(iiiii).mdl;
+            simvar(ii).model(iiiii).IDX = b(iiiii).IDX;
+        else
+            simvar(ii).model(iiiii).mdl = [];
+            simvar(ii).model(iiiii).IDX = [];
+        end
     end
     
     
