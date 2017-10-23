@@ -200,9 +200,9 @@ therealk = 0; %% a real counter for epochs
 
 alphaincrement = 0;
 %%%starting main loop
-while(isnan(nodesvect(end))||nodesvect(end)<gasgas.params.nodes*.9)
-    alphaincrement = alphaincrement +1;
+    alphaincrement = alphaincrement +.02;
     gasgas.params.at = 1-exp(-alphaincrement);
+   
 for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more times - actually this makes it overfit the data, but, still it is interesting.
 
     if params.RANDOMSET
@@ -246,7 +246,7 @@ for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more tim
         save(strcat(savegas, '-e', num2str(num_of_epochs)), 'gasgas')
     end
 end
-
+ disp(['reached:' num2str(nodesvect(end))] )
 if PLOTIT&&numlabs==1&&params.plotonlyafterallepochs 
     plotgwr(gasgas.A, gasgas.C, errorvect, epochvect, nodesvect, skelldef, layertype)
     drawnow

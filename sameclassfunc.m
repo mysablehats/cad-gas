@@ -59,6 +59,10 @@ if strcmp(vot,'train')
         end
     end
 end
+%%%%% time for data inspection
+tm = construct_tms(ssvot,ssvotbt,arq_connect);
+
+
 %% Labelling
 % The current labelling procedure for both the validation and training datasets. As of this moment I label all the gases
 % to see how adding each part increases the overall performance of the

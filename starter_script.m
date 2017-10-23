@@ -13,7 +13,7 @@ else
     datavar_ = datavar.loop;
 end
 
-method = 'svm';
+method = 'gas';
 
 switch method
     case 'gas'

@@ -34,7 +34,7 @@ switch argarg
         params.eb = 0.2; %epsilon subscript b
         params.gamma = 4; % for the denoising function
         
-        params.PLOTIT = true;
+        params.PLOTIT = false;
         params.plottingstep = 0; % zero will make it plot only every epoch
         params.plotonlyafterallepochs = true;
 
