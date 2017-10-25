@@ -10,6 +10,7 @@ for A = 1:size(ssvot,2)
     asmatched(A).gas(j).cactions = chop_action(ssvot(A).gas(j).bestmatchbyindex(A,:),ssvot(A).ends);
     %end
 end
+asmatched(A+1).gas(j).cactions = chop_action(ssvotbt.gas(j).bestmatchbyindex,ssvotbt.ends);
 %disp('hello')
 %%% Now I will actually build the transition matrices for the training
 %%% data
@@ -29,7 +30,7 @@ function cactions = chop_action(bmus, ends)
 realends = cumsum(ends);
 realbeginnings = [1 (realends(1:end-1)+1)];
 for i =1:length(ends)
-    cactions(i).bmus = bmus(realbeginnings(i):realends(i));
+    cactions(i).bmus = bmus(realbeginnings(i):realends(i),:);
 end
 end
 function tm = buildtm(bmus,maxnodes)

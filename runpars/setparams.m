@@ -18,7 +18,7 @@ switch argarg
         params.oldremovepoints = false;
         params.startdistributed = false;
         params.RANDOMSTART = false; % if true it overrides the .startingpoint variable
-        params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
+        params.RANDOMSET = true; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
         params.savegas.resume = false; % do not set to true. not working
         params.savegas.save = false;
         %params.savegas.path = simvar.env.wheretosavestuff;
