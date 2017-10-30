@@ -14,7 +14,7 @@ switch argarg
         
         params.layertype = '';
         params.MAX_EPOCHS = [];
-        params.removepoints = true;
+        params.removepoints = false;
         params.oldremovepoints = false;
         params.startdistributed = false;
         params.RANDOMSTART = false; % if true it overrides the .startingpoint variable

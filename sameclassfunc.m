@@ -61,19 +61,29 @@ if strcmp(vot,'train')
 end
 %%%%% time for data inspection
 if strcmp(vot,'train')
-    tm = construct_tms(ssvot,ssvotbt,arq_connect);
+    tm = construct_tms(ssvot,ssvotbt,arq_connect,vot);
     assignin('base','tm', tm)
-    for i = 1:length(tm)
-        figure
-        for j = 1:length(tm(i).tm)
-            subplot(1,length(tm(i).tm),j);
-            spy(tm(i).tm(j).mat)
+    if 0
+        for i = 1:length(tm)
+            figure
+            for j = 1:length(tm(i).tm)
+                subplot(1,length(tm(i).tm),j);
+                spy(tm(i).tm(j).mat)
+            end
         end
     end
 else
     tm = evalin('base','tm');
-    
+    tma = construct_tms([],ssvotbt,arq_connect,vot);
+    bmtm = match_tms(tma, tm);
+    bmtm2 = match_tmsv2(tma, tm);
+    %y = sum(unique(ssvotbt.y','rows','stable').*[1:12]'); %not y because
+    %of repetitions;
+    y = findy(ssvotbt);
+    assignin('base','bmtm1', sum(bmtm.vlabel==y)/length(y))
+    assignin('base','bmtm2', sum(bmtm2.vlabel==y)/length(y))
 end
+
 %% Labelling
 % The current labelling procedure for both the validation and training datasets. As of this moment I label all the gases
 % to see how adding each part increases the overall performance of the

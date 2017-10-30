@@ -200,8 +200,8 @@ therealk = 0; %% a real counter for epochs
 
 alphaincrement = 0;
 %%%starting main loop
-while(isnan(nodesvect(end))||nodesvect(end)<gasgas.params.nodes*.7) %%%% these need to be changed for each gas because they are dependent on the values of the input
-    alphaincrement = alphaincrement +.001;
+while(isnan(nodesvect(end))||nodesvect(end)<gasgas.params.nodes*.9) %%%% these need to be changed for each gas because they are dependent on the values of the input
+    alphaincrement = alphaincrement +.05;
     gasgas.params.at = 1-exp(-alphaincrement);
    
 for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more times - actually this makes it overfit the data, but, still it is interesting.

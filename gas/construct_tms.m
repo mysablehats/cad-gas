@@ -1,16 +1,22 @@
-function TMs = construct_tms(ssvot,ssvotbt,arq_connect)
+function TMs = construct_tms(ssvot,ssvotbt,arq_connect,vot)
 %actually maxnodes can change for each gas
 for i = 1:length(arq_connect)
 maxnodes(i) = arq_connect(i).params.nodes;
 end
 %go through all Gases(A) and chop them. save it into asmatched
-for A = 1:size(ssvot,2)
-    %for j = 1:length(ssvot(1).gas)
-    j = 1; %%%%%%%%%%%%%%%%%% I need the
-    asmatched(A).gas(j).cactions = chop_action(ssvot(A).gas(j).bestmatchbyindex(A,:),ssvot(A).ends);
-    %end
+A = 0;
+%for j = 1:length(ssvot(1).gas)
+j = 1; %%%%%%%%%%%%%%%%%% I need the
+if strcmp(vot,'train')
+    for A = 1:size(ssvot,2)
+        
+        asmatched(A).gas(j).cactions = chop_action(ssvot(A).gas(j).bestmatchbyindex(A,:),ssvot(A).ends);
+        
+    end
 end
 asmatched(A+1).gas(j).cactions = chop_action(ssvotbt.gas(j).bestmatchbyindex,ssvotbt.ends);
+%end
+
 %disp('hello')
 %%% Now I will actually build the transition matrices for the training
 %%% data
@@ -30,7 +36,7 @@ function cactions = chop_action(bmus, ends)
 realends = cumsum(ends);
 realbeginnings = [1 (realends(1:end-1)+1)];
 for i =1:length(ends)
-    cactions(i).bmus = bmus(realbeginnings(i):realends(i),:);
+    cactions(i).bmus = bmus(:,realbeginnings(i):realends(i));
 end
 end
 function tm = buildtm(bmus,maxnodes)
