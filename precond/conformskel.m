@@ -78,6 +78,8 @@ else
                 case 'nohips'
                     conformations = [conformations, {@centerhips}];
                     killdim = [killdim, skelldef.bodyparts.hip_center];
+                case 'norm_cip'
+                    conformations = [conformations, {@norm_cip}];
                 case 'normal'
                     conformations = [conformations, {@normnorm}];
                     %dbgmsg('Unimplemented normalization: ', varargin{i} ,true);
