@@ -38,7 +38,10 @@ switch argarg
         params.plottingstep = 0; % zero will make it plot only every epoch
         params.plotonlyafterallepochs = true;
 
-        
+        params.alphaincrements.run = false;
+        params.alphaincrements.zero = 0;
+        params.alphaincrements.inc = 1;
+        params.alphaincrements.threshold = 0.9;
         params.multigas = false; %%%% creates a different gas for each action sequence. at least it is faster.
         
         %Exclusive for gwr

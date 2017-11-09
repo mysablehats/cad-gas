@@ -60,7 +60,7 @@ if isempty(params)
     NODES = 100;
     
     params = struct();
-    params.normdim = true; %% if true normalize the distance by the number of dimensions 
+    params.normdim = true; %% if true normalize the distance by the number of dimensions
     params.use_gpu = false;
     params.PLOTIT = true; %
     params.RANDOMSTART = false; % if true it overrides the .startingpoint variable
@@ -95,11 +95,11 @@ if isempty(params)
     params.alpha                    = .5;     % q and f units error reduction constant.
     params.d                           = .99;   % Error reduction factor.
 else
-   %
+    %
     
 end
 if  isfield(arq_connect, 'name')&&params.savegas.resume
-     params.savegas.name = strcat(arq_connect.name, '-n', num2str(params.nodes), '-s', num2str(size(data, 1)), '-q', num2str(params.q), '-i', num2str(params.savegas.gasindex));
+    params.savegas.name = strcat(arq_connect.name, '-n', num2str(params.nodes), '-s', num2str(size(data, 1)), '-q', num2str(params.q), '-i', num2str(params.savegas.gasindex));
 elseif params.savegas.resume
     error('Strange arq_connect definition. ''.name'' field is needed.')
 end
@@ -120,12 +120,12 @@ else
     layertype = [];
 end
 
-if isfield(params, 'plottingstep')        
+if isfield(params, 'plottingstep')
     if params.plottingstep == 0
         plottingstep = size(data, 2);
     else
         plottingstep = params.plottingstep;
-    end    
+    end
 else
     plottingstep = fix(size(data, 2)/20);
 end
@@ -144,7 +144,7 @@ errorvect = nan(1, MAX_EPOCHS*datasetsize);
 epochvect = nan(1, MAX_EPOCHS*datasetsize);
 nodesvect = nan(1, MAX_EPOCHS*datasetsize);
 
-if  params.use_gpu 
+if  params.use_gpu
     data = gpuArray(data);
     errorvect = gpuArray(errorvect);
     epochvect = gpuArray(epochvect);
@@ -192,69 +192,73 @@ if isfield(params, 'savegas')&&params.savegas.resume
         end
     else
         %dbgmsg('Didn''t find gas with the same characteristics as this one. Will use a new gas with name:\t', params.savegas.name, 1)
-    end    
+    end
 end
 
 
 therealk = 0; %% a real counter for epochs
 
-alphaincrement = 0;
+alphaincrement = params.alphaincrements.zero;
 %%%starting main loop
-while(isnan(nodesvect(end))||nodesvect(end)<gasgas.params.nodes*.9) %%%% these need to be changed for each gas because they are dependent on the values of the input
-    alphaincrement = alphaincrement +1;
-    gasgas.params.at = 1-exp(-alphaincrement);
-   
-for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more times - actually this makes it overfit the data, but, still it is interesting.
-
-    if params.RANDOMSET
-        kset = randperm(datasetsize);
-    else
-        kset = 1:datasetsize;
-        if params.RANDOMSTART %% IF THE START IS RANDOM SO SHOULD BE THE BEGGING OF THE DATASET
-            kset = circshift(kset,randperm(datasetsize,1));
-        end
-        %%%%
-        if params.startdistributed 
-            a = kset(1:ceil(size(kset,2)/params.nodes):end);
-            b = setdiff(kset,a);
-            kset = [a,b];
-        end
+while(isnan(nodesvect(end))||nodesvect(end)<gasgas.params.nodes*params.alphaincrements.threshold) %%%% these need to be changed for each gas because they are dependent on the values of the input
+    if params.alphaincrements.run
+        alphaincrement = alphaincrement +params.alphaincrements.inc ;
+        gasgas.params.at = 1-exp(-alphaincrement);
     end
-    % start of the loop
-    for k = kset %step 1
-        therealk = therealk+1;
+    for num_of_epochs = 1:MAX_EPOCHS % strange idea: go through the dataset more times - actually this makes it overfit the data, but, still it is interesting.
         
-        gasgas = gasfun(data(:, k), gasgas);
+        if params.RANDOMSET
+            kset = randperm(datasetsize);
+        else
+            kset = 1:datasetsize;
+            if params.RANDOMSTART %% IF THE START IS RANDOM SO SHOULD BE THE BEGGING OF THE DATASET
+                kset = circshift(kset,randperm(datasetsize,1));
+            end
+            %%%%
+            if params.startdistributed
+                a = kset(1:ceil(size(kset,2)/params.nodes):end);
+                b = setdiff(kset,a);
+                kset = [a,b];
+            end
+        end
+        % start of the loop
+        for k = kset %step 1
+            therealk = therealk+1;
+            
+            gasgas = gasfun(data(:, k), gasgas);
+            
+            %to make it look nice...
+            errorvect(therealk) = gasgas.a;
+            epochvect(therealk) = therealk;
+            nodesvect(therealk) = gasgas.r-1;
+            if PLOTIT&&mod(k, plottingstep)==0&&numlabs==1&&~params.plotonlyafterallepochs % also checks to see if it is inside a parpool
+                plotgwr(gasgas.A, gasgas.C, errorvect, epochvect, nodesvect, skelldef, layertype)
+                drawnow
+            end
+        end
         
-        %to make it look nice...
-        errorvect(therealk) = gasgas.a;
-        epochvect(therealk) = therealk;
-        nodesvect(therealk) = gasgas.r-1;
-        if PLOTIT&&mod(k, plottingstep)==0&&numlabs==1&&~params.plotonlyafterallepochs % also checks to see if it is inside a parpool
-            plotgwr(gasgas.A, gasgas.C, errorvect, epochvect, nodesvect, skelldef, layertype)
-            drawnow            
-        end        
+        % updating the number of epochs the gas has run
+        gasgas = gasgas.update_epochs(num_of_epochs);
+        
+        % updating the standard deviation of activations:
+        gasgas = gasgas.update_meanandstddev(errorvect(1:therealk));
+        
+        % now save the resulting gas
+        if isfield(params, 'savegas')&&isfield(params.savegas, 'save')&&params.savegas.save
+            save(strcat(savegas, '-e', num2str(num_of_epochs)), 'gasgas')
+        end
     end
-    
-    % updating the number of epochs the gas has run
-    gasgas = gasgas.update_epochs(num_of_epochs);
-    
-    % updating the standard deviation of activations:
-    gasgas = gasgas.update_meanandstddev(errorvect(1:therealk));
-    
-    % now save the resulting gas
-    if isfield(params, 'savegas')&&isfield(params.savegas, 'save')&&params.savegas.save
-        save(strcat(savegas, '-e', num2str(num_of_epochs)), 'gasgas')
+    disp(['reached:' num2str(nodesvect(end))] )
+    if PLOTIT&&numlabs==1&&params.plotonlyafterallepochs
+        plotgwr(gasgas.A, gasgas.C, errorvect, epochvect, nodesvect, skelldef, layertype)
+        drawnow
     end
-end
- disp(['reached:' num2str(nodesvect(end))] )
-if PLOTIT&&numlabs==1&&params.plotonlyafterallepochs 
-    plotgwr(gasgas.A, gasgas.C, errorvect, epochvect, nodesvect, skelldef, layertype)
-    drawnow
-end
-% disp('==========================================================================================')
-% disp(['final number of nodes reached: ' num2str(nodesvect(end))])
-% 
+    % disp('==========================================================================================')
+    % disp(['final number of nodes reached: ' num2str(nodesvect(end))])
+    %
+    if ~params.alphaincrements.run %%% jumps out of while loop after this single execution if we are not running incremental alphas. 
+        break
+    end
 end
 outparams.graph.errorvect = errorvect;
 outparams.graph.epochvect = epochvect;
@@ -367,7 +371,7 @@ s2 = indices(2);
 % MEX Code Generation:
 
 % mexcfg = coder.config('mex');
-% mexcfg.DynamicMemoryAllocation = 'AllVariableSizeArrays'; 
+% mexcfg.DynamicMemoryAllocation = 'AllVariableSizeArrays';
 % codegen -config mexcfg findTwoNearest -args {coder.typeof(In(:, n), [Inf 1]), coder.typeof(nodes, [Inf Inf])}
 
 end
@@ -375,14 +379,14 @@ function [nodes, edges, ages, error] = edgeManagement(Input, nodes, edges, ages,
 
 age_inc   = params(1);
 max_age = params(2);
-            eb = params(4);
-            en = params(5);
-            s1 = params(10);
-            s2 = params(11);
+eb = params(4);
+en = params(5);
+s1 = params(10);
+s2 = params(11);
 
 NumOfNodes = size(nodes, 2);
 
-% Step 3. Increment the age of all edges emanating from s1. 
+% Step 3. Increment the age of all edges emanating from s1.
 s1_Neighbors = find(edges(:, s1)==1);
 SizeOfNeighborhood = length(s1_Neighbors);
 
@@ -409,67 +413,67 @@ ages(s2, s1) = 0;
 SizeDeletion = length(DelRow);
 for i=1:SizeDeletion
     edges(DelRow(i), DelCol(i)) = 0;
-      ages(DelRow(i), DelCol(i)) = NaN;
+    ages(DelRow(i), DelCol(i)) = NaN;
 end
 
 % MEX-code generation:
 
 % mexcfg = coder.config('mex');
-% mexcfg.DynamicMemoryAllocation = 'AllVariableSizeArrays'; 
+% mexcfg.DynamicMemoryAllocation = 'AllVariableSizeArrays';
 % codegen -config mexcfg edgeManagement.m -args {coder.typeof(In(:, n), [Inf 1]), coder.typeof(nodes, [Inf Inf]), coder.typeof(edges, [Inf Inf]), coder.typeof(ages, [Inf Inf]), coder.typeof(error, [1 Inf]), coder.typeof(distances, [1 Inf]), coder.typeof(params, [11, 1])}
 end
-function [nodes, edges, ages, error] = addNewNeuron(nodes, edges, ages, error, alpha)  %#codegen 
-                                                                                                                                    % Checks whether this function is
-                                                                                                                                    % suitable for automatic .mex code generation.
+function [nodes, edges, ages, error] = addNewNeuron(nodes, edges, ages, error, alpha)  %#codegen
+% Checks whether this function is
+% suitable for automatic .mex code generation.
 NumOfNodes = size(nodes, 2);
-    
-[~, q] = max(error);
-       
-% Find q-Neighborhood
-  q_Neighbors = find(edges(:, q)==1);
-  
-% Find the neighbor f with the largest accumulated error. 
-  [~, index] = max(error(q_Neighbors));
-  f = q_Neighbors(index); 
-    
-% Add the new node half-way between nodes q and f: 
-   nodes = [nodes .5*(nodes(:, q) + nodes(:, f))];
-   
-% Remove the original edge between q and f.
-   edges(q, f) = 0;
-   edges(f, q) = 0;
-   ages(q, f) = NaN;
-   ages(f, q) = NaN;
-   
-   NumOfNodes = NumOfNodes + 1;
-   r = NumOfNodes;
-   
-   % Insert edges connecting the new unit r with units q anf f. 
-   edges = [edges  zeros(NumOfNodes-1, 1)];
-   edges = [edges; zeros(1, NumOfNodes)];
-     
-   edges(q, r) = 1;
-   edges(r, q) = 1;
-   edges(f, r) = 1;
-   edges(r, f) = 1;
-  
-   ages = [ages  NaN*ones(NumOfNodes-1, 1)];
-   ages = [ages; NaN*ones(1, NumOfNodes)];
-   
-   ages(q, r) = 0;
-   ages(r, q) = 0;
-   ages(f, r) = 0;
-   ages(r, f) = 0;
-   
-   error(q) = alpha*error(q);
-   error(f) = alpha*error(f);
-   
-   error = [error error(q)];
 
-% MEX-code Generation:  
-   
+[~, q] = max(error);
+
+% Find q-Neighborhood
+q_Neighbors = find(edges(:, q)==1);
+
+% Find the neighbor f with the largest accumulated error.
+[~, index] = max(error(q_Neighbors));
+f = q_Neighbors(index);
+
+% Add the new node half-way between nodes q and f:
+nodes = [nodes .5*(nodes(:, q) + nodes(:, f))];
+
+% Remove the original edge between q and f.
+edges(q, f) = 0;
+edges(f, q) = 0;
+ages(q, f) = NaN;
+ages(f, q) = NaN;
+
+NumOfNodes = NumOfNodes + 1;
+r = NumOfNodes;
+
+% Insert edges connecting the new unit r with units q anf f.
+edges = [edges  zeros(NumOfNodes-1, 1)];
+edges = [edges; zeros(1, NumOfNodes)];
+
+edges(q, r) = 1;
+edges(r, q) = 1;
+edges(f, r) = 1;
+edges(r, f) = 1;
+
+ages = [ages  NaN*ones(NumOfNodes-1, 1)];
+ages = [ages; NaN*ones(1, NumOfNodes)];
+
+ages(q, r) = 0;
+ages(r, q) = 0;
+ages(f, r) = 0;
+ages(r, f) = 0;
+
+error(q) = alpha*error(q);
+error(f) = alpha*error(f);
+
+error = [error error(q)];
+
+% MEX-code Generation:
+
 % mexcfg = coder.config('mex');
-% mexcfg.DynamicMemoryAllocation = 'AllVariableSizeArrays'; 
+% mexcfg.DynamicMemoryAllocation = 'AllVariableSizeArrays';
 % codegen -config mexcfg addNewNeuron.m -args {coder.typeof(nodes, [Inf Inf]), coder.typeof(edges, [Inf Inf]), coder.typeof(ages, [Inf Inf]), coder.typeof(error, [1 Inf]), double(0)}
 end
 function [nodes, edges, ages, error] = removeUnconnected(nodes, edges, ages, error) %#codegen
@@ -482,16 +486,16 @@ while NumOfNodes >= i
         
         edges = [edges(1:i-1, :); edges(i+1:NumOfNodes, :);];
         edges = [edges(:, 1:i-1)  edges(:, i+1:NumOfNodes);];
-       
+        
         ages = [ages(1:i-1, :); ages(i+1:NumOfNodes, :);];
         ages = [ages(:, 1:i-1)  ages(:, i+1:NumOfNodes);];
-
+        
         nodes = [nodes(:, 1:i-1) nodes(:, i+1:NumOfNodes);];
         error = [error(1, 1:i-1) error(1, i+1:NumOfNodes);];
         
         NumOfNodes = NumOfNodes - 1;
         
-        i = i -1; 
+        i = i -1;
     end
     i = i+1;
 end
@@ -499,7 +503,7 @@ end
 % MEX-code generation
 
 % mexcfg = coder.config('mex');
-% mexcfg.DynamicMemoryAllocation = 'AllVariableSizeArrays'; 
+% mexcfg.DynamicMemoryAllocation = 'AllVariableSizeArrays';
 % codegen -config mexcfg removeUnconnected -args {coder.typeof(nodes, [Inf Inf]), coder.typeof(edges, [Inf Inf]), coder.typeof(ages, [Inf Inf]), coder.typeof(error, [1 Inf])}
 end
 function [gas]= gwr_core(eta, gas)
@@ -527,14 +531,14 @@ function [gas]= gwr_core(eta, gas)
 %%% point is too unusual
 %gas.a = exp(-norm((eta-gas.gwr.ws).*gas.awk)); %step 5
 %%% changed the expression so that I don't need to calculate the distance
-%%% twice. note that awk now does nothing. 
+%%% twice. note that awk now does nothing.
 gas.a = exp(-d1); %step 5
 
 if gas.params.removepoints&&(gas.a < gas.amean - gas.params.gamma*gas.astddev)
     gas.skippedpoints = gas.skippedpoints +1;
     return
 end
-    
+
 if gas.C(gas.gwr.s, gas.gwr.t)==0 %step 4
     gas.C = spdi_bind(gas.C, gas.gwr.s, gas.gwr.t);
 else
@@ -555,17 +559,17 @@ if (gas.a < gas.params.at) && (gas.r <= gas.params.nodes) %step 6
     gas.r = gas.r+1;
 else %step 7
     %for j = 1:gas.gwr.num_of_neighbours % check this for possible indexing errors
- %       i = gas.gwr.neighbours(j);
-        %size(A)
-        gas.gwr.wi = gas.A(:, gas.gwr.neighbours);
-        gas.A(:, gas.gwr.neighbours) = gas.gwr.wi + gas.params.en*(repmat(eta, 1, gas.gwr.num_of_neighbours)-gas.gwr.wi).*repmat(gas.h(gas.gwr.neighbours), size(eta, 1), 1);
+    %       i = gas.gwr.neighbours(j);
+    %size(A)
+    gas.gwr.wi = gas.A(:, gas.gwr.neighbours);
+    gas.A(:, gas.gwr.neighbours) = gas.gwr.wi + gas.params.en*(repmat(eta, 1, gas.gwr.num_of_neighbours)-gas.gwr.wi).*repmat(gas.h(gas.gwr.neighbours), size(eta, 1), 1);
     %end
-%     for j = 1:gas.gwr.num_of_neighbours % check this for possible indexing errors
-%         i = gas.gwr.neighbours(j);
-%         %size(A)
-%         gas.gwr.wi = gas.A(:, i);
-%         gas.A(:, i) = gas.gwr.wi + gas.params.en*gas.h(i)*(eta-gas.gwr.wi);
-%     end
+    %     for j = 1:gas.gwr.num_of_neighbours % check this for possible indexing errors
+    %         i = gas.gwr.neighbours(j);
+    %         %size(A)
+    %         gas.gwr.wi = gas.A(:, i);
+    %         gas.A(:, i) = gas.gwr.wi + gas.params.en*gas.h(i)*(eta-gas.gwr.wi);
+    %     end
     gas.A(:, gas.gwr.s) = gas.gwr.ws + gas.params.eb*gas.h(gas.gwr.s)*(eta-gas.gwr.ws); %adjusts nearest point MORE;;; also, I need to adjust this after the for loop or the for loop would reset this!!!
 end
 %step 8 : age edges with end at s
@@ -573,7 +577,7 @@ end
 
 % for j = 1:gas.gwr.num_of_neighbours % check this for possible indexing errors
 %     i = gas.gwr.neighbours(j);
-    gas.C_age = spdi_add(gas.C_age, gas.gwr.s, gas.gwr.neighbours);
+gas.C_age = spdi_add(gas.C_age, gas.gwr.s, gas.gwr.neighbours);
 % end
 % for j = 1:gas.gwr.num_of_neighbours % check this for possible indexing errors
 %     i = gas.gwr.neighbours(j);
@@ -603,12 +607,12 @@ if gas.r > gas.params.nodes
     %R = gas.params.nodes;
     [gas.C, gas.C_age ] = removeedge(gas.C, gas.C_age, gas.params.amax);
     [gas.C, gas.A, gas.C_age, gas.h, gas.r ] = removenode(gas.C, gas.A,  gas.C_age,  gas.h,  gas.r);
-elseif gas.r>2 
+elseif gas.r>2
     R = gas.r-1;
     [gas.C(1:R, 1:R), gas.C_age(1:R, 1:R) ] = removeedge(gas.C(1:R, 1:R), gas.C_age(1:R, 1:R), gas.params.amax);
     [gas.C(1:R, 1:R), gas.A(:, 1:R), gas.C_age(1:R, 1:R), gas.h, gas.r ] = removenode(gas.C(1:R, 1:R), gas.A(:, 1:R),  gas.C_age(1:R, 1:R),  gas.h,  gas.r);
 end
-% 
+%
 % if gas.r>2 % don't remove everything
 %     [gas.C(1:R, 1:R), gas.C_age(1:R, 1:R) ] = removeedge(gas.C(1:R, 1:R), gas.C_age(1:R, 1:R), gas.params.amax);
 %     [gas.C(1:R, 1:R), gas.A(:, 1:R), gas.C_age(1:R, 1:R), gas.h, gas.r ] = removenode(gas.C(1:R, 1:R), gas.A(:, 1:R),  gas.C_age(1:R, 1:R),  gas.h,  gas.r);       %inverted order as it says on the algorithm to remove points faster
@@ -633,7 +637,7 @@ function sparsemat = spdi_del(sparsemat,  a,  b) % removes a 2 way connection,  
 sparsemat(a, b) = 0;
 sparsemat(b, a) = 0;
 end
-function [C,  C_age, row ] = removeedge(C,  C_age,  amax) 
+function [C,  C_age, row ] = removeedge(C,  C_age,  amax)
 [row,  col] = find(C_age > amax);
 a = size(row, 2);
 if ~isempty(row)
