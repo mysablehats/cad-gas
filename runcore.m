@@ -13,7 +13,7 @@ switch simvar.method
     for ii = 1:length(simvar)
         simvar(ii).metrics =repmat(met_struc,length(datavar),simvar.numlayers);
     end
-    case 'knearest'
+    case 'knn'
     case 'kforget'
     case 'svm'
         
