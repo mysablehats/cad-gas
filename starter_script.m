@@ -6,13 +6,6 @@ VERBOSE = 0;
 
 addpath('runpars','precond','poscond','measures','debug','utils');
 
-if ~isempty(varargin)&&isa(varargin{1},'Datavar')
-    datavar_ = varargin{1};
-else
-    datavar = setdatavar(varargin{:});
-    datavar_ = datavar.loop;
-end
-
 method = 'knn';
 
 switch method
@@ -30,6 +23,13 @@ switch method
     case 'svm'
         addpath('../svm-knn')
         simvar_ = SimvarMC;
+end
+
+if ~isempty(varargin)&&isa(varargin{1},'Datavar')
+    datavar_ = varargin{1};
+else
+    datavar = setdatavar(varargin{:});
+    datavar_ = datavar.loop;
 end
 
 simvar_ = runcore(simvar_,datavar_);
