@@ -1,5 +1,8 @@
-function datavar = setdatavar(varargin)
+function datavar = setdatavar(scene,precon)
 %% defines some standard preconditioning for datasets
+
+makedata = true; %%% premature optimization
+
 parisi_preconditions = {'nohips','mirrorx'};
 cipiteli_preconditions = {'nohips','norm_cip','mirrorx'};
 polar_pc = {'nohips','mirrorx','polarC'};
@@ -12,6 +15,35 @@ kitchen = {'removeaction','still','random', 'brushing teeth', 'relaxing on couch
 livingroom = {'removeaction','still','random', 'brushing teeth', 'cooking (chopping)', 'cooking (stirring)','opening pill container','rinsing mouth with water','wearing contact lenses','working on computer','writing on whiteboard'};
 office = {'removeaction','still','random', 'brushing teeth', 'cooking (chopping)', 'cooking (stirring)','opening pill container','relaxing on couch','rinsing mouth with water','talking on couch','wearing contact lenses'};
 
+switch precon
+    case 'pap' 
+        preconCell = parisi_preconditions;
+    case 'cip'
+        preconCell = cipiteli_preconditions;
+    case 'pop'
+        preconCell = polar_pc;
+    otherwise
+        error('precondition sequence not defined.')
+end
+
+switch scene
+    case 'all'
+        sceneCell = {};
+    case 'or'
+        sceneCell = extract_only_relevant;
+    case 'bar'
+        sceneCell = bathroom;
+    case 'ber'
+        sceneCell = bedroom;
+    case 'k'
+        sceneCell = kitchen;
+    case 'l'
+        sceneCell = livingroom;
+    case 'o'
+        sceneCell = office;
+    otherwise
+        error('scene not defined')
+end
 %% Initializes datavar
 datavar = Datavar({'validationtype' 'type2all'});
 
@@ -21,7 +53,7 @@ datavar.validationtype = 'type2all'; %'type2notrandom'; 'cluster' 'quarterset' '
 
 
 %% Choose dataset
-if isempty(varargin)
+if makedata
     datavar.AllSubjects = [1 2 3 4];%2 %[1 2 3 4]; %% 
     datavar.disablesconformskel = 0;
     datavar.generatenewdataset = true; %true;
@@ -32,10 +64,10 @@ if isempty(varargin)
     datavar.affinerepair = false;
     datavar.affrepvel = false;
     datavar.randSubjEachIteration = false; %%% must be set to false for systematic testing
-    datavar.extract = {'rand', 'wantvelocity','order',office};
+    datavar.extract = {'rand', 'wantvelocity','order',sceneCell};
 %   datavar.extract = {'rand', 'wantvelocity','order',{'removeaction','still','random'}};
 
-    datavar.preconditions = cipiteli_preconditions;%{'nohips','polarC'};%'disthips', 'nonmatrixkilldim'};%, 'mirrorx'};% {'nohips'};% {'nohips', 'mirrorz', 'mirrorx'}; %,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %,
+    datavar.preconditions = preconCell;%{'nohips','polarC'};%'disthips', 'nonmatrixkilldim'};%, 'mirrorx'};% {'nohips'};% {'nohips', 'mirrorz', 'mirrorx'}; %,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %,
 else
     datavar.featuresall = 3;%size(varargin{1},2);
 
