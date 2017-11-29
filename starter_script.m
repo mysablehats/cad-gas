@@ -83,5 +83,5 @@ for indexofscenes = 1:maxindexofscenes
 end
 for i = 1:length(outcomes)
     a = outcomes(i);
-    save(['../' scene{indexofscenes} method precon],'a')
+    save(['../' scene{i} method precon],'a')
 end

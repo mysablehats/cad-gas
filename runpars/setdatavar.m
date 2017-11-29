@@ -2,7 +2,7 @@ function datavar = setdatavar(scene,precon)
 %% defines some standard preconditioning for datasets
 
 makedata = true; %%% premature optimization
-
+only_hips = {'nohips'};
 parisi_preconditions = {'nohips','mirrorx'};
 cipiteli_preconditions = {'nohips','norm_cip','mirrorx'};
 polar_pc = {'nohips','mirrorx','polarC'};
@@ -16,6 +16,10 @@ livingroom = {'removeaction','still','random', 'brushing teeth', 'cooking (chopp
 office = {'removeaction','still','random', 'brushing teeth', 'cooking (chopping)', 'cooking (stirring)','opening pill container','relaxing on couch','rinsing mouth with water','talking on couch','wearing contact lenses'};
 
 switch precon
+    case 'no'
+        preconCell = {};
+    case 'oh'
+        preconCell = only_hips;
     case 'pap' 
         preconCell = parisi_preconditions;
     case 'cip'
