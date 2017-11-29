@@ -31,15 +31,15 @@ switch scene
         sceneCell = {};
     case 'or'
         sceneCell = extract_only_relevant;
-    case 'bar'
+    case 'bathroom'
         sceneCell = bathroom;
-    case 'ber'
+    case 'bedroom'
         sceneCell = bedroom;
-    case 'k'
+    case 'kitchen'
         sceneCell = kitchen;
-    case 'l'
+    case 'livingroom'
         sceneCell = livingroom;
-    case 'o'
+    case 'office'
         sceneCell = office;
     otherwise
         error('scene not defined')
