@@ -8,7 +8,7 @@ addpath('runpars','precond','poscond','measures','debug','utils');
 
 runpars = setrunpars;
 method = runpars.method;
-precond = runpars.precon;
+precon = runpars.precon;
 scene = runpars.scene;
 
 %%%%%%%%%
@@ -83,5 +83,5 @@ for indexofscenes = 1:maxindexofscenes
 end
 for i = 1:length(outcomes)
     a = outcomes(i);
-    save(['../' scene{indexofscenes} method precond],'a')
+    save(['../' scene{indexofscenes} method precon],'a')
 end
