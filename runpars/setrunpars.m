@@ -1,4 +1,4 @@
 function runpar = setrunpars()
-runpar.method = 'svm';
+runpar.method = 'gwr';
 runpar.scene = {'bathroom','bedroom','kitchen','livingroom','office'} ;
 runpar.precon = 'no';
