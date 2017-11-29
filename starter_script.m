@@ -22,10 +22,10 @@ end
 %end
 
 for indexofscenes = 1:maxindexofscenes
-    if ~isempty(varargin)||isa(varargin{1},'Datavar')
+    if ~isempty(varargin)&&isa(varargin{1},'Datavar')
         datavar_ = varargin{1};
     else
-        datavar = setdatavar(varargin{:});
+        datavar = setdatavar(scene,precon);
         datavar_ = datavar.loop;
     end
     
