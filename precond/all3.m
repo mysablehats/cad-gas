@@ -32,4 +32,5 @@ else
     %in case you wish to run it:
     [data, skelldef] = conformskel(data, datavar.preconditions{:});
 end
+%disp('hello')
 end

@@ -59,6 +59,34 @@ if strcmp(vot,'train')
         end
     end
 end
+%%%%% time for data inspection
+if exist('ssvotbt','var')
+    if strcmp(vot,'train')
+        
+        tm = construct_tms(ssvot,ssvotbt,arq_connect,vot); %%%%% technically I should make this also work for a single gas scenario.
+        assignin('base','tm', tm)
+        if 0
+            for i = 1:length(tm)
+                figure
+                for j = 1:length(tm(i).tm)
+                    subplot(1,length(tm(i).tm),j);
+                    spy(tm(i).tm(j).mat)
+                end
+            end
+        end
+        
+    else
+        tm = evalin('base','tm');
+        tma = construct_tms([],ssvotbt,arq_connect,vot);
+        bmtm = match_tms(tma, tm);
+        bmtm2 = match_tmsv2(tma, tm);
+        %y = sum(unique(ssvotbt.y','rows','stable').*[1:12]'); %not y because
+        %of repetitions;
+        y = findy(ssvotbt);
+        assignin('base','bmtm1', sum(bmtm.vlabel==y)/length(y))
+        assignin('base','bmtm2', sum(bmtm2.vlabel==y)/length(y))
+    end
+end
 %% Labelling
 % The current labelling procedure for both the validation and training datasets. As of this moment I label all the gases
 % to see how adding each part increases the overall performance of the
@@ -106,32 +134,4 @@ for j = whatIlabel
     
 end
 
-end
-function ssvotp = pssvot(ssvot)
-%disp('hello')
-%%% at first glance this seems correct.
-
-nssvotl = size(ssvot.y,1);
-ssvotp(nssvotl) = struct;
-alldatasize = size(ssvot.data,2);
-for i = 1:nssvotl
-    newindex = 0;
-    ends = [];
-    for j = 1:alldatasize
-        if ssvot.y(i,j) == 1
-            newindex = newindex +1;
-            ssvotp(i).data(:,newindex) = ssvot.data(:,j);
-            ssvotp(i).y(:,newindex) = ssvot.y(:,j);
-            ssvotp(i).index(:,newindex) = ssvot.index(j);
-            %%% now need to create ends
-            %if index of next point changes or does not exist then it is an end
-            if j+1>alldatasize||ssvot.index(j+1)~=ssvot.index(j)
-                ends = [ends newindex-sum(ends)];
-            end
-        end
-    end
-    ssvotp(i).ends = ends;
-    ssvotp(i).seq = unique(ssvotp(i).index,'stable');
-    ssvotp(i).gas = struct;
-end
 end

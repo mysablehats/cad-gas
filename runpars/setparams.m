@@ -4,19 +4,20 @@ switch argarg
     case 'init'       
         params.skelldef = skelldef;
         % set parameters for gas:
-        params.normdim = true; %% if true normalize the distance by the number of dimensions
-        params.distancetype.source = 'ext'; % or 'ext'
+        params.normdim = false; %% if true normalize the distance by the number of dimensions
+        params.distancetype.source = 'gas'; % 'gas' or 'ext'
         params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean'
         params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow - if on ext.
-        params.distancetype.cum = true;
+        params.distancetype.cum = false;
         params.distance.simple = true; %if false will rotate stuff around to a better position. TO DO: all these distances have to be condensed into a single thing...
-        params.flippoints = true;
+        params.flippoints = false;
         
         params.layertype = '';
         params.MAX_EPOCHS = [];
         params.removepoints = true;
         params.oldremovepoints = false;
-        params.RANDOMSTART = true; % if true it overrides the .startingpoint variable
+        params.startdistributed = false;
+        params.RANDOMSTART = false; % if true it overrides the .startingpoint variable
         params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
         params.savegas.resume = false; % do not set to true. not working
         params.savegas.save = false;
@@ -37,12 +38,16 @@ switch argarg
         params.plottingstep = 0; % zero will make it plot only every epoch
         params.plotonlyafterallepochs = true;
 
-        
-        params.multigas = true; %%%% creates a different gas for each action sequence. at least it is faster.
+        params.alphaincrements.run = false;
+        params.alphaincrements.zero = 0;
+        params.alphaincrements.inc = 1;
+        params.alphaincrements.threshold = 0.9;
+        params.multigas = false; %%%% creates a different gas for each action sequence. at least it is faster.
         
         %Exclusive for gwr
         params.STATIC = true;
-        params.at = 0.999832929230424; %activity threshold
+        %params.at = 0.999832929230424; %activity threshold
+        params.at = 0.95; %activity threshold
         params.h0 = 1;
         params.ab = 0.95;
         params.an = 0.95;
@@ -64,14 +69,15 @@ switch argarg
         
         %%% we need to enable the gas distance for first and
         %%% second layers only
-        %params(1).distancetype.source = 'gas'; % or 'ext'
-        %params(2).distancetype.source = 'gas'; % or 'ext'
-        params(1).at = 0.99983; %activity threshold
-        params(2).at = 0.99999; %activity threshold
-        params(3).at = 0.99995; %activity threshold
-        params(4).at = 0.999998; %activity threshold
-        params(5).at = 0.99999; %activity threshold
         
+%         params(1).distancetype.source = 'gas'; % or 'ext'
+%         params(2).distancetype.source = 'gas'; % or 'ext'
+%         params(1).at = 0.0099983; %activity threshold
+%         params(2).at = 0.0099999; %activity threshold
+%         params(3).at = 0.0099995; %activity threshold
+%         params(4).at = 0.00999998; %activity threshold
+%         params(5).at = 0.0099999; %activity threshold
+         
         
 end
 end

@@ -16,6 +16,8 @@ doIdraw = true;
 numofthinskels = [];
 wheretoclip = [];
 pp = [];
+skelldef = struct([]);
+drawcolor = winter;
 
 if nargin>1&&islogical(varargin{2})
     doIdraw = varargin{2};
@@ -35,6 +37,10 @@ elseif nargin >1
                     markers = true;
                 case 'mt'
                     drawconditions = 'strip_of_thinskels';
+                case 'W'
+                    drawcolor = @winter;
+                case 'A'
+                    drawcolor = @autumn;
                 otherwise
                     error('unknow parameter')
             end
@@ -42,11 +48,15 @@ elseif nargin >1
             numofthinskels = varargin{i};
         elseif isstruct(varargin{i})
             skelldef = varargin{i};
+            skel = reconstructskel(skel,skelldef);
             wheretoclip = skelldef.hh/2; 
         end
     end
 end
 
+if isempty(skelldef)
+    warning('NO SKELETON DEFINITIONS! Will try to guess parameters, but maybe something will go wrong!')
+end
 
 
 %%% I know hacks make your life hell, but...
@@ -100,7 +110,7 @@ if doIdraw
         end
     end
     
-    mycmap = colormap( gca ,winter(size(cellA,2)));
+    mycmap = colormap( gca ,drawcolor(size(cellA,2)));
     try
         pp = plot3(cellA{:});
         
@@ -108,6 +118,9 @@ if doIdraw
         plotA = [cellA{:}];
         pp = plot3(plotA{:});
     end
+    xlabel('X')
+    ylabel('Y')
+    zlabel('Z')
     for i = 1: length(pp)
         pp(i).Color = mycmap(i,:);
     end

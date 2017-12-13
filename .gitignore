@@ -3,3 +3,5 @@ test_cluster_starter.m
 *.fig
 
 *.m~
+
+*.fig

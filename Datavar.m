@@ -25,6 +25,7 @@ classdef Datavar
         extract
         preconditions
         trialdataname
+        trialdataname_old
         trialdatafile
         allmatpath
     end
@@ -95,7 +96,9 @@ classdef Datavar
         end
         function datavar = updatesavenames(datavar)
             simextractname = [datavar.extract{:}];
-            datavar.trialdataname = strcat('skel',datavar.datasettype,'_',datavar.sampling_type,datavar.activity_type,'_',[datavar.prefilter{1} num2str(datavar.prefilter{2})], [simextractname{:}],[datavar.preconditions{:}],['V' num2str(datavar.ValSubjectIndexes)],['T' num2str(datavar.TrainSubjectIndexes)]);
+            datavar.trialdataname_old = strcat('skel',datavar.datasettype,'_',datavar.sampling_type,datavar.activity_type,'_',[datavar.prefilter{1} num2str(datavar.prefilter{2})], [simextractname{:}],[datavar.preconditions{:}],['V' num2str(datavar.ValSubjectIndexes)],['T' num2str(datavar.TrainSubjectIndexes)]);
+            datavar.trialdataname = ['DATA' datavar.env.currhash ];
+
             datavar.trialdatafile = strcat(datavar.env.wheretosavestuff,datavar.env.SLASH,datavar.trialdataname,'.mat');
             datavar.allmatpath = datavar.env.allmatpath;
         end

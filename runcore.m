@@ -2,16 +2,28 @@ function simvar = runcore(simvar,datavar)
 a = [];
 b = [];
 
-%%%% i have to break big chunks of simvar/datavar into something my parpool
-%%%% can handle
-met_struc = struct('conffig',[],'val',[],'train',[], 'accumulatedepochs',0);
-
-for i =1:length(datavar)
-    datavar(i).data = structcat2(makess(simvar.numlayers,true),datavar(i).data);
+switch simvar.method
+    case 'gas'
+    met_struc = struct('conffig',[],'val',[],'train',[], 'accumulatedepochs',0);
+    
+    for i =1:length(datavar)
+        datavar(i).data = structcat2(makess(simvar.numlayers,true),datavar(i).data);
+    end
+    
+    for ii = 1:length(simvar)
+        simvar(ii).metrics =repmat(met_struc,length(datavar),simvar.numlayers);
+    end
+    case 'knn'
+    case 'kforget'
+    case 'svm'
+        
+    case '???'
+    otherwise
+        error('classification method not defined. ')
 end
 
+
 for ii = 1:length(simvar)
-    simvar(ii).metrics =repmat(met_struc,length(datavar),simvar.numlayers);
     starttime = tic;
     while toc(starttime)< simvar(ii).MAX_RUNNING_TIME
         if length(b)> simvar(ii).MAX_NUM_TRIALS
@@ -19,7 +31,7 @@ for ii = 1:length(simvar)
         end
         if simvar(ii).PARA
             spmd(length(datavar))
-                a(labindex).a = executioncore_in_starterscript(simvar(ii).arq_connect, datavar(labindex).data);
+                a(labindex).a = simvar(ii).excfun(datavar(labindex).data,ii);
             end
             %b = cat(2,b,a.a);
             for i=1:length(a)
@@ -31,16 +43,27 @@ for ii = 1:length(simvar)
             a(1:simvar(ii).P) = struct();
         else
             for i = 1:length(datavar)
-                a(i).a = executioncore_in_starterscript(simvar(ii).arq_connect, datavar(i).data);
+                a(i).a = simvar(ii).excfun(datavar(i).data,ii);
             end
-            b = cat(2,b,a.a);
+            b = cat(2,a.a,b);
             clear a
             a(1:length(datavar)) = struct();
         end
     end
     
+    for iiiii = 1:length(b)
+        if isfield(b(iiiii),'mdl')
+            simvar(ii).model(iiiii).mdl = b(iiiii).mdl;
+            simvar(ii).model(iiiii).IDX = b(iiiii).IDX;
+        else
+            simvar(ii).model(iiiii).mdl = [];
+            simvar(ii).model(iiiii).IDX = [];
+        end
+    end
     
-    simvar(ii).metrics(:,:) = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
+    
+    simvar(ii).metrics = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
+    %simvar(ii).metrics(:,:) = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
     
     for i = 1:length(b) %%%% this is broken. if you want to fix it change... erm... stuff
         if isfield(b(i), 'ssvalgas')
