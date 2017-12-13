@@ -5,8 +5,8 @@ function simvar = setsimvar(params)
 
 simvar = Simvargas({'PARA' 1});
 
-simvar.NODES_VECT = [1000];
-simvar.MAX_EPOCHS_VECT = [10];
+simvar.NODES_VECT = [10];
+simvar.MAX_EPOCHS_VECT = [1];
 simvar.ARCH_VECT = [2];
 
 simvar.MAX_NUM_TRIALS = 1;
