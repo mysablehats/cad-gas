@@ -59,6 +59,11 @@ end
 a.mt = metrics;
 a.gases = ss.gas;
 a.allconn = arq_connect;
+
+%%% collecting the models:
+for i =1:size(ss.gas  ,2)
+    a.mdl{i} = ss.gas(i).model;  
+end
 %a.simvar = simvar;
 
 % if clearmemory

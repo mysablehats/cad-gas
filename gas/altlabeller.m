@@ -9,7 +9,7 @@ numnodes = max(bmbi);
 %%% so instead of:
 %nodecount = zeros(size(y,1),numnodes);
 %%% we write
-nodecount = labeling(nodes, data, y);
+nodecount = labeling([],nodes, data, y);
 %%% now this ofc creates the issue of importance, which is most important,
 %%% the previous label or the new one. Right now its importance is equal to
 %%% one sample. there should be obviously a scalling factor that could be
