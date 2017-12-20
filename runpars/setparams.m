@@ -60,6 +60,10 @@ switch argarg
         params.alpha                    = .5;     % q and f units error reduction constant.
         params.d                           = .995;   % Error reduction factor.
         
+        %Exclusive for SOM
+        params.nodesx = 8;
+        params.nodesy = 8;
+        
         %Labelling exclusive variables
         params.label.tobelabeled = true; % not used right now, to substitute whatIlabel
         params.label.prototypelabelling = @altlabeller; % @labeling is the old version
