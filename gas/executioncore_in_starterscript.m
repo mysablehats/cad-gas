@@ -63,6 +63,7 @@ a.allconn = arq_connect;
 %%% collecting the models:
 for i =1:size(ss.gas  ,2)
     a.mdl{i} = ss.gas(i).model;  
+    a.IDX{i} = ss.gas(i).IDX;
 end
 %a.simvar = simvar;
 

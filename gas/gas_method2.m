@@ -48,6 +48,10 @@ switch arq_connect.method
         
     case 'som'
         [sstgasj.nodes, sstgasj.edges, sstgasj.outparams, sstgasj.gasgas, sstv.gas(j).distances(k,:), sstv.gas(j).bestmatchbyindex(k,:)] = som_wrapper(sstv.gas(j).inputs.input_clip, arq_connect);
+        warning('maybe undefined variables')
+    case 'knn'
+        sstgasj.nodes = sstv.gas(j).inputs.input_clip;
+        warning('maybe undefined variables')
 end
 
 %% Post-conditioning function

@@ -109,6 +109,10 @@ for j = whatIlabel
             [~,newlabels] = max(gas(j).nodesl);
             gas(j).model =  arq_connect(j).params.label.classlabelling(gas(j).nodes.', newlabels.'); %%% I will use knn for now, but it doesnt need to be, so this is a function handle to fitcknn
             weirdthingy = predict(gas(j).model,ssvot.gas(j).inputs.input.'  ).';            %%% we still dont have the classes the way we want because matlab is annoying 
+            if ~isfield(ssvot.gas(j), 'bestmatchbyindex')||isempty(ssvot.gas(j).bestmatchbyindex)
+                warning('bestmatch by index is not set!!! .IDX property will be empty as well!')
+            end
+            gas(j).IDX = ssvot.gas(j).bestmatchbyindex;  
             %%% now, i believe i had this problem before, so i believe
             %%% there is in my code this function, but I can't seem to find
             %%% it, so coding it again
