@@ -11,4 +11,19 @@ for i = 1:length(allconn)
     arq_connect(i).params = allconn{i}{6};
     %%% hack I need this info in params as well
     arq_connect(i).params.q = arq_connect(i).q;
+    %% sets the right labelling function for layer:
+    switch allconn{i}{7}
+        case 'knn'
+            arq_connect(i).params.label.classlabelling = @fitcknn;
+        case 'svm'
+            arq_connect(i).params.label.classlabelling = @fitcecoc;
+        otherwise
+            warning('name of function not found. will assume it is a matlab function name or function handle')
+            if strfind(allconn{i}{7},'@')
+                disp(['Using function handle' allconn{i}{7} ' for labelling'])
+                arq_connect(i).params.label.classlabelling = allconn{i}{7};
+            else
+                arq_connect(i).params.label.classlabelling = eval(['@' allconn{i}{7}]);
+            end
+    end
 end
