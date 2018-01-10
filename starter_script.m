@@ -31,8 +31,8 @@ for indexofscenes = 1:maxindexofscenes
     end
     
     switch method
-        case 'gas'
-            addpath('gas');
+        case 'compressors'
+            addpath('compressors');
             params = setparams(datavar_(1).skelldef, 'init', []); %hmmm..
             simvar_ = setsimvar(params);
         case 'kforget'
