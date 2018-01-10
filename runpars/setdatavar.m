@@ -77,5 +77,6 @@ else
 
 end
 
-datavar = datavar.init;
+%is this necessary? 
+%datavar = datavar.init;
 end

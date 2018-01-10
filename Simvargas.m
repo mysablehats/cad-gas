@@ -29,7 +29,13 @@ classdef Simvargas < Simvar
             simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, []))));
             simvar = simvar.loop(params);
             %%% I need to set after everything is done, since in the 
-            simvar.excfun = @(data,ii)executioncore_in_starterscript(simvar(ii).arq_connect, data);
+            %%% not sure this is correct, this function should loop inside
+            %%% loop...
+            %%% also numlayers also varies, so this is very bad... maybe
+            %%% all of this should just be the loop, or inside the loop. 
+            for i = 1:length(simvar)
+                simvar(i).excfun = @(data,ii)executioncore_in_starterscript(simvar(ii).arq_connect, data);
+            end
         end
         function [endacc, combinedval] = analyze_outcomes(simvartrial)
             if isempty(simvartrial.metrics)
@@ -69,9 +75,9 @@ classdef Simvargas < Simvar
                         params.nodes = NODES;%simvar.trial(trialcount).NODES; %maximum number of nodes/neurons in the gas
                         
                         %%%
-                        params = setparams([], 'layerdefs', params);
+                        params_ = setparams([], 'layerdefs', params);
                         
-                        simvartrial(trialcount).allconn = allconnset(architectures, params);
+                        simvartrial(trialcount).allconn = allconnset(architectures, params_);
                         
                         %%% ATTENTION 2: PARALLEL PROCESSES ARE NO LONGER DOING WHAT THEY
                         %%% USUALLY DID. SO THEY ARE NOT STARTING THE GAS AT DIFFERENT
