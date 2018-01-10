@@ -26,7 +26,7 @@ classdef Simvargas < Simvar
             
         end
         function simvar = init(simvar,params)
-            simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, []))));
+            simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, [],[]))));
             simvar = simvar.loop(params);
             %%% I need to set after everything is done, since in the 
             %%% not sure this is correct, this function should loop inside

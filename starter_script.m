@@ -33,8 +33,8 @@ for indexofscenes = 1:maxindexofscenes
     switch method
         case 'compressors'
             addpath('compressors');
-            params = setparams(datavar_(1).skelldef, 'init', []); %hmmm..
-            simvar_ = setsimvar(params);
+            parsk = setparsk(datavar_(1).skelldef, 'init', []); %hmmm..
+            simvar_ = setsimvar(parsk);
         case 'kforget'
             addpath('..\k-forget')
             simvar_ = simpar;

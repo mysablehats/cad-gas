@@ -1,4 +1,4 @@
-function params = setparams(skelldef, argarg, params)
+function params = setparsk(skelldef, argarg, params)
 
 switch argarg
     case 'init'       
