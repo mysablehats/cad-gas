@@ -12,11 +12,12 @@ for i = 1:length(allconn)
     %%% hack I need this info in params as well
     arq_connect(i).params.q = arq_connect(i).q;
     %% sets the right labelling function for layer:
+    parsc = allconn{i}{8};
     switch allconn{i}{7}
         case 'knn'
-            arq_connect(i).params.label.classlabelling = @fitcknn;
+            arq_connect(i).params.label.classlabelling = @(x,y)fitcknn(x,y,'NumNeighbors',parsc.knn.k,parsc.knn.other{:});
         case 'svm'
-            arq_connect(i).params.label.classlabelling = @fitcecoc;
+            arq_connect(i).params.label.classlabelling = @(x,y)fitcecoc(x,y,'KernelFunction',parsc.svm.kernel, parsc.svm.other{:});
         otherwise
             warning('name of function not found. will assume it is a matlab function name or function handle')
             if strfind(allconn{i}{7},'@')

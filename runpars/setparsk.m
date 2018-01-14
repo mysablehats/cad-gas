@@ -1,5 +1,5 @@
 function params = setparsk(skelldef, argarg, params)
-
+%% This function sets the parameters for the compressors
 switch argarg
     case 'init'       
         params.skelldef = skelldef;

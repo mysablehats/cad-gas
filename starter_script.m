@@ -34,7 +34,7 @@ for indexofscenes = 1:maxindexofscenes
         case 'compressors'
             addpath('compressors');
             parsk = setparsk(datavar_(1).skelldef, 'init', []); %hmmm..
-            simvar_ = setsimvar(parsk);
+            simvar_ = setsimvar(parsk,setparsc(varargin{1}));
         case 'kforget'
             addpath('..\k-forget')
             simvar_ = simpar;
@@ -100,5 +100,6 @@ for indexofscenes = 1:maxindexofscenes
         disp('=====================================================================================================================================================================')
         disp('=====================================================================================================================================================================')
         clear outcomes
+        outcomes = b.a;
     end
 end
