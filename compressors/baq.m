@@ -13,6 +13,7 @@ for i = 1:length(allconn)
     arq_connect(i).params.q = arq_connect(i).q;
     %% sets the right labelling function for layer:
     parsc = allconn{i}{8};
+    arq_connect(i).inputtype = allconn{i}{9};
     switch allconn{i}{7}
         case 'knn'
             arq_connect(i).params.label.classlabelling = @(x,y)fitcknn(x,y,'NumNeighbors',parsc.knn.k,parsc.knn.other{:});

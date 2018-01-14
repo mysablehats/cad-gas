@@ -30,7 +30,16 @@ for j = 1:length(arq_connect.sourcelayer)
                 error('wrong computation order. bestmatch field not yet defined.')
             end
             oldinputends = inputends;
-            [inputinput{j},inputends,y, indexes, accdist{j}] = longinput( savestrucgas(i).nodes(:,svst_t_v.gas(i).bestmatchbyindex(k,:)), arq_connect.q, svst_t_v.gas(i).inputs.input_ends, svst_t_v.gas(i).y,svst_t_v.gas(i).inputs.index, svst_t_v.gas(i).distances(k,:));
+            switch arq_connect.inputtype %?
+                case 'nodes'
+                    %%% depending on arqconnect make it the input with the gas
+                    %%% nodes                    
+                    inputssss = savestrucgas(i).nodes(:,svst_t_v.gas(i).bestmatchbyindex(k,:));                    
+                case 'indexes'
+                    %%% or gas indexes
+                    inputssss = svst_t_v.gas(i).bestmatchbyindex(k,:);
+            end
+            [inputinput{j},inputends,y, indexes, accdist{j}] = longinput(inputssss , arq_connect.q, svst_t_v.gas(i).inputs.input_ends, svst_t_v.gas(i).y,svst_t_v.gas(i).inputs.index, svst_t_v.gas(i).distances(k,:));
             
             %%%check for misalignments of inputends
             if ~isempty(oldinputends)

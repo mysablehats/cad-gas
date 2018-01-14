@@ -25,9 +25,9 @@ classdef Simvargas < Simvar
             
             
         end
-        function simvar = init(simvar,params,parsc)
-            simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, [],[]))));
-            simvar = simvar.loop(params,parsc);
+        function simvar = init(simvar,params,parsc, useroptions)
+            simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, [],[],useroptions))));
+            simvar = simvar.loop(params,parsc,useroptions);
             %%% I need to set after everything is done, since in the 
             %%% not sure this is correct, this function should loop inside
             %%% loop...
@@ -59,7 +59,7 @@ classdef Simvargas < Simvar
                 endacc(gaslayer) = sum(diag(combinedval(:,:,gaslayer)))/sum(sum(combinedval(:,:,gaslayer)));%%% actually some function of combinedval, but not now...
             end
         end
-        function simvartrial = loop(simvar,params,parsc)
+        function simvartrial = loop(simvar,params,parsc,useroptions)
             %% Begin loop
             trialcount = 0;
             simvartrial = repmat(simvar,length(simvar.ARCH_VECT)*length(simvar.NODES_VECT)*length(simvar.MAX_EPOCHS_VECT),1);
@@ -77,7 +77,7 @@ classdef Simvargas < Simvar
                         %%%
                         parsk_ = setparsk([], 'layerdefs', params);
                         %parsc = setparsc();
-                        simvartrial(trialcount).allconn = allconnset(architectures, parsk_, parsc);
+                        simvartrial(trialcount).allconn = allconnset(architectures, parsk_, parsc,useroptions);
                         
                         %%% ATTENTION 2: PARALLEL PROCESSES ARE NO LONGER DOING WHAT THEY
                         %%% USUALLY DID. SO THEY ARE NOT STARTING THE GAS AT DIFFERENT

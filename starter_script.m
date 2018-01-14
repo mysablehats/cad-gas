@@ -1,4 +1,4 @@
-function outcomes = starter_script(varargin)
+function [outcomes, time] = starter_script(varargin)
 myticvar = tic;
 global VERBOSE LOGIT TEST
 TEST = 0;
@@ -12,6 +12,7 @@ precon = runpars.precon;
 scene = runpars.scene;
 savesimvar = runpars.savesimvar;
 
+useroptions = struct();
 %%%%%%%%%
 %if iscell(runpars.scene)
 if ~isempty(varargin)&&isa(varargin{1},'Datavar')
@@ -21,6 +22,22 @@ else
     maxindexofscenes = length(runpars.scene);
 end
 %end
+if nargin==2
+    k = varargin{1};
+    useroptions.w = varargin{2};
+end
+if nargin==1
+    k = varargin{1};
+    useroptions.w = 1;
+    warning('Size of window not defined. Using 1. ')
+end
+if nargin==0
+    k = 1;    
+    warning('Number of neigbours not defined. Using 1. ')
+    useroptions.w = 1;
+    warning('Size of window not defined. Using 1. ')
+end
+
 
 for indexofscenes = 1:maxindexofscenes
     if ~isempty(varargin)&&isa(varargin{1},'Datavar')
@@ -34,7 +51,7 @@ for indexofscenes = 1:maxindexofscenes
         case 'compressors'
             addpath('compressors');
             parsk = setparsk(datavar_(1).skelldef, 'init', []); %hmmm..
-            simvar_ = setsimvar(parsk,setparsc(varargin{1}));
+            simvar_ = setsimvar(parsk,setparsc(k),useroptions);
         case 'kforget'
             addpath('..\k-forget')
             simvar_ = simpar;
@@ -49,7 +66,7 @@ for indexofscenes = 1:maxindexofscenes
     
     for simvaridx = 1:length(simvar_)
         simvar_(simvaridx) = runcore(simvar_(simvaridx),datavar_);
-        toc(myticvar)
+        time = toc(myticvar);
         
         try
             b = evalin('base',['outcomes(indexofscenes)' num2str(simvar_(simvaridx).pc)]);

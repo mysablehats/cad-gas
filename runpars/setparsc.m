@@ -4,6 +4,7 @@ function parsc = setparsc(k)
 %%% for knn
 parsc.knn.k = k;
 parsc.knn.other = {};
+%parsc.knn.other = {@dtw};
 %%% for svm
 parsc.svm.kernel = 'linear';
 parsc.svm.other = {};
