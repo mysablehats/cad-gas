@@ -76,8 +76,9 @@ classdef Simvargas < Simvar
                         
                         %%%
                         parsk_ = setparsk([], 'layerdefs', params);
+                        parsc_ = setparsc([], 'layerdefs', parsc);
                         %parsc = setparsc();
-                        simvartrial(trialcount).allconn = allconnset(architectures, parsk_, parsc,useroptions);
+                        simvartrial(trialcount).allconn = allconnset(architectures, parsk_, parsc_,useroptions);
                         
                         %%% ATTENTION 2: PARALLEL PROCESSES ARE NO LONGER DOING WHAT THEY
                         %%% USUALLY DID. SO THEY ARE NOT STARTING THE GAS AT DIFFERENT

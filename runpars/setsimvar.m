@@ -3,9 +3,9 @@ function simvar = setsimvar(params,parsc,useroptions)
 %%% sets the running parameters for the classifier.
 
 
-simvar = Simvargas({'PARA' 1});
+simvar = Simvargas({'PARA' 0});
 
-simvar.NODES_VECT = [10];
+simvar.NODES_VECT = [35];
 simvar.MAX_EPOCHS_VECT = [1];
 simvar.ARCH_VECT = [19];
 

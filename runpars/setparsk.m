@@ -74,7 +74,7 @@ switch argarg
         
         %paramsP = repmat(params,simvar.numlayers,1);
         
-        params = repmat(params,5,1);
+        params = repmat(params,10,1);
         
         %%% we need to enable the gas distance for first and
         %%% second layers only
