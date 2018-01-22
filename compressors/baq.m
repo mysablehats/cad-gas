@@ -23,10 +23,11 @@ for i = 1:length(allconn)
                     arq_connect(i).params.label.classlabelling = eval(['@(x,y)fitcknn(x,y,''NumNeighbors'', ' num2str(parsc.knn.k) ',' parsc.knn.other{:} ')']);
                 end
             case 'svm'
+                
                 if isempty(parsc.svm.other)
-                    arq_connect(i).params.label.classlabelling = eval(['@(x,y)fitcecoc(x,y,''KernelFunction'', ''' parsc.svm.kernel ''')']);
+                    arq_connect(i).params.label.classlabelling = eval(['@(x,y)fitcecoc(x,y, ''Learners'', templateSVM(''KernelFunction'',' parsc.svm.kernel '))' ]);
                 else
-                    arq_connect(i).params.label.classlabelling = eval(['@(x,y)fitcecoc(x,y,''KernelFunction'', ''' parsc.svm.kernel ''',' parsc.svm.other{:} ')']);
+                    arq_connect(i).params.label.classlabelling = eval(['@(x,y)fitcecoc(x,y, ''Learners'', templateSVM(''KernelFunction'',' parsc.svm.kernel '),' parsc.svm.other{:} ')' ] );
                 end
             otherwise
                 warning('name of function not found. will assume it is a matlab function name or function handle')
