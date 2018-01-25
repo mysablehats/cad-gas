@@ -30,7 +30,16 @@ for j = 1:length(arq_connect.sourcelayer)
                 error('wrong computation order. bestmatch field not yet defined.')
             end
             oldinputends = inputends;
-            [inputinput{j},inputends,y, indexes, accdist{j}] = longinput( savestrucgas(i).nodes(:,svst_t_v.gas(i).bestmatchbyindex(k,:)), arq_connect.q, svst_t_v.gas(i).inputs.input_ends, svst_t_v.gas(i).y,svst_t_v.gas(i).inputs.index, svst_t_v.gas(i).distances(k,:));
+            switch arq_connect.inputtype %?
+                case 'nodes'
+                    %%% depending on arqconnect make it the input with the gas
+                    %%% nodes                    
+                    inputssss = savestrucgas(i).nodes(:,svst_t_v.gas(i).bestmatchbyindex(k,:));                    
+                case 'indexes'
+                    %%% or gas indexes
+                    inputssss = svst_t_v.gas(i).bestmatchbyindex(k,:);
+            end
+            [inputinput{j},inputends,y, indexes, accdist{j}] = longinput(inputssss , arq_connect.q, svst_t_v.gas(i).inputs.input_ends, svst_t_v.gas(i).y,svst_t_v.gas(i).inputs.index, svst_t_v.gas(i).distances(k,:));
             
             %%%check for misalignments of inputends
             if ~isempty(oldinputends)
@@ -135,6 +144,20 @@ actionstructure(1).end = ends(1);
 actionstructure(1).y = y(:,realends(1));
 actionstructure(1).index = iindex(1:ends(1));
 actionstructure(1).dist = shortdist(1:ends(1));
+%%% matlab was stopping here for some unknown reason. I think it is because
+%%% it is trying to execute stuff ahead of time, so I have to start empty
+%%% variables to have adequate placeholders. At least this is my best
+%%% attempt of explaining this behaviour so far. 
+for an_index=1:length(actionstructure)
+    actionstructure(an_index).long.vec = [];
+    actionstructure(an_index).long.index = [];
+    actionstructure(an_index).long.dist = [];
+    actionstructure(an_index).newend = [];
+    actionstructure(an_index).longinput = [];
+    actionstructure(an_index).longy = [];
+    actionstructure(an_index).longindex = [];
+    actionstructure(an_index).longdist = [];
+end
 
 for i = 2:size(ends,2)
     actionstructure(i).pose = shortinput(:,realends(i-1)+1:realends(i));
@@ -144,29 +167,15 @@ for i = 2:size(ends,2)
     actionstructure(i).dist = shortdist(realends(i-1):realends(i));
 end
 shortdim = size(shortinput,1);
+flag_set = false;
 for i = 1:length(actionstructure)
     m = 1;
-    for j = 1:1+p:actionstructure(i).end
-        a = zeros(shortdim*q,1);
-        indexx = zeros(1,q);
-        dist = 0;
-        if j+q*r-1>actionstructure(i).end
-            %cant complete the whole vector!
-            break
-        else
-            k = 1;
-            for lop = 1:q
-                a(1+(k-1)*shortdim:k*shortdim) = actionstructure(i).pose(:,j+lop*r-1);
-                indexx(lop) = actionstructure(i).index(j+lop*r-1);
-                dist = dist + actionstructure(i).dist(j+lop*r-1);
-                k = k+1;
-            end
-        end
-        %have to save a somewhere
-        actionstructure(i).long(m).vec = a;
-        actionstructure(i).long(m).index = indexx;
-        actionstructure(i).long(m).dist = dist;
-        m = m+1;
+ 
+    [actionstructure(i), flag_set] = complicated_concatenator(actionstructure(i),m,shortdim,q,r,p,flag_set);
+    %since I am not sure of what the hell matlab is doing, i will check if
+    %it ran my for loop...
+    if isempty(actionstructure(i).long(1).vec)||isempty(actionstructure(i).long(1).index)||isempty(actionstructure(i).long(1).dist)
+        error('it will break again....')
     end
     %should concatenate long now
     actionstructure(i).newend = length(actionstructure(i).long);

@@ -1,4 +1,4 @@
-function labels = labeling(nodes, data, y)
+function labels = labeling(~, nodes, data, y)
 % the labeling function for the GWR and GNG
 % cf parisi, adopt the label of the nearest node
 

@@ -25,11 +25,17 @@ classdef Simvargas < Simvar
             
             
         end
-        function simvar = init(simvar,params)
-            simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, []))));
-            simvar = simvar.loop(params);
+        function simvar = init(simvar,params,parsc, useroptions)
+            simvar.numlayers = (length(baq(allconnset(simvar.ARCH_VECT, [],[],useroptions))));
+            simvar = simvar.loop(params,parsc,useroptions);
             %%% I need to set after everything is done, since in the 
-            simvar.excfun = @(data,ii)executioncore_in_starterscript(simvar(ii).arq_connect, data);
+            %%% not sure this is correct, this function should loop inside
+            %%% loop...
+            %%% also numlayers also varies, so this is very bad... maybe
+            %%% all of this should just be the loop, or inside the loop. 
+            for i = 1:length(simvar)
+                simvar(i).excfun = @(data,ii)executioncore_in_starterscript(simvar(ii).arq_connect, data);
+            end
         end
         function [endacc, combinedval] = analyze_outcomes(simvartrial)
             if isempty(simvartrial.metrics)
@@ -53,7 +59,7 @@ classdef Simvargas < Simvar
                 endacc(gaslayer) = sum(diag(combinedval(:,:,gaslayer)))/sum(sum(combinedval(:,:,gaslayer)));%%% actually some function of combinedval, but not now...
             end
         end
-        function simvartrial = loop(simvar,params)
+        function simvartrial = loop(simvar,params,parsc,useroptions)
             %% Begin loop
             trialcount = 0;
             simvartrial = repmat(simvar,length(simvar.ARCH_VECT)*length(simvar.NODES_VECT)*length(simvar.MAX_EPOCHS_VECT),1);
@@ -69,9 +75,10 @@ classdef Simvargas < Simvar
                         params.nodes = NODES;%simvar.trial(trialcount).NODES; %maximum number of nodes/neurons in the gas
                         
                         %%%
-                        params = setparams([], 'layerdefs', params);
-                        
-                        simvartrial(trialcount).allconn = allconnset(architectures, params);
+                        parsk_ = setparsk([], 'layerdefs', params);
+                        parsc_ = setparsc([], 'layerdefs', parsc);
+                        %parsc = setparsc();
+                        simvartrial(trialcount).allconn = allconnset(architectures, parsk_, parsc_,useroptions);
                         
                         %%% ATTENTION 2: PARALLEL PROCESSES ARE NO LONGER DOING WHAT THEY
                         %%% USUALLY DID. SO THEY ARE NOT STARTING THE GAS AT DIFFERENT

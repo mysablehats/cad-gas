@@ -102,11 +102,37 @@ for j = whatIlabel
     if length(kindex)==1
         dbgmsg('Applying labels for gas: ''',gas(j).name,''' (', num2str(j),') for process:',num2str(labindex),0)
         if strcmp(vot,'train')
-            gas(j).nodesl = altlabeller(ssvot.gas(j).bestmatchbyindex, gas(j).nodes,ssvot.gas(j).inputs.input,ssvot.gas(j).y); %%% new labelling scheme
+            %gas(j).nodesl = arq_connect(j).params.label.prototypelabelling(ssvot.gas(j).bestmatchbyindex, gas(j).nodes,ssvot.gas(j).inputs.input,ssvot.gas(j).y); %%% new labelling scheme
             %gas(j).nodesl = labeling(gas(j).nodes,ssvot.gas(j).inputs.input,ssvot.gas(j).y);
+            if isempty(ssvot.gas(j).bestmatchbyindex)&&(strcmp(arq_connect(j).method,'knn')||strcmp(arq_connect(j).method,'svm'))
+                gas(j).nodesl = ssvot.gas(j).y; % the line below seems to work, but this is faster.                 
+            elseif strcmp(arq_connect(j).method,'gng')||strcmp(arq_connect(j).method,'gwr')||strcmp(arq_connect(j).method,'som')%and others that will use prototypes
+                gas(j).nodesl = arq_connect(j).params.label.prototypelabelling(ssvot.gas(j).bestmatchbyindex, gas(j).nodes,ssvot.gas(j).inputs.input,ssvot.gas(j).y); %%% new labelling scheme
+            end
         end
         if isfield(ssvot,'gas')&&j<=length(ssvot.gas)
-            ssvot.gas(j).class = labeller(gas(j).nodesl, ssvot.gas(j).bestmatchbyindex);
+            [~,newlabels] = max(gas(j).nodesl);
+            gas(j).model =  arq_connect(j).params.label.classlabelling(gas(j).nodes.', newlabels.'); %%% I will use knn for now, but it doesnt need to be, so this is a function handle to fitcknn
+            weirdthingy = predict(gas(j).model,ssvot.gas(j).inputs.input.'  ).';            %%% we still dont have the classes the way we want because matlab is annoying 
+            if ~isfield(ssvot.gas(j), 'bestmatchbyindex')||isempty(ssvot.gas(j).bestmatchbyindex)
+                warning('bestmatch by index is not set!!! .IDX property will be empty as well!')
+            end
+            gas(j).IDX = ssvot.gas(j).bestmatchbyindex;  
+            %%% now, i believe i had this problem before, so i believe
+            %%% there is in my code this function, but I can't seem to find
+            %%% it, so coding it again
+            ssvot.gas(j).class = double(fromnumstological(weirdthingy, size(ssvot.y,1))); %%% although I liked how it was and it was saving me so much space, confmatrix does not like logicals (it seems to me that it would be the ideal place to use them, but well, i didnt code matlab)
+            
+            %%% demonstration that what we wanted to do is sound: uncomment
+            %%% to run
+%             aaaaaa = labeller(gas(j).nodesl, ssvot.gas(j).bestmatchbyindex);
+%             [~,newlabels] = max(gas(j).nodesl);
+%             model = fitcknn(gas(j).nodes.', newlabels.');
+%             bbbbb = predict(model,ssvot.gas(1).inputs.input  );
+%             [~,asdfg] = max(aaaaaa);
+%             all(asdfg' == bbbbb) %%% outputs one, so we have the same results with our function than with using a knn. qed (??? not really...)
+%             %%% old labeller used bestmatched gas nodes 
+%             ssvot.gas(j).class = labeller(gas(j).nodesl, ssvot.gas(j).bestmatchbyindex);
         end
     else
         traindist = c_dist(ssvot); %%%% maybe I should compare with this for better results. first trial won't have it though.

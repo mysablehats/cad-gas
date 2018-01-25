@@ -1,5 +1,5 @@
-function params = setparams(skelldef, argarg, params)
-
+function params = setparsk(skelldef, argarg, params)
+%% This function sets the parameters for the compressors
 switch argarg
     case 'init'       
         params.skelldef = skelldef;
@@ -60,12 +60,21 @@ switch argarg
         params.alpha                    = .5;     % q and f units error reduction constant.
         params.d                           = .995;   % Error reduction factor.
         
+        %Exclusive for SOM
+        params.nodesx = 8;
+        params.nodesy = 8;
+        
+        %Labelling exclusive variables
+        params.label.tobelabeled = true; % not used right now, to substitute whatIlabel
+        params.label.prototypelabelling = @altlabeller; % @labeling is the old version
+        params.label.classlabelling = @fitcknn;
+        
     case 'layerdefs'
         %% Classifier structure definitions
         
         %paramsP = repmat(params,simvar.numlayers,1);
         
-        params = repmat(params,5,1);
+        params = repmat(params,10,1);
         
         %%% we need to enable the gas distance for first and
         %%% second layers only
