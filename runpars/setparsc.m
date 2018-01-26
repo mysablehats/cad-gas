@@ -15,6 +15,7 @@ switch argarg
     case 'layerdefs'
         parsc = repmat(parsc,10,1);
         %%% insert custom definitions for each layer below here
-        parsc(2).knn.other = {'''Distance'',@dtw_wrapper'};
+        %parsc(1).knn.other = {'''Distance'',@flipper'};
+        %parsc(2).knn.other = {'''Distance'',@dtw_wrapper'};
         parsc(2).svm.kernel = '''gaussian''';
 end

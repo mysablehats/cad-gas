@@ -14,7 +14,7 @@ for i = 1:length(allconn)
     %% sets the right labelling function for layer:
     parsc = allconn{i}{8};
     arq_connect(i).inputtype = allconn{i}{9};
-        if ~isempty(parsc)&&~isempty(fieldnames(parsc))
+    if ~isempty(parsc)&&~isempty(fieldnames(parsc))
         switch allconn{i}{7}
             case 'knn'
                 if isempty(parsc.knn.other)
