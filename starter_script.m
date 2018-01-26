@@ -23,16 +23,16 @@ else
 end
 %end
 if nargin==2
-    k = varargin{1};
+    useroptions.k = varargin{1};
     useroptions.w = varargin{2};
 end
 if nargin==1
-    k = varargin{1};
+    useroptions.k = varargin{1};
     useroptions.w = 1;
     warning('Size of window not defined. Using 1. ')
 end
 if nargin==0
-    k = 1;    
+    useroptions.k = 1;    
     warning('Number of neigbours not defined. Using 1. ')
     useroptions.w = 1;
     warning('Size of window not defined. Using 1. ')
@@ -51,7 +51,7 @@ for indexofscenes = 1:maxindexofscenes
         case 'compressors'
             addpath('compressors');
             parsk = setparsk(datavar_(1).skelldef, 'init', []); %hmmm..
-            simvar_ = setsimvar(parsk,setparsc(k,'init',[]),useroptions);
+            simvar_ = setsimvar(parsk,setparsc('init',[]),useroptions);
         case 'kforget'
             addpath('..\k-forget')
             simvar_ = simpar;

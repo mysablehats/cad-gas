@@ -1,10 +1,10 @@
-function parsc = setparsc(k,argarg, parsc)
+function parsc = setparsc(argarg, parsc)
 %% this functions sets the parameters for the classifiers
 
 switch argarg
     case 'init'
         %%% for knn
-        parsc.knn.k = k;
+        parsc.knn.k = 1; % default value
         parsc.knn.other = {};
         %parsc.knn.other = {'''Distance'',''hamming'''}; %use a hamming distance because pose 1 and 13 differ as much as 1 and 2
         %parsc.knn.other = {'''Distance'',@dtw'};

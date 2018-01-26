@@ -14,13 +14,13 @@ for i = 1:length(allconn)
     %% sets the right labelling function for layer:
     parsc = allconn{i}{8};
     arq_connect(i).inputtype = allconn{i}{9};
-    if ~isempty(parsc)&&~isempty(fieldnames(parsc))
+        if ~isempty(parsc)&&~isempty(fieldnames(parsc))
         switch allconn{i}{7}
             case 'knn'
                 if isempty(parsc.knn.other)
-                    arq_connect(i).params.label.classlabelling = eval(['@(x,y)fitcknn(x,y,''NumNeighbors'', ' num2str(parsc.knn.k) ')']);
+                    arq_connect(i).params.label.classlabelling = eval(['@(x,y)fitcknn(x,y,''NumNeighbors'', ' num2str(allconn{i}{10}) ')']);
                 else
-                    arq_connect(i).params.label.classlabelling = eval(['@(x,y)fitcknn(x,y,''NumNeighbors'', ' num2str(parsc.knn.k) ',' parsc.knn.other{:} ')']);
+                    arq_connect(i).params.label.classlabelling = eval(['@(x,y)fitcknn(x,y,''NumNeighbors'', ' num2str(allconn{i}{10}) ',' parsc.knn.other{:} ')']);
                 end
             case 'svm'
                 

@@ -76,7 +76,7 @@ classdef Simvargas < Simvar
                         
                         %%%
                         parsk_ = setparsk([], 'layerdefs', params);
-                        parsc_ = setparsc([], 'layerdefs', parsc);
+                        parsc_ = setparsc('layerdefs', parsc);
                         %parsc = setparsc();
                         simvartrial(trialcount).allconn = allconnset(architectures, parsk_, parsc_,useroptions);
                         
