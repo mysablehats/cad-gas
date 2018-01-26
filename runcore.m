@@ -52,6 +52,15 @@ for ii = 1:length(simvar)
     end
     
     for iiiii = 1:length(b)
+        
+        %% showing confusion matrices:
+        %disp('hello')
+        showconfmatrices(simvar(ii).arq_connect,b(iiiii).wl, b(iiiii).mt, b(iiiii).ssgasendfig)
+        %% showing distance graphs
+        %%if paramsZ(1).PLOTIT %%% if you ever want to have custom display, this will crash
+               
+        distancegraph(b(iiiii).ssvalgas);
+        
         if isfield(b(iiiii),'mdl')
             simvar(ii).model(iiiii).mdl = b(iiiii).mdl;
             simvar(ii).model(iiiii).IDX = b(iiiii).IDX;
@@ -64,12 +73,4 @@ for ii = 1:length(simvar)
     
     simvar(ii).metrics = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
     %simvar(ii).metrics(:,:) = gen_cst(b); %%% it takes the important stuff from b;;; hopefully
-    
-    for i = 1:length(b) %%%% this is broken. if you want to fix it change... erm... stuff
-        if isfield(b(i), 'ssvalgas')
-            if paramsZ(1).PLOTIT %%% if you ever want to have custom display, this will crash
-                distancegraph(b(i).ssvalgas)
-            end
-        end
-    end %%%% shows me intersting possible thresholds i can use
 end

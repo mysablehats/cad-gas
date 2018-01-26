@@ -3,26 +3,31 @@ figure
 mmm = length(gas);
 nnn = 3;
 for i = 1:mmm
-    acc = accordance(gas(i).y, gas(i).class);
+    %acc = accordance(gas(i).y, gas(i).class);
+    acc = all(gas(i).y==gas(i).class);
     %if any(acc==0)
-        subplot(mmm,nnn,i*nnn-2)
-        for j = 1:size(gas(i).class,1)
-            hold on
-            scatter(1:length(acc),j*gas(i).class(j,:))
-        end
-        ax0 = gca;
-        ax0.YLim = [0.0001 14.001];
-        hold off
-        subplot(mmm,nnn,i*nnn-1)
-        scatter(gas(i).distances, acc);
-        ax = gca;
-        ax.XLim(1) = 0; 
-        %ax.XLim(2) = 0.5; 
-        ax.YLim = [0 1];
-        subplot(mmm,nnn,i*nnn)
-        hist(gas(i).distances,20);
-        ax1 = gca;
-        ax1.XLim = ax.XLim; 
+    subplot(mmm,nnn,i*nnn-2)
+    %         for j = 1:size(gas(i).class,1)
+    %             hold on
+    %             scatter(1:length(acc),j*gas(i).class(j,:))
+    %
+    %         end
+    scatter(1:length(acc),vec2ind(gas(i).class))
+    hold on
+    plot(1:length(acc),vec2ind(gas(i).y))
+    ax0 = gca;
+    ax0.YLim = [0.0001 14.001];
+    hold off
+    subplot(mmm,nnn,i*nnn-1)
+    scatter(gas(i).distances, acc);
+    ax = gca;
+    ax.XLim(1) = 0;
+    %ax.XLim(2) = 0.5;
+    ax.YLim = [0 1];
+    subplot(mmm,nnn,i*nnn)
+    hist(gas(i).distances,20);
+    ax1 = gca;
+    ax1.XLim = ax.XLim;
     %end
 end
 end

@@ -31,26 +31,17 @@ end
 
 
 %% Actual display of the confusion matrices:
-metitems = [];
-for j = whatIlabel
-    if arq_connect(j).params.PLOTIT
-        metitems = [metitems j*arq_connect(j).params.PLOTIT];
-    end
-end
-if ~isempty(metitems)
-    figure
-    plotconf(metrics(metitems));
-end
-%plotconf(ss.figset{:})
-if isfield(ss.gas(end).fig, 'val')&&~isempty(ss.gas(end).fig.val)
-    figure
-    plotconfusion(ss.gas(end).fig.val{:});
-end
+% not done here anymore
+%showconfmatrices(arq_connect, whatIlabel, metrics, ss.gas(end).fig)
+
+% Saving necessary things for showing conf. matrices
+a.wl = whatIlabel;
+a.ssgasendfig =  ss.gas(end).fig;
 
 %% Displaying this nifty distance graph to see if thresholds would make my life easier, they don't
-if 0 % this is broken isfield(ss, 'val')&&isfield(ss.val, 'gas')
+if isfield(ss, 'val')&&isfield(ss.val, 'gas')
     a.ssvalgas = ss.val.gas;
-    distancegraph(ss.val.gas);
+    %distancegraph(ss.val.gas);
 end
 
 
