@@ -32,7 +32,7 @@ if nargin==1
     warning('Size of window not defined. Using 1. ')
 end
 if nargin==0
-    useroptions.k = 1;    
+    useroptions.k = 1;
     warning('Number of neigbours not defined. Using 1. ')
     useroptions.w = 1;
     warning('Size of window not defined. Using 1. ')
@@ -89,13 +89,26 @@ for indexofscenes = 1:maxindexofscenes
         % %     end
         % % end
         
-        
-        outcomes(indexofscenes).b = b;
-        outcomes(indexofscenes).trials = simvar_(simvaridx);
-        outcomes(indexofscenes).pcid = datavar_(1).pc;
-        outcomes(indexofscenes).idxs = datavar_(1).Alldata;%pcspecs.idxs;
-        outcomes(indexofscenes).hash = datavar_(1).env.currhash;
-        outcomes(indexofscenes).datavar = datavar_;
+        if 1
+            
+            outcomes(indexofscenes).b = b;
+            outcomes(indexofscenes).trials = simvar_(simvaridx);
+            outcomes(indexofscenes).pcid = datavar_(1).pc;
+            outcomes(indexofscenes).idxs = datavar_(1).Alldata;%pcspecs.idxs;
+            outcomes(indexofscenes).hash = datavar_(1).env.currhash;
+            outcomes(indexofscenes).datavar = datavar_;
+        else
+            disp('=====================================================================================================================================================================')
+            disp('=====================================================================================================================================================================')
+            simvar_(simvaridx)
+            disp('=====================================================================================================================================================================')
+            disp('end accuracy reached')
+            disp(b.a)
+            disp('=====================================================================================================================================================================')
+            disp('=====================================================================================================================================================================')
+            clear outcomes
+            outcomes = b.a;
+        end
         if savesimvar
             sss = whos('simvar_');
             if sss.bytes>10e8
@@ -107,16 +120,8 @@ for indexofscenes = 1:maxindexofscenes
                 save(['../' scene{i} method precon num2str(simvaridx)],'a')
             end
         end
-        %combineoutcomes
-        disp('=====================================================================================================================================================================')
-        disp('=====================================================================================================================================================================')
-        simvar_(simvaridx)
-        disp('=====================================================================================================================================================================')
-        disp('end accuracy reached')
-        disp(b.a)
-        disp('=====================================================================================================================================================================')
-        disp('=====================================================================================================================================================================')
-        clear outcomes
-        outcomes = b.a;
+        
+        
     end
 end
+combineoutcomes

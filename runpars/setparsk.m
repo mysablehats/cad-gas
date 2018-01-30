@@ -10,7 +10,7 @@ switch argarg
         params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow - if on ext.
         params.distancetype.cum = false;
         params.distance.simple = true; %if false will rotate stuff around to a better position. TO DO: all these distances have to be condensed into a single thing...
-        params.flippoints = true;
+        params.flippoints = false;
         
         params.layertype = '';
         params.MAX_EPOCHS = [];

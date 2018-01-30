@@ -28,6 +28,7 @@ classdef Datavar
         trialdataname_old
         trialdatafile
         allmatpath
+        scene
     end
     methods
         function datavar = Datavar(varargin)
@@ -97,7 +98,7 @@ classdef Datavar
         function datavar = updatesavenames(datavar)
             simextractname = [datavar.extract{:}];
             datavar.trialdataname_old = strcat('skel',datavar.datasettype,'_',datavar.sampling_type,datavar.activity_type,'_',[datavar.prefilter{1} num2str(datavar.prefilter{2})], [simextractname{:}],[datavar.preconditions{:}],['V' num2str(datavar.ValSubjectIndexes)],['T' num2str(datavar.TrainSubjectIndexes)]);
-            a = ['DATA_V' num2str(datavar.ValSubjectIndexes) '_T' num2str(datavar.TrainSubjectIndexes) '_' datavar.env.currhash ];
+            a = ['DATA' datavar.scene '_V' num2str(datavar.ValSubjectIndexes) '_T' num2str(datavar.TrainSubjectIndexes) '_' datavar.env.currhash ];
             datavar.trialdataname =  a(find(~isspace(a)));
 
             datavar.trialdatafile = strcat(datavar.env.wheretosavestuff,datavar.env.SLASH,datavar.trialdataname,'.mat');

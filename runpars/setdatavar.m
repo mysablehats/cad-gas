@@ -55,6 +55,7 @@ datavar = Datavar({'validationtype' 'type2all'});
 
 datavar.validationtype = 'type2all'; %'type2notrandom'; 'cluster' 'quarterset' 'type2' 'type2notrandom' 'type2all'
 
+datavar.scene = scene; % save the scene so we can load the right dataset.
 
 %% Choose dataset
 if makedata
