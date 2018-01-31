@@ -1,4 +1,4 @@
-function [outcomes, time] = starter_script(varargin)
+function [outcomes, cacc, time] = starter_script(varargin)
 myticvar = tic;
 global VERBOSE LOGIT TEST
 TEST = 0;
@@ -124,4 +124,9 @@ for indexofscenes = 1:maxindexofscenes
         
     end
 end
-combineoutcomes
+cacc = [];
+for i =1:length(outcomes)
+    cacc = [outcomes(i).b.a cacc]; 
+end
+cacc = mean(cacc);
+%combineoutcomes %%broken.
