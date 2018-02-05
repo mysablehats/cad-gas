@@ -4,13 +4,23 @@ if nargin>0
         case 'optimizer'
             allc = allc_optimizer();
         case 'alsw'
+            allc = alsw(varargin{2:end});
+        case 'reset'
+            allc = allconfigs_core(true);
     end
 else
-    allc = allconfigs_core;
+    allc = allconfigs_core(false);
 end
 end
-function allc = allconfigs_core()
+function allc = allconfigs_core(reset)
 persistent allc_store
+if reset
+   
+    allc = [];
+    clear allc_store
+    disp('allconfigs cleared')
+    return
+end
 if isempty(allc_store)
     %% datavar
     

@@ -1,5 +1,6 @@
 function [outcomes, cacc, time] = starter_script(varargin)
 myticvar = tic;
+allconfigs('reset');
 global VERBOSE LOGIT TEST
 TEST = 0;
 VERBOSE = 0;
