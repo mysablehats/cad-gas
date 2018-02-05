@@ -40,4 +40,26 @@ allc.simvar.ARCH_VECT = [22];
 allc.simvar.MAX_NUM_TRIALS = 1;
 allc.simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
 
+%% parsc
+
+%%%% init
+%%% for knn
+allc.parsc.knn.k = 1; % default value
+allc.parsc.knn.other = {};
+%   allc.parsc.knn.other = {'''Distance'',''hamming'''}; %use a hamming distance because pose 1 and 13 differ as much as 1 and 2
+%   allc.parsc.knn.other = {'''Distance'',@dtw'};
+%%% for svm
+%   allc.parsc.svm.kernel = 'linear';
+allc.parsc.svm.kernel = 'gaussian';
+allc.parsc.svm.other = {};
+
+%%%% layerdefs
+% this is problematic, but I will fix it when the problem comes
+allc.parsc.maxlayernums = 10;
+%%% insert custom definitions for each layer below here
+%allc.parsc1.knn.other = {'''Distance'',@flipper'};
+%parsc2.knn.other = {'''Distance'',@dtw_wrapper'};
+allc.parsc2.svm.kernel = '''gaussian''';
+
+
 end
