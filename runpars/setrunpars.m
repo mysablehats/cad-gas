@@ -1,5 +1,7 @@
 function runpar = setrunpars()
-runpar.method = 'compressors';
-runpar.scene = {'or'};% {'bathroom'};% {'bathroom','bedroom','kitchen','livingroom','office'} ; %{'or'}; %{'all'};
-runpar.precon = 'pap';% 'pap';%'pop';% 'cip';
-runpar.savesimvar = false;
+allc = allconfigs();
+
+runpar.method  = allc.runpar.method;
+runpar.scene = allc.runpar.scene;
+runpar.precon = allc.runpar.precon;
+runpar.savesimvar = allc.runpar.savesimvar;

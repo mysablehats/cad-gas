@@ -70,7 +70,7 @@ if makedata
     datavar.affinerepair = allc.datavar.affinerepair;
     datavar.affrepvel = allc.datavar.affrepvel;
     datavar.randSubjEachIteration = allc.datavar.randSubjEachIteration; 
-    datavar.extract = {datavar.extract{:},sceneCell};
+    datavar.extract = {allc.datavar.extract{:},sceneCell};
     datavar.preconditions = preconCell;%{'nohips','polarC'};%'disthips', 'nonmatrixkilldim'};%, 'mirrorx'};% {'nohips'};% {'nohips', 'mirrorz', 'mirrorx'}; %,'normal'};%{'nohips', 'norotatehips' ,'mirrorx'}; %,
 else
     datavar.featuresall = allc.datavar.featuresall;%size(varargin{1},2);
