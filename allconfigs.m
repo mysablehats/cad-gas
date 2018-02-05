@@ -61,5 +61,86 @@ allc.parsc.maxlayernums = 10;
 %parsc2.knn.other = {'''Distance'',@dtw_wrapper'};
 allc.parsc2.svm.kernel = '''gaussian''';
 
+%% parsk
+
+allc.params.normdim = false; %% if true normalize the distance by the number of dimensions
+allc.params.distancetype.source = 'gas'; % 'gas' or 'ext'
+allc.params.distancetype.metric = 'euclidean';%'3dsum'; %either '3dsum' or 'euclidean'
+allc.params.distancetype.noaffine = true; %if false will correct affine transformations on the distance function as well. Quite slow - if on ext.
+allc.params.distancetype.cum = false;
+allc.params.distance.simple = true; %if false will rotate stuff around to a better position. TO DO: all these distances have to be condensed into a single thing...
+allc.params.flippoints = false;
+
+allc.params.layertype = '';
+allc.params.MAX_EPOCHS = [];
+allc.params.removepoints = true;
+allc.params.oldremovepoints = false;
+allc.params.startdistributed = false;
+allc.params.RANDOMSTART = false; % if true it overrides the .startingpoint variable
+allc.params.RANDOMSET = false; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
+allc.params.savegas.resume = false; % do not set to true. not working
+allc.params.savegas.save = false;
+%allc.params.savegas.path = simvar.env.wheretosavestuff;
+allc.params.savegas.parallelgases = true;
+allc.params.savegas.parallelgasescount = 0;
+allc.params.savegas.accurate_track_epochs = true;
+%allc.params.savegas.P = simvar.P;
+allc.params.startingpoint = [1 2];
+allc.params.amax = 50; %greatest allowed age
+allc.params.nodes = []; %maximum number of nodes/neurons in the gas
+allc.params.numlayers = []; %%% will depend on the architecture used in simvar.
+allc.params.en = 0.006; %epsilon subscript n
+allc.params.eb = 0.2; %epsilon subscript b
+allc.params.gamma = 4; % for the denoising function
+
+allc.params.PLOTIT = false;
+allc.params.plottingstep = 0; % zero will make it plot only every epoch
+allc.params.plotonlyafterallepochs = true;
+
+allc.params.alphaincrements.run = false;
+allc.params.alphaincrements.zero = 0;
+allc.params.alphaincrements.inc = 1;
+allc.params.alphaincrements.threshold = 0.9;
+allc.params.multigas = false; %%%% creates a different gas for each action sequence. at least it is faster.
+
+%Exclusive for gwr
+allc.params.STATIC = true;
+%allc.params.at = 0.999832929230424; %activity threshold
+allc.params.at = 0.95; %activity threshold
+allc.params.h0 = 1;
+allc.params.ab = 0.95;
+allc.params.an = 0.95;
+allc.params.tb = 3.33;
+allc.params.tn = 3.33;
+
+%Exclusive for gng
+allc.params.age_inc                  = 1;
+allc.params.lambda                   = 3;
+allc.params.alpha                    = .5;     % q and f units error reduction constant.
+allc.params.d                           = .995;   % Error reduction factor.
+
+%Exclusive for SOM
+allc.params.nodesx = 8;
+allc.params.nodesy = 8;
+
+%Labelling exclusive variables
+allc.params.label.tobelabeled = true; % not used right now, to substitute whatIlabel
+allc.params.label.prototypelabelling = @altlabeller; % @labeling is the old version
+allc.params.label.classlabelling = @fitcknn;
+
+%% parsk layerdefs
+
+allc.params.layerdefsnum = 10;
+
+  %%% we need to enable the gas distance for first and
+        %%% second layers only
+        
+%         params(1).distancetype.source = 'gas'; % or 'ext'
+%         params(2).distancetype.source = 'gas'; % or 'ext'
+%         params(1).at = 0.0099983; %activity threshold
+%         params(2).at = 0.0099999; %activity threshold
+%         params(3).at = 0.0099995; %activity threshold
+%         params(4).at = 0.00999998; %activity threshold
+%         params(5).at = 0.0099999; %activity threshold
 
 end
