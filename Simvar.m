@@ -52,7 +52,7 @@ classdef Simvar
                 %%% confusion matrices, as well as display some nice
                 %
                 if size(mt,1)~=1
-                    error('cannot deal well with multiply dimensions. What do you want me to do?')
+                    error('cannot deal well with multiple dimensions. What do you want me to do?')
                 end
                 
                 al = length(mt);
