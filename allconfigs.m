@@ -158,11 +158,11 @@ allc.osv.path_to_data2 = 'TST Fall detection database ver. 2' ;
 allc.aa.nameofcurrentrepo = 'cad-gas';
 
 allc.aa.mac.env.wheretosavestuff = '/Volumes/Elements/savesave';
-allc.aa.mac.env.homepath = ['~/matlabprogs/' nameofcurrentrepo];
+allc.aa.mac.env.homepath = ['~/matlabprogs/' allc.aa.nameofcurrentrepo];
 allc.aa.mac.env.allmatpath = '/Volumes/Elements/Dropbox/all.mat/'; %['~/Dropbox/all.mat/'];
 
 allc.aa.unix.env.wheretosavestuff = '/docs/savesave';
-allc.aa.unix.env.homepath = ['~/matlab/' nameofcurrentrepo];
+allc.aa.unix.env.homepath = ['~/matlab/' allc.aa.nameofcurrentrepo];
 allc.aa.unix.env.allmatpath = ['~/Dropbox/all.mat/'];
 
 allc.aa.pc.env.wheretosavestuff = ':\savesave';
