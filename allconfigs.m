@@ -143,4 +143,31 @@ allc.params.layerdefsnum = 10;
 %         params(4).at = 0.00999998; %activity threshold
 %         params(5).at = 0.0099999; %activity threshold
 
+%% OS_VARS
+
+% In Windows, Mac and Unix, it expects the data to be in an external
+% harddrive, in my case Elements
+allc.osv.exthdname = 'Elements';
+allc.osv.drives_to_search = {'d', 'e', 'f', 'g', 'h'};
+
+allc.osv.path_to_data1 = 'fall_detection_datasets' ; 
+allc.osv.path_to_data2 = 'TST Fall detection database ver. 2' ; 
+
+%% aa-environment
+
+allc.aa.nameofcurrentrepo = 'cad-gas';
+
+allc.aa.mac.env.wheretosavestuff = '/Volumes/Elements/savesave';
+allc.aa.mac.env.homepath = ['~/matlabprogs/' nameofcurrentrepo];
+allc.aa.mac.env.allmatpath = '/Volumes/Elements/Dropbox/all.mat/'; %['~/Dropbox/all.mat/'];
+
+allc.aa.unix.env.wheretosavestuff = '/docs/savesave';
+allc.aa.unix.env.homepath = ['~/matlab/' nameofcurrentrepo];
+allc.aa.unix.env.allmatpath = ['~/Dropbox/all.mat/'];
+
+allc.aa.pc.env.wheretosavestuff = ':\savesave';
+allc.aa.pc.env.homepath = '\Documents\\GitHub\\';
+allc.aa.pc.env.allmatpath = '\Dropbox\all.mat\';
+allc.aa.pc.env.windowsdrive = 'C:\';
+
 end

@@ -1,14 +1,13 @@
 function env = aa_environment()
 [env.SLASH, env.pathtodata] = OS_VARS();
-nameofcurrentrepo = 'cad-gas';
+allc = allconfigs;
+nameofcurrentrepo = allc.aa.nameofcurrentrepo;
 env.currhash = '';
 global logpath
 if ismac
-    env.wheretosavestuff = '/Volumes/Elements/savesave';
-    env.homepath = ['~/matlabprogs/' nameofcurrentrepo];
-    env.allmatpath = '/Volumes/Elements/Dropbox/all.mat/'; %['~/Dropbox/all.mat/'];
-    %error('define allmathpath!')
-    %disp('reached ismac')
+    env.wheretosavestuff = allc.aa.mac.env.wheretosavestuff;
+    env.homepath = allc.aa.mac.env.homepath;
+    env.allmatpath = allc.aa.mac.env.allmatpath; 
     [elel, gitout] = system('git rev-parse HEAD');
     if elel
         error('could not get current hash')
@@ -17,9 +16,9 @@ if ismac
     
 elseif isunix
     [~,cmdout] = system('echo $USER');
-    env.wheretosavestuff = ['/media/' cmdout(1:end-1) '/docs/savesave'];
-    env.homepath = ['~/matlab/' nameofcurrentrepo];
-    env.allmatpath = ['~/Dropbox/all.mat/'];
+    env.wheretosavestuff = ['/media/' cmdout(1:end-1) allc.aa.unix.env.wheretosavestuff];
+    env.homepath = allc.aa.unix.env.homepath;
+    env.allmatpath = allc.aa.unix.env.allmatpath;
     %disp('reached isunix')
     [elel, gitout] = system('git rev-parse HEAD');
     if elel
@@ -28,9 +27,9 @@ elseif isunix
     env.currhash = gitout(1:end-1);
 elseif ispc
     [~,cmdout] = system('echo %HOMEPATH%');
-    list_dir = {'d', 'e', 'f', 'g', 'h'};
+    list_dir = allc.osv.drives_to_search;
     list_ind = 1;
-    while (~exist([list_dir{list_ind} ':\savesave'],'dir')) 
+    while (~exist([list_dir{list_ind} allc.aa.pc.env.wheretosavestuff],'dir')) 
         list_ind = list_ind +1;
         if list_ind > length(list_dir)
             error('Could not find suitable save directory')
@@ -48,9 +47,9 @@ elseif ispc
     env.currhash = gitout(1:end-1);
     %env.wheretosavestuff = 'd:\'; %%% should check if there is permission for saving!!!
     %env.wheretosavestuff = 'e:\'; %%% should check if there is permission for saving!!!
-    env.wheretosavestuff = [list_dir{list_ind} ':\\savesave']; %%% should check if there is permission for saving!!!
-    env.homepath = ['C:\' cmdout(1:end-1) '\Documents\\GitHub\\' nameofcurrentrepo];
-    env.allmatpath = ['C:\' cmdout(1:end-1) '\Dropbox\all.mat\'];
+    env.wheretosavestuff = [list_dir{list_ind} allc.aa.pc.env.wheretosavestuff]; %%% should check if there is permission for saving!!!
+    env.homepath = [allc.aa.pc.env.windowsdrive cmdout(1:end-1) allc.aa.pc.env.homepath  nameofcurrentrepo];
+    env.allmatpath = [allc.aa.pc.env.windowsdrive cmdout(1:end-1) allc.aa.pc.env.allmatpath];
 else
     disp('oh-oh')
 end

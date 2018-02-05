@@ -4,13 +4,12 @@ allc = allconfigs;
 switch argarg
     case 'init'       
         params.skelldef = skelldef;
-        % set parameters for gas:
-        params.normdim = allc.params.normdim; %% if true normalize the distance by the number of dimensions
-        params.distancetype.source = allc.params.distancetype.source; % 'gas' or 'ext'
-        params.distancetype.metric = allc.params.distancetype.metric;%'3dsum'; %either '3dsum' or 'euclidean'
-        params.distancetype.noaffine = allc.params.distancetype.noaffine; %if false will correct affine transformations on the distance function as well. Quite slow - if on ext.
+        params.normdim = allc.params.normdim; 
+        params.distancetype.source = allc.params.distancetype.source;
+        params.distancetype.metric = allc.params.distancetype.metric;
+        params.distancetype.noaffine = allc.params.distancetype.noaffine; 
         params.distancetype.cum = allc.params.distancetype.cum;
-        params.distance.simple = allc.params.distance.simple; %if false will rotate stuff around to a better position. TO DO: all these distances have to be condensed into a single thing...
+        params.distance.simple = allc.params.distance.simple; 
         params.flippoints = allc.params.flippoints;
         
         params.layertype = allc.params.layertype;
@@ -18,9 +17,9 @@ switch argarg
         params.removepoints = allc.params.removepoints;
         params.oldremovepoints = allc.params.oldremovepoints;
         params.startdistributed = allc.params.startdistributed;
-        params.RANDOMSTART = allc.params.RANDOMSTART; % if true it overrides the .startingpoint variable
-        params.RANDOMSET = allc.params.RANDOMSET; %true; % if true, each sample (either alone or sliding window concatenated sample) will be presented to the gas at random
-        params.savegas.resume = allc.params.savegas.resume; % do not set to true. not working
+        params.RANDOMSTART = allc.params.RANDOMSTART;
+        params.RANDOMSET = allc.params.RANDOMSET; 
+        params.savegas.resume = allc.params.savegas.resume; 
         params.savegas.save = allc.params.savegas.save;
         %params.savegas.path = allc.params.savegas.path;
         params.savegas.parallelgases = allc.params.savegas.parallelgases;
@@ -28,26 +27,26 @@ switch argarg
         params.savegas.accurate_track_epochs = allc.params.savegas.accurate_track_epochs;
         %params.savegas.P = allc.params.savegas.P;
         params.startingpoint = allc.params.startingpoint;
-        params.amax = allc.params.amax; %greatest allowed age
-        params.nodes = allc.params.nodes; %maximum number of nodes/neurons in the gas
-        params.numlayers = allc.params.numlayers; %%% will depend on the architecture used in simvar.
-        params.en = allc.params.en; %epsilon subscript n
-        params.eb = allc.params.eb; %epsilon subscript b
-        params.gamma = allc.params.gamma; % for the denoising function
+        params.amax = allc.params.amax; 
+        params.nodes = allc.params.nodes; 
+        params.numlayers = allc.params.numlayers; 
+        params.en = allc.params.en; 
+        params.eb = allc.params.eb; 
+        params.gamma = allc.params.gamma; 
         
         params.PLOTIT = allc.params.PLOTIT;
-        params.plottingstep = allc.params.plottingstep; % zero will make it plot only every epoch
+        params.plottingstep = allc.params.plottingstep;
         params.plotonlyafterallepochs = allc.params.plotonlyafterallepochs;
 
         params.alphaincrements.run = allc.params.alphaincrements.run;
         params.alphaincrements.zero = allc.params.alphaincrements.zero;
         params.alphaincrements.inc = allc.params.alphaincrements.inc;
         params.alphaincrements.threshold = allc.params.alphaincrements.threshold;
-        params.multigas = allc.params.multigas; %%%% creates a different gas for each action sequence. at least it is faster.
+        params.multigas = allc.params.multigas; 
         
         %Exclusive for gwr
         params.STATIC = allc.params.STATIC;
-        params.at = allc.params.at; %activity threshold
+        params.at = allc.params.at; 
         params.h0 = allc.params.h0;
         params.ab = allc.params.ab;
         params.an = allc.params.an;
@@ -57,16 +56,16 @@ switch argarg
         %Exclusive for gng
         params.age_inc                  = allc.params.age_inc ;
         params.lambda                   = allc.params.lambda;
-        params.alpha                    = allc.params.alpha;     % q and f units error reduction constant.
-        params.d                           = allc.params.d;   % Error reduction factor.
+        params.alpha                    = allc.params.alpha;    
+        params.d                        = allc.params.d;   
         
         %Exclusive for SOM
         params.nodesx = allc.params.nodesx;
         params.nodesy = allc.params.nodesy;
         
         %Labelling exclusive variables
-        params.label.tobelabeled = allc.params.label.tobelabeled; % not used right now, to substitute whatIlabel
-        params.label.prototypelabelling = allc.params.label.prototypelabelling; % @labeling is the old version
+        params.label.tobelabeled = allc.params.label.tobelabeled; 
+        params.label.prototypelabelling = allc.params.label.prototypelabelling; 
         params.label.classlabelling = allc.params.label.classlabelling;
         
     case 'layerdefs'
