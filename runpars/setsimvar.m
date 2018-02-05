@@ -1,16 +1,28 @@
 function simvar = setsimvar(params,parsc,useroptions)
 
+% %%% sets the running parameters for the classifier.
+% 
+% 
+% simvar = Simvargas({'PARA' 1});
+% 
+% simvar.NODES_VECT = [35];
+% simvar.MAX_EPOCHS_VECT = [1];
+% simvar.ARCH_VECT = [22];
+% 
+% simvar.MAX_NUM_TRIALS = 1;
+% simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
+
 %%% sets the running parameters for the classifier.
 
+allc = allconfigs;
+simvar = Simvargas(allc.simvar.init);
 
-simvar = Simvargas({'PARA' 1});
+simvar.NODES_VECT = allc.simvar.NODES_VECT;
+simvar.MAX_EPOCHS_VECT = allc.simvar.MAX_EPOCHS_VECT;
+simvar.ARCH_VECT = allc.simvar.ARCH_VECT;
 
-simvar.NODES_VECT = [35];
-simvar.MAX_EPOCHS_VECT = [1];
-simvar.ARCH_VECT = [22];
-
-simvar.MAX_NUM_TRIALS = 1;
-simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
+simvar.MAX_NUM_TRIALS = allc.simvar.MAX_NUM_TRIALS;
+simvar.MAX_RUNNING_TIME = allc.simvar.MAX_RUNNING_TIME;
 
 simvar = simvar.init(params,parsc,useroptions);
 
