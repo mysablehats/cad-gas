@@ -18,6 +18,6 @@ end
 % for i=1:length(parsc)
 %     parsk(i) = parskI(i);
 % end
-allconn_set = allconfigs(parsk,parsc, useroptions);
+allconn_set = allconfigs('alsw', parsk,parsc, useroptions);
 allconn = allconn_set{n};
 end
