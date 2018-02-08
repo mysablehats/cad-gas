@@ -54,16 +54,16 @@ if isempty(allc_store)
     
     %%% sets the running parameters for the classifier.
     
-    allc.simvar.init = {'PARA' 1};
+    allc.simvar.init = {'PARA' 0};
     
     allc.simvar.NODES_VECT = [35];
     allc.simvar.MAX_EPOCHS_VECT = [1];
-    allc.simvar.ARCH_VECT = [22];
+    allc.simvar.ARCH_VECT = [23];
     
     allc.simvar.MAX_NUM_TRIALS = 1;
     allc.simvar.MAX_RUNNING_TIME = 1;%3600*10; %%% in seconds, will stop after this
     
-    %% parsc
+    %% parsc - setparsc
     
     %%%% init
     %%% for knn
@@ -73,14 +73,14 @@ if isempty(allc_store)
     %   allc.parsc.knn.other = {'''Distance'',@dtw'};
     %%% for svm
     %   allc.parsc.svm.kernel = 'linear';
-    allc.parsc.svm.kernel = 'gaussian';
+    allc.parsc.svm.kernel = '''gaussian''';
     allc.parsc.svm.other = {};
     
     %%%% layerdefs
     % this is problematic, but I will fix it when the problem comes
     allc.parsc.maxlayernums = 10;
     %%% insert custom definitions for each layer below here
-    %allc.parsc1.knn.other = {'''Distance'',@flipper'};
+    allc.parsc1.knn.other = {'''Distance'',@(X,Y)flipper(skelldef,q,X,Y)'};
     %parsc2.knn.other = {'''Distance'',@dtw_wrapper'};
     allc.parsc2.svm.kernel = '''gaussian''';
     
@@ -382,7 +382,7 @@ allconn_set = {...
     %     {'knn1layer',   'knn',{'pos'},                    'pos',[1 0],parsk(1),'knn',parsc(1),'nodes',useroptions.k +59}...
     }...
     {...%%%% ARCHITECTURE 23
-    {'gwr1layer',   'knn',{'pos'},                    'pos',[9 0],parsk(1),'svm',parsc(1),'nodes',useroptions.k}...
+    {'gwr1layer',   'knn',{'pos'},                    'pos',[useroptions.w 0],parsk(1),'knn',parsc(1),'nodes',useroptions.k}...
     }...
     {...%%%% ARCHITECTURE 24
     {'gwr1layer',   'knn',{'pos'},                    'pos',[10 0],parsk(1),'svm',parsc(1),'nodes',useroptions.k}...

@@ -14,7 +14,18 @@ for i = 1:length(allconn)
     %% sets the right labelling function for layer:
     parsc = allconn{i}{8};
     arq_connect(i).inputtype = allconn{i}{9};
+    
+    
+    
+    
     if ~isempty(parsc)&&~isempty(fieldnames(parsc))
+        %%% variables for the classifier distance function
+        % make sure you have everything here that you might have referenced in
+        % allconfigs!
+        layertype = arq_connect(i).layertype;
+        q = arq_connect(i).q;
+        skelldef = arq_connect(i).params.skelldef;
+        
         switch allconn{i}{7}
             case 'knn'
                 if isempty(parsc.knn.other)

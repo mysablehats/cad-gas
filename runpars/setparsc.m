@@ -15,7 +15,9 @@ switch argarg
     case 'layerdefs'
         parsc = repmat(parsc,allc.parsc.maxlayernums,1);
         %%% insert custom definitions for each layer below here
-        %parsc(1).knn.other = {'''Distance'',@flipper'};
+        %with dynamicfields this will work.
+        warning('Dynamic fields for setting parscN is not implemented. Fix this if things go wrong. Layers might not do what you believe they should. ')
+        parsc(1).knn.other = allc.parsc1.knn.other;
         %parsc(2).knn.other = {'''Distance'',@dtw_wrapper'};
         parsc(2).svm.kernel = allc.parsc2.svm.kernel;
 end
