@@ -80,7 +80,7 @@ if isempty(allc_store)
     % this is problematic, but I will fix it when the problem comes
     allc.parsc.maxlayernums = 10;
     %%% insert custom definitions for each layer below here
-    allc.parsc1.knn.other = {'''Distance'',@(X,Y)flipper(skelldef,q,X,Y)'};
+    allc.parsc1.knn.other = {'''Distance'',@(X,Y)flipper(idx,X,Y)'};
     %parsc2.knn.other = {'''Distance'',@dtw_wrapper'};
     allc.parsc2.svm.kernel = '''gaussian''';
     

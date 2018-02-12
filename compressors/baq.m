@@ -25,6 +25,7 @@ for i = 1:length(allconn)
         layertype = arq_connect(i).layertype;
         q = arq_connect(i).q;
         skelldef = arq_connect(i).params.skelldef;
+        idx = flipindexes(skelldef,q,layertype);
         
         switch allconn{i}{7}
             case 'knn'
