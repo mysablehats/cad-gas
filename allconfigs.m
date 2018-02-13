@@ -47,14 +47,14 @@ if isempty(allc_store)
     
     allc.runpar.method = 'compressors';
     allc.runpar.scene = {'or'};% {'bathroom'};% {'bathroom','bedroom','kitchen','livingroom','office'} ; %{'or'}; %{'all'};
-    allc.runpar.precon = 'pap';% 'pap';%'pop';% 'cip';
+    allc.runpar.precon = 'oh';% 'pap';%'pop';% 'cip';
     allc.runpar.savesimvar = false;
     
     %% simvar
     
     %%% sets the running parameters for the classifier.
     
-    allc.simvar.init = {'PARA' 0};
+    allc.simvar.init = {'PARA' 1};
     
     allc.simvar.NODES_VECT = [35];
     allc.simvar.MAX_EPOCHS_VECT = [1];
@@ -80,7 +80,8 @@ if isempty(allc_store)
     % this is problematic, but I will fix it when the problem comes
     allc.parsc.maxlayernums = 10;
     %%% insert custom definitions for each layer below here
-    allc.parsc1.knn.other = {'''Distance'',@(X,Y)flipper(idx,X,Y)'};
+    allc.parsc1.knn.other = {};
+    %allc.parsc1.knn.other = {'''Distance'',@(X,Y)flipper(idx,X,Y)'};
     %parsc2.knn.other = {'''Distance'',@dtw_wrapper'};
     allc.parsc2.svm.kernel = '''gaussian''';
     
