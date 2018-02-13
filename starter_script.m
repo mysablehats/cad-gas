@@ -1,40 +1,27 @@
 function [outcomes, cacc, time] = starter_script(varargin)
 myticvar = tic;
-allconfigs('reset');
+
 global VERBOSE LOGIT TEST
 TEST = 0;
 VERBOSE = 0;
 
-addpath('runpars','precond','poscond','measures','debug','utils');
+addpath('runpars','poscond','measures','debug','utils','compressors');
+cd ..
+addpath('utils_matlab','dsl')
+cd cad-gas
 
-runpars = setrunpars;
-method = runpars.method;
+allconfigs('reset');
+
+runpars = setrunparsc;
 savesimvar = runpars.savesimvar;
 
-precon = runpars.precon;
-scene = runpars.scene;
-
-
 useroptions = struct();
-%%%%%%%%%
-%if iscell(runpars.scene)
-if ~isempty(varargin)&&isa(varargin{1},'Datavar')
-    maxindexofscenes = 1;
-    scene = 'customdataset';
-else
-    maxindexofscenes = length(runpars.scene);
-end
-%end
 
+[datavar_,runparsd] = dslw;
 
-for indexofscenes = 1:maxindexofscenes
-    if ~isempty(varargin)&&isa(varargin{1},'Datavar')
-        datavar_(indexofscenes,:) = varargin{1};
-    else
-        datavar = setdatavar(scene{indexofscenes},precon);
-        datavar_(indexofscenes,:) = datavar.loop;
-    end
-end
+precon = runparsd.precon;
+scene = runparsd.scene;
+maxindexofscenes = length(runparsd.scene);
 
 %%% this is a switch
 if nargin==2
@@ -56,22 +43,9 @@ end
 
 
 for indexofscenes = 1:maxindexofscenes
-    switch method
-        case 'compressors'
-            addpath('compressors');
-            parsk = setparsk(datavar_(1,1).skelldef, 'init', []); %hmmm..
-            simvar_ = setsimvar(parsk,setparsc('init',[]),useroptions);
-        case 'kforget'
-            addpath('..\k-forget')
-            simvar_ = simpar;
-        case 'knn'
-            addpath('../svm-knn')
-            simvar_ = SimvarKNN;
-            %simvar_ = SimvarMC;
-        case 'svm'
-            addpath('../svm-knn')
-            simvar_ = SimvarMC;
-    end
+    
+    parsk = setparsk(datavar_(1,1).skelldef, 'init', []); %hmmm..
+    simvar_ = setsimvar(parsk,setparsc('init',[]),useroptions);
     
     for simvaridx = 1:length(simvar_)
         simvar_(simvaridx) = runcore(simvar_(simvaridx),datavar_(indexofscenes,:));
@@ -126,7 +100,7 @@ for indexofscenes = 1:maxindexofscenes
             save([datavar_(1,1).env.allmatpath 'outcomes' datavar_(1,1).env.SLASH datavar_(1,1).env.currhash '-SIMVAR+outcomes-' num2str(datavar_(1,1).pc)], 'simvar_')
             for i = 1:length(outcomes)
                 a = outcomes(i);
-                save(['../' scene{i} method precon num2str(simvaridx)],'a')
+                save(['../' scene{i} precon num2str(simvaridx)],'a')
             end
         end
         
