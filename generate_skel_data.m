@@ -155,13 +155,22 @@ if strcmp(sampling_type,'type2')
     if ~exist('allskeli1','var')
         allskeli1 = randperm(datasize,fix(datasize*partition)); % generates the indexes for sampling the dataset
     end
+    if isempty(allskeli1)
+        if ~isempty(allskeli2)
+        allskeli1 = setdiff(1:datasize,allskeli2);        
+        else
+            error('no definitions for allskeli1 or allskeli2. don''t know what to do.')
+        end
+    end
     allskel1 = loadfun(allskeli1(1)); %initializes the training dataset
+    
     for i=2:length(allskeli1)
         allskel1 = cat(2,loadfun(allskeli1(i)),allskel1 );
     end
     
-    allskeli2 = setdiff(1:datasize,allskeli1); % use the remaining data as validation set
-    
+    if isempty(allskeli2)
+        allskeli2 = setdiff(1:datasize,allskeli1); % use the remaining data as validation set if allskeli2 not defined.
+    end
     allskel2 = []; %initializes the training dataset
     for i=1:length(allskeli2)
         allskel2 = cat(2,loadfun(allskeli2(i)),allskel2 );
