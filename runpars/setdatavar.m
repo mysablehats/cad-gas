@@ -62,13 +62,13 @@ datavar.scene = scene; % save the scene so we can load the right dataset.
 if makedata
     datavar.AllSubjects = [1 2 3 4];%2 %[1 2 3 4]; %% 
     datavar.disablesconformskel = 0;
-    datavar.generatenewdataset = false;%false; %true;
+    datavar.generatenewdataset = true;%false; %true;
     datavar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
     datavar.activity_type = 'act_type'; %'act_type' or 'act'
     datavar.prefilter = {'none', 15};%{'filter',10}; % 'filter', 'none', 'median?'
     datavar.normrepair = true;
-    datavar.affinerepair = false;
-    datavar.affrepvel = false;
+    datavar.affinerepair = true;
+    datavar.affrepvel = true;
     datavar.randSubjEachIteration = false; %%% must be set to false for systematic testing
     datavar.extract = {'rand', 'wantvelocity','order',sceneCell};
 %   datavar.extract = {'rand', 'wantvelocity','order',{'removeaction','still','random'}};
