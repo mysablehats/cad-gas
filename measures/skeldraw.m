@@ -54,7 +54,7 @@ elseif nargin >1
     end
 end
 
-if isempty(skelldef)
+if isempty(skelldef)&&doIdraw
     warning('NO SKELETON DEFINITIONS! Will try to guess parameters, but maybe something will go wrong!')
 end
 

@@ -4,9 +4,9 @@ nameofcurrentrepo = 'cad-gas';
 env.currhash = '';
 global logpath
 if ismac
-    env.wheretosavestuff = '/Volumes/Elements/savesave';
+    env.wheretosavestuff = '/Volumes/share/ar/Elements/savesave';
     env.homepath = ['~/matlabprogs/' nameofcurrentrepo];
-    env.allmatpath = '/Volumes/Elements/Dropbox/all.mat/'; %['~/Dropbox/all.mat/'];
+    env.allmatpath = '/Volumes/share/ar/Elements/Dropbox/all.mat/'; %['~/Dropbox/all.mat/'];
     %error('define allmathpath!')
     %disp('reached ismac')
     [elel, gitout] = system('git rev-parse HEAD');

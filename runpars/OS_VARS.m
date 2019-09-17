@@ -12,7 +12,7 @@ if ispc
     end
     pathtodata = [list_dir{list_ind} ':\\fall_detection_datasets\TST Fall detection database ver. 2\'];
 elseif ismac
-    pathtodata = ['/Volumes/' exthdname '/fall_detection_datasets/TST Fall detection database ver. 2/'];
+    pathtodata = ['/Volumes/share/ar/' exthdname '/fall_detection_datasets/TST Fall detection database ver. 2/'];
     SLASH = '/'; %
 elseif isunix
     [~,cmdout] = system('echo $USER');

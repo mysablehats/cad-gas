@@ -84,8 +84,11 @@ classdef Datavar
                     datavar.Alldata = 3;
                 case 'type2all'
                     datavar.Alldata = datavar.AllSubjects;
+                case 'type2_online_model'
+                    datavar.Alldata = -1;
+                    
             end
-            if strcmp(datavar.validationtype,'type2')||strcmp(datavar.validationtype,'type2notrandom')||strcmp(datavar.validationtype,'type2all')
+            if strcmp(datavar.validationtype,'type2')||strcmp(datavar.validationtype,'type2notrandom')||strcmp(datavar.validationtype,'type2all')||strcmp(datavar.validationtype,'type2_online_model')
                 datavar.sampling_type = 'type2';
                 %datavar.ValSubjectIndexes = {alldata};
                 %datavar.TrainSubjectIndexes = setdiff(1:4,[datavar.ValSubjectIndexes{:}]);
@@ -118,6 +121,9 @@ classdef Datavar
                         
                         datavar.ValSubjectIndexes = valaction;
                         datavar.TrainSubjectIndexes = setdiff(datavar.AllSubjects,[datavar.ValSubjectIndexes]);
+                    elseif strcmp(datavar.validationtype,'type2_online_model') %% should train on all subjects. not sure if it will work though. 
+                        datavar.ValSubjectIndexes = [];
+                        datavar.TrainSubjectIndexes = datavar.AllSubjects;
                     else
                         
                         datavar.TrainSubjectIndexes = [];%[];%'loo';%[9,10,11,4,8,5,3,6]; %% comment these out to have random new samples
@@ -140,6 +146,21 @@ classdef Datavar
                         end
                         if datavartrial(trialcount).generatenewdataset||datasetmissing
                             [allskel1, allskel2, datavartrial(trialcount).TrainSubjectIndexes, datavartrial(trialcount).ValSubjectIndexes] = generate_skel_data(datavar.datasettype, datavar.sampling_type, datavar.TrainSubjectIndexes, datavar.ValSubjectIndexes, datavar.randSubjEachIteration);
+                            %%%hack! I will load another set as the
+                            %%%validation set to test my acquired data here
+                            if strcmp(datavar.validationtype,'type2_online_model')
+                                %a = load('/Volumes/share/ar/Elements/dataset_experiment2/frederico/frederico_chopping.mat');
+                                %allskel3 = generate_skel_online(a.chunk);
+                                %allskel2 = 1;
+                                %allskel2_data = load('/Volumes/share/ar/Elements/dataset_experiment2/fre+anna.mat');
+                                %allskel2 = allskel2_data.allskel3.';
+                                %allskel2_data = load('/Volumes/share/ar/Elements/dataset_experiment2/fre+anna2.mat');
+                                allskel2_data = load('/Volumes/share/ar/Elements/dataset_experiment2/fre+anna3.mat');
+
+                                allskel2 = allskel2_data.allskel2;
+
+                                
+                            end
                             [datavartrial(trialcount).data.train,datavartrial(trialcount).labels_names, datavartrial(trialcount).skelldef] = all3(allskel1, datavartrial(trialcount));
                             %%%% for debuggin only - remove or comment
                             %%%% out!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

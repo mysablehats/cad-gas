@@ -49,11 +49,12 @@ switch scene
         error('scene not defined')
 end
 %% Initializes datavar
-datavar = Datavar({'validationtype' 'type2all'});
+%datavar = Datavar({'validationtype' 'type2all'});
+datavar = Datavar({'validationtype' 'type2_online_model'});
 
 %starts the dataset and do the preconditioning and feature selection.
 
-datavar.validationtype = 'type2all'; %'type2notrandom'; 'cluster' 'quarterset' 'type2' 'type2notrandom' 'type2all'
+datavar.validationtype = 'type2_online_model';%'type2all'; %'type2notrandom'; 'cluster' 'quarterset' 'type2' 'type2notrandom' 'type2all'
 
 datavar.scene = scene; % save the scene so we can load the right dataset.
 
@@ -61,11 +62,11 @@ datavar.scene = scene; % save the scene so we can load the right dataset.
 if makedata
     datavar.AllSubjects = [1 2 3 4];%2 %[1 2 3 4]; %% 
     datavar.disablesconformskel = 0;
-    datavar.generatenewdataset = false; %true;
+    datavar.generatenewdataset = false;%false; %true;
     datavar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
     datavar.activity_type = 'act_type'; %'act_type' or 'act'
     datavar.prefilter = {'none', 15};%{'filter',10}; % 'filter', 'none', 'median?'
-    datavar.normrepair = false;
+    datavar.normrepair = true;
     datavar.affinerepair = false;
     datavar.affrepvel = false;
     datavar.randSubjEachIteration = false; %%% must be set to false for systematic testing
