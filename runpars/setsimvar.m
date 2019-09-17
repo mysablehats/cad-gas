@@ -7,10 +7,11 @@ simvar = Simvargas({'PARA' 0});
 
 simvar.NODES_VECT = [1000];
 simvar.MAX_EPOCHS_VECT = [1];
-simvar.ARCH_VECT = [22]; %[22] is default knn winner 1-nn without anything else
-%simvar.ARCH_VECT = [2]; %[22] is default knn winner 1-nn without anything else
-%simvar.ARCH_VECT = [1]; %[22] is default knn winner 1-nn without anything else
-%simvar.ARCH_VECT = [22 1 2 ]; %[22] is default knn winner 1-nn without anything else
+%simvar.ARCH_VECT = [22]; %[22] is default knn winner 1-nn without anything else
+%simvar.ARCH_VECT = [2]; 
+%simvar.ARCH_VECT = [1]; 
+%simvar.ARCH_VECT = [22 1 2 ]; %not working
+simvar.ARCH_VECT = [27]; 
 
 
 simvar.MAX_NUM_TRIALS = 1;

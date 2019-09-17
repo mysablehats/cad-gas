@@ -66,8 +66,8 @@ if makedata
     datavar.datasettype = 'CAD60'; % datasettypes are 'CAD60', 'tstv2' and 'stickman'
     datavar.activity_type = 'act_type'; %'act_type' or 'act'
     datavar.prefilter = {'none', 15};%{'filter',10}; % 'filter', 'none', 'median?'
-    datavar.normrepair = true;
-    datavar.affinerepair = true;
+    datavar.normrepair = false;
+    datavar.affinerepair = false;
     datavar.affrepvel = true;
     datavar.randSubjEachIteration = false; %%% must be set to false for systematic testing
     datavar.extract = {'rand', 'wantvelocity','order',sceneCell};
