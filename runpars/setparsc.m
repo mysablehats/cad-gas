@@ -9,8 +9,9 @@ switch argarg
         %parsc.knn.other = {'''Distance'',''hamming'''}; %use a hamming distance because pose 1 and 13 differ as much as 1 and 2
         %parsc.knn.other = {'''Distance'',@dtw'};
         %%% for svm
-        parsc.svm.kernel = '''linear''';
-        %parsc.svm.kernel = 'gaussian';
+        %parsc.svm.kernel = '''linear''';
+        parsc.svm.kernel = '''linear'', ''Standardize'',1';
+        %parsc.svm.kernel = '''gaussian'', ''Standardize'',1';
         parsc.svm.other = {};
     case 'layerdefs'
         parsc = repmat(parsc,10,1);
