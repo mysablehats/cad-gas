@@ -19,13 +19,17 @@ for i = 1:mmm
     ax0.YLim = [0.0001 14.001];
     hold off
     subplot(mmm,nnn,i*nnn-1)
-    scatter(gas(i).distances, acc);
+    for j =1:size(gas(i).distances,1)
+        scatter(gas(i).distances(j,:), acc);
+    end
     ax = gca;
     ax.XLim(1) = 0;
     %ax.XLim(2) = 0.5;
     ax.YLim = [0 1];
     subplot(mmm,nnn,i*nnn)
-    hist(gas(i).distances,20);
+    for j =1:size(gas(i).distances,1)
+        hist(gas(i).distances(j,:),20);
+    end
     ax1 = gca;
     ax1.XLim = ax.XLim;
     %end

@@ -53,8 +53,12 @@ a.allconn = arq_connect;
 
 %%% collecting the models:
 for i =1:size(ss.gas  ,2)
+    if isfield(ss.gas,'model')
     a.mdl{i} = ss.gas(i).model;  
     a.IDX{i} = ss.gas(i).IDX;
+    else
+        warning('model not defined. why not?')
+    end
 end
 %a.simvar = simvar;
 
